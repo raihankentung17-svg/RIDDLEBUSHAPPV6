@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -156,8 +156,10 @@
 
         .preview-image { 
             width: 100%; height: 100%; object-fit: cover; 
-            opacity: 0.6; transition: opacity 0.5s ease; 
+            opacity: 0.9; transition: opacity 0.5s ease; 
             position: absolute; top: 0; left: 0;
+            /* Codedex Vibe: Boost saturation and contrast for vibrant 3D look */
+            filter: saturate(1.3) contrast(1.1);
         }
         
         .preview-overlay {
@@ -262,7 +264,8 @@
 
             <section class="preview-area">
                 <div class="preview-wrapper">
-                    <img id="preview-img" src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000&auto=format&fit=crop" class="preview-image" alt="Preview">
+                    <!-- Updated default preview image to match Blob Tracker's new 3D image -->
+                    <img id="preview-img" src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1000&auto=format&fit=crop" class="preview-image" alt="Preview">
                     
                     <div class="preview-overlay">
                         <div class="preview-info">
@@ -280,41 +283,41 @@
 
     <script>
         const tools = {
-            // --- CORE TOOLS (DI FOLDER YANG SAMA) ---
+            // --- CORE TOOLS (SAME DIRECTORY) ---
             'tracker': {
                 title: 'Blob Tracker',
                 desc: 'AI-Powered motion and pose tracking system designed for interactive art and VJ installations.',
-                img: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000&auto=format&fit=crop',
+                img: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1000&auto=format&fit=crop', // 3D Vibrant Sphere
                 link: 'tracker.html',
                 isExternal: false
             },
             'datamosh': {
                 title: 'Datamosh',
                 desc: 'Simulate I-Frame drop and pixel bleed. Create the iconic melting transition effect directly in your browser.',
-                img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1000&auto=format&fit=crop', 
+                img: 'https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=1000&auto=format&fit=crop', // 3D Glitchy Blocks
                 link: 'datamosh.html',
                 isExternal: false
             },
 
-            // --- SATELLITE APPS (NODE.JS / FOLDER BERBEDA) ---
+            // --- SATELLITE APPS (EXTERNAL VITE/NODE.JS) ---
             'gridtools': {
                 title: 'Grid Tools Studio',
                 desc: 'Collection of modern and dynamic grid tools. Built using Node.js and Vite architecture.',
-                img: 'https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?q=80&w=1000&auto=format&fit=crop', 
+                img: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=1000&auto=format&fit=crop', // 3D Isometric Neon Grid
                 link: 'https://gridtools-liard.vercel.app', 
                 isExternal: true
             },
             'proyek_pip': {
                 title: 'Proyek-PiP',
                 desc: 'Studio Picture-in-Picture application. Detaches windows for efficient multi-screen workspace management.',
-                img: 'https://images.unsplash.com/photo-1618761714954-0b8cd0026356?q=80&w=1000&auto=format&fit=crop', 
+                img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop', // 3D Floating Glass Layers
                 link: 'https://pip-editor.vercel.app',
                 isExternal: true
             },
             'editor_tts': {
                 title: 'Editor TTS',
                 desc: 'Advanced text-to-speech synthesis system with intonation control and visual script editor.',
-                img: 'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=1000&auto=format&fit=crop', 
+                img: 'https://images.unsplash.com/photo-1614113489855-66422ad300a4?q=80&w=1000&auto=format&fit=crop', // 3D Abstract Audio Waves
                 link: 'https://editor-tts.vercel.app',
                 isExternal: true
             }
@@ -326,12 +329,12 @@
 
             const data = tools[toolId];
             
-            // Animasi transisi gambar
+            // Image transition animation
             const imgEl = document.getElementById('preview-img');
             imgEl.style.opacity = 0;
             setTimeout(() => {
                 imgEl.src = data.img;
-                imgEl.style.opacity = 0.6;
+                imgEl.style.opacity = 0.9; // Match CSS opacity
             }, 300);
             
             document.getElementById('preview-title').textContent = data.title;
@@ -340,7 +343,7 @@
             const launchBtn = document.getElementById('launch-link');
             launchBtn.href = data.link;
 
-            // Jika aplikasi luar (Satelit), buka di tab baru dan ubah gaya tombol
+            // Handle external apps (open in new tab & update styling)
             if (data.isExternal) {
                 launchBtn.target = '_blank';
                 launchBtn.textContent = 'LAUNCH EXTERNAL APP';
