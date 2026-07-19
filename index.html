@@ -6,6 +6,7 @@
     <title>RBA System | Mega Studio</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="logo.png">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap');
 
@@ -131,11 +132,11 @@
 
         .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .tool-title { font-size: 15px; font-weight: 600; letter-spacing: 0.5px; }
+        
         .badge { font-size: 9px; font-weight: 700; padding: 4px 8px; border-radius: 6px; letter-spacing: 1px;}
         .badge.pro { background: rgba(245, 158, 11, 0.15); color: #F59E0B; }
         .badge.beta { background: rgba(0, 255, 255, 0.15); color: #00FFFF; }
-        .badge.new { background: rgba(16, 185, 129, 0.15); color: #10B981; }
-        .badge.node { background: rgba(139, 92, 246, 0.15); color: #8B5CF6; } /* Badge khusus Node.js */
+        .badge.node { background: rgba(139, 92, 246, 0.15); color: #8B5CF6; } 
         .badge.app { background: rgba(236, 72, 153, 0.15); color: #EC4899; }
 
         .tool-desc { font-size: 12px; color: rgba(255, 255, 255, 0.5); line-height: 1.6; font-weight: 300;}
@@ -158,12 +159,12 @@
             width: 100%; height: 100%; object-fit: cover; 
             opacity: 0.9; transition: opacity 0.5s ease, transform 6s ease; 
             position: absolute; top: 0; left: 0;
-            /* Codedex Vibe: Tingkatkan saturasi & kontras agar terlihat seperti 3D Game Asset */
+            /* Codedex Vibe: High saturation & contrast */
             filter: saturate(1.5) contrast(1.1);
         }
         
         .preview-wrapper:hover .preview-image {
-            transform: scale(1.08); /* Efek zoom lambat khas kartu game */
+            transform: scale(1.08); /* Slow zoom effect */
         }
         
         .preview-overlay {
@@ -242,10 +243,10 @@
 
                     <div class="tool-card" onclick="selectTool('gridtools', this)">
                         <div class="tool-header">
-                            <div class="tool-title">Grid Tools</div>
+                            <div class="tool-title">Grid Tools Studio</div>
                             <span class="badge node">NODE</span>
                         </div>
-                        <p class="tool-desc">Collection of modern and dynamic grid tools. Built using Node.js and Vite architecture.</p>
+                        <p class="tool-desc">Generative slit-scan distortion tool. Features seeded RNG processing and AI-assisted annotations.</p>
                     </div>
 
                     <div class="tool-card" onclick="selectTool('proyek_pip', this)">
@@ -253,22 +254,22 @@
                             <div class="tool-title">Proyek-PiP</div>
                             <span class="badge app">APP</span>
                         </div>
-                        <p class="tool-desc">Studio Picture-in-Picture application. Detaches windows for efficient multi-screen workspace management.</p>
+                        <p class="tool-desc">Professional picture-in-picture video compositor. Features dynamic rulers, pan/zoom, and 60fps rendering.</p>
                     </div>
 
                     <div class="tool-card" onclick="selectTool('editor_tts', this)">
                         <div class="tool-header">
-                            <div class="tool-title">Editor TTS</div>
+                            <div class="tool-title">Texture & Typography Studio</div>
                             <span class="badge node">NODE</span>
                         </div>
-                        <p class="tool-desc">Advanced text-to-speech synthesis system with intonation control and visual script editor.</p>
+                        <p class="tool-desc">Advanced typography and texture layout studio. Create cyberpunk grids, poster collages, and dynamic blending.</p>
                     </div>
                 </div>
             </aside>
 
             <section class="preview-area">
                 <div class="preview-wrapper">
-                    <!-- Updated default preview image to match Blob Tracker's new 3D Gamified image -->
+                    <!-- Default image to Blob Tracker -->
                     <img id="preview-img" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop" class="preview-image" alt="Preview">
                     
                     <div class="preview-overlay">
@@ -306,21 +307,21 @@
             // --- SATELLITE APPS (EXTERNAL VITE/NODE.JS) ---
             'gridtools': {
                 title: 'Grid Tools Studio',
-                desc: 'Collection of modern and dynamic grid tools. Built using Node.js and Vite architecture.',
+                desc: 'Generative slit-scan distortion tool. Features seeded RNG processing and AI-assisted aesthetic keyword annotations.',
                 img: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=1000&auto=format&fit=crop', // 3D Isometric Neon Grid
                 link: 'https://gridtools-liard.vercel.app', 
                 isExternal: true
             },
             'proyek_pip': {
-                title: 'Proyek-PiP',
-                desc: 'Studio Picture-in-Picture application. Detaches windows for efficient multi-screen workspace management.',
+                title: 'Proyek-PiP Compositor',
+                desc: 'Professional picture-in-picture video compositor. Features dynamic rulers, pan/zoom workspace, and 60fps real-time rendering.',
                 img: 'https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=1000&auto=format&fit=crop', // 3D Floating Isometric UI Panels
                 link: 'https://pip-editor.vercel.app',
                 isExternal: true
             },
             'editor_tts': {
-                title: 'Editor TTS',
-                desc: 'Advanced text-to-speech synthesis system with intonation control and visual script editor.',
+                title: 'Texture & Typography Studio',
+                desc: 'Advanced typography and texture layout studio. Create cyberpunk grids, poster collages, and dynamic layer blending.',
                 img: 'https://images.unsplash.com/photo-1614113489855-66422ad300a4?q=80&w=1000&auto=format&fit=crop', // 3D Abstract Audio Waves/Colorful
                 link: 'https://editor-tts.vercel.app',
                 isExternal: true
