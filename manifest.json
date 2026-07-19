@@ -1,0 +1,30 @@
+{
+    "name": "Riddle Bush Archive System",
+    "short_name": "RBA System",
+    "description": "Sistem Kamera AI Pelacak Objek dan Motion Tracking",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#050505",
+    "theme_color": "#050505",
+    "orientation": "portrait-primary",
+    "icons": [
+      {
+        "src": "logo.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "logo.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "logo.png",
+        "sizes": "1000x1000",
+        "type": "image/png",
+        "purpose": "any maskable"
+      }
+    ]
+}

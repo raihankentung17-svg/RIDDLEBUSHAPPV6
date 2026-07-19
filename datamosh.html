@@ -1,0 +1,954 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#000000">
+    <title>DATAMOSH | Mondniles UI</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="logo.png">
+
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap");
+
+        :root {
+            --bg-main: #000000;
+            --bg-panel: #090909;
+            --bg-timeline: #050505;
+            --border: #1a1a1a;
+            --border-light: #2a2a2a;
+            --text-main: #e5e5e5;
+            --text-muted: #666666;
+            --accent: #ffffff;
+            --accent-dim: rgba(255,255,255,0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: "Inter", sans-serif; background: var(--bg-main); color: var(--text-main);
+            overflow: hidden; font-size: 11px; display: grid;
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: 1fr 220px;
+            height: 100vh; width: 100vw;
+        }
+
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+        /* --- 1. LEFT PANEL (CONTROLS) --- */
+        #sidebar {
+            grid-column: 1; grid-row: 1 / 3;
+            background: var(--bg-panel); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; overflow-y: auto; z-index: 20;
+        }
+
+        .header-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 16px 20px 0 20px;}
+        .htab { padding: 8px 16px; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; font-size: 10px; font-weight: 600; letter-spacing: 1px;}
+        .htab.active { color: #fff; border-bottom-color: #fff; }
+
+        .control-section { padding: 20px; border-bottom: 1px solid var(--border); }
+        .section-title { font-size: 9px; font-weight: 700; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 16px; }
+
+        .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .preset-btn {
+            background: transparent; border: 1px solid var(--border-light); color: var(--text-muted);
+            padding: 8px; border-radius: 4px; font-size: 10px; cursor: pointer; transition: 0.2s;
+            text-align: left; display: flex; justify-content: space-between; align-items: center;
+        }
+        .preset-btn:hover { background: var(--accent-dim); color: #fff; }
+        .preset-btn.active { background: #fff; color: #000; border-color: #fff; }
+
+        .mode-tabs { display: flex; border: 1px solid var(--border-light); border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+        .mode-tab {
+            flex: 1; text-align: center; padding: 8px 0; font-size: 9px; font-weight: 600;
+            color: var(--text-muted); background: transparent; cursor: pointer; transition: 0.2s;
+            border-right: 1px solid var(--border-light);
+        }
+        .mode-tab:last-child { border-right: none; }
+        .mode-tab.active { background: #fff; color: #000; }
+
+        .control-group { margin-bottom: 16px; }
+        .control-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 10px; color: #aaa; }
+        .val-display { color: #fff; font-family: 'Space Mono', monospace; font-size: 9px; }
+
+        input[type="range"] { width: 100%; height: 2px; background: var(--border-light); -webkit-appearance: none; outline: none; transition: 0.2s;}
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; background: #fff; cursor: pointer; border-radius: 50%; }
+
+        .helper-text { font-size: 9px; color: #555; line-height: 1.4; margin-bottom: 16px; }
+
+        .btn-action {
+            width: 100%; padding: 10px; background: #fff; color: #000; border: none; border-radius: 4px;
+            font-size: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; text-transform: uppercase;
+        }
+        .btn-action:hover { background: #ccc; }
+        .btn-action.outline { background: transparent; color: #fff; border: 1px solid var(--border-light); }
+        .btn-action.outline:hover { background: var(--accent-dim); }
+
+        .segmented { display: flex; border-radius: 4px; overflow: hidden; margin-bottom: 16px; background: #000; border: 1px solid var(--border-light);}
+        .segmented label { flex: 1; text-align: center; padding: 6px; margin: 0; cursor: pointer; font-size: 9px; color: var(--text-muted); transition: 0.2s; border-right: 1px solid var(--border-light);}
+        .segmented label:last-child { border-right: none; }
+        .segmented input[type="radio"] { display: none; }
+        .segmented input[type="radio"]:checked + label { background: var(--border-light); color: #fff; }
+
+        select.modern-select { width: 100%; padding: 8px; background: #000; color: #fff; border: 1px solid var(--border-light); border-radius: 4px; margin-bottom: 8px; font-family: 'Space Mono', monospace; font-size: 9px; outline: none; cursor: pointer; }
+        optgroup { background: #111; color: #aaa; font-style: normal; font-weight: bold; }
+        option { background: #000; color: #fff; }
+
+        /* --- 2. MAIN PLAYER (VIEWPORT) --- */
+        #player-area {
+            grid-column: 2; grid-row: 1;
+            background: #020202; position: relative; display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        .top-nav {
+            position: absolute; top: 0; left: 0; right: 0; height: 50px;
+            display: flex; justify-content: space-between; align-items: center; padding: 0 20px; z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); pointer-events: none;
+        }
+        .app-title { font-size: 12px; font-weight: 700; letter-spacing: 3px; pointer-events: auto; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .nav-tools { display: flex; gap: 15px; align-items: center; pointer-events: auto; }
+        .nav-icon { color: #fff; cursor: pointer; transition: 0.2s; font-size: 10px; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-light); }
+        .nav-icon:hover { background: rgba(255,255,255,0.1); }
+        .nav-icon.active-toggle { background: transparent; border-color: #FF3366; color: #FF3366; }
+
+        /* KANVAS DENGAN ZOOM & PAN */
+        #canvas-container {
+            flex: 1; display: flex; align-items: center; justify-content: center; padding: 0;
+            overflow: hidden; cursor: grab; position: relative;
+        }
+        #canvas-container:active { cursor: grabbing; }
+        
+        #displayCanvas {
+            max-width: 100%; max-height: 100%; object-fit: contain;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            transform-origin: center center;
+        }
+
+        /* --- 3. TIMELINE --- */
+        #timeline-area {
+            grid-column: 2; grid-row: 2;
+            background: var(--bg-timeline); border-top: 1px solid var(--border);
+            display: flex; flex-direction: column; z-index: 15;
+        }
+
+        .tl-header {
+            height: 36px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px;
+            justify-content: space-between; background: #0a0a0a;
+        }
+        .tl-controls { display: flex; align-items: center; gap: 12px; }
+        .play-btn { background: transparent; border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; }
+        .play-btn svg { width: 14px; height: 14px; fill: currentColor; }
+        .timecode { font-family: 'Space Mono', monospace; font-size: 10px; color: #aaa; }
+
+        .tl-tracks { flex: 1; overflow-y: auto; overflow-x: hidden; position: relative; padding: 10px 0;}
+        .track { display: flex; height: 32px; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .track-label { width: 80px; padding-left: 16px; font-size: 9px; color: #555; text-transform: uppercase; letter-spacing: 1px;}
+        .track-content { flex: 1; position: relative; height: 100%; background: repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(255,255,255,0.02) 50px); }
+        
+        .media-clip {
+            position: absolute; top: 4px; left: 0; bottom: 4px; width: 100%;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 2px;
+        }
+        
+        /* MARKER STYLES */
+        .kf-marker {
+            position: absolute; top: 12px; width: 8px; height: 8px; cursor: pointer; z-index: 5;
+            transition: 0.2s;
+        }
+        .kf-marker:hover { transform: scale(1.5) !important; }
+        .kf-marker.type-glitch { background: #fff; transform: rotate(45deg); border: 1px solid #000; }
+        .kf-marker.type-filter { background: #10B981; border-radius: 50%; box-shadow: 0 0 5px #10B981; top: 12px; }
+        .kf-marker.type-preset { background: #8B5CF6; border-radius: 50%; box-shadow: 0 0 5px #8B5CF6; top: 12px; }
+        .kf-marker.type-custom { background: #F59E0B; border-radius: 2px; box-shadow: 0 0 5px #F59E0B; top: 12px; }
+        .kf-marker.type-none { background: #EF4444; border-radius: 50%; top: 12px; }
+
+        /* Scrubber / Playhead */
+        #playhead-container {
+            position: absolute; top: 0; bottom: 0; left: 80px; right: 0; pointer-events: none;
+        }
+        #playhead {
+            position: absolute; top: 0; bottom: 0; left: 0%; width: 1px; background: #FF3366; z-index: 10; transition: left 0.05s linear;
+        }
+        #playhead::before {
+            content: ''; position: absolute; top: 0; left: -4px; width: 9px; height: 9px; background: #FF3366; clip-path: polygon(0 0, 100% 0, 50% 100%);
+        }
+
+        /* UPLOAD OVERLAY */
+        #uploadOverlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 50;
+        }
+        .upload-box {
+            border: 1px dashed #444; padding: 30px; border-radius: 8px; text-align: center; cursor: pointer; transition: 0.2s; margin: 10px; min-width: 180px; background: #050505;
+        }
+        .upload-box:hover { border-color: #fff; background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+
+        /* RESPONSIVE MOBILE FIX */
+        @media (max-width: 768px) {
+            body { display: flex; flex-direction: column; height: 100dvh; overflow-y: hidden; }
+            #player-area { height: 45vh; flex: none; position: relative; border-bottom: 1px solid var(--border);}
+            #timeline-area { height: 20vh; flex: none; }
+            #sidebar { width: 100%; flex: 1; border-right: none; overflow-y: auto; padding-bottom: 40px;}
+            .top-nav { height: 40px; }
+            #canvas-container { padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. LEFT PANEL (CONTROLS) -->
+    <div id="sidebar">
+        <div class="header-tabs">
+            <div class="htab active">RIDDLEBUSH</div>
+            <div class="htab">TOOLS</div>
+            <a href="index.html" class="htab" style="margin-left:auto; text-decoration:none;">← HUB</a>
+        </div>
+
+        <div class="control-section">
+            <div class="section-title">PRESETS</div>
+            <div class="preset-grid">
+                <button class="preset-btn active" data-preset="bleed">Bleed <span>●</span></button>
+                <button class="preset-btn" data-preset="smear">Smear</button>
+                <button class="preset-btn" data-preset="glitchcore">Glitchcore</button>
+                <button class="preset-btn" data-preset="sort">Sort Streak</button>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <div class="mode-tabs">
+                <div class="mode-tab active" data-mode="iframe">I-FRAME</div>
+                <div class="mode-tab" data-mode="blocks">BLOCKS</div>
+                <div class="mode-tab" data-mode="pixelsort">PIXEL SORT</div>
+            </div>
+
+            <div id="controls-iframe" class="mode-controls">
+                <div class="control-group">
+                    <div class="control-header"><span>CHAOS</span> <span class="val-display" id="val-chaos">50%</span></div>
+                    <input type="range" id="rng-chaos" min="1" max="100" value="50">
+                </div>
+                <div class="control-group">
+                    <div class="control-header"><span>FREEZE</span> <span class="val-display" id="val-freeze">12%</span></div>
+                    <input type="range" id="rng-freeze" min="0" max="100" value="12">
+                </div>
+                <div class="helper-text">Makin tinggi freeze, kerusakan bertahan makin lama di layar.</div>
+            </div>
+
+            <div id="controls-blocks" class="mode-controls" style="display:none;">
+                <div class="control-group">
+                    <div class="control-header"><span>DISPLACEMENT</span> <span class="val-display" id="val-disp">35%</span></div>
+                    <input type="range" id="rng-disp" min="0" max="100" value="35">
+                </div>
+                <div class="control-group">
+                    <div class="control-header"><span>BLOCK SIZE</span> <span class="val-display" id="val-bsize">32px</span></div>
+                    <input type="range" id="rng-bsize" min="8" max="128" step="8" value="32">
+                </div>
+            </div>
+
+            <div id="controls-pixelsort" class="mode-controls" style="display:none;">
+                <div class="segmented">
+                    <input type="radio" name="sortDir" id="sort-v" value="vertical" checked><label for="sort-v">VERTICAL</label>
+                    <input type="radio" name="sortDir" id="sort-h" value="horizontal"><label for="sort-h">HORIZONTAL</label>
+                </div>
+                <div class="control-group">
+                    <div class="control-header"><span>THRESHOLD</span> <span class="val-display" id="val-thresh">55%</span></div>
+                    <input type="range" id="rng-thresh" min="0" max="100" value="55">
+                </div>
+                <div class="control-group">
+                    <div class="control-header"><span>STREAK</span> <span class="val-display" id="val-streak">40%</span></div>
+                    <input type="range" id="rng-streak" min="0" max="100" value="40">
+                </div>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <div class="section-title">COMPRESSION ARTIFACTS</div>
+            <div class="control-group">
+                <div class="control-header"><span>BLOCK GRID (JPEG)</span> <span class="val-display" id="val-cgrid">0%</span></div>
+                <input type="range" id="rng-cgrid" min="0" max="100" value="0">
+            </div>
+            <div class="control-group">
+                <div class="control-header"><span>QUANTIZATION</span> <span class="val-display" id="val-cquant">0%</span></div>
+                <input type="range" id="rng-cquant" min="0" max="100" value="0">
+            </div>
+        </div>
+
+        <!-- TIMELINE KEYFRAME MARKERS LOGIC -->
+        <div class="control-section">
+            <div class="section-title">KEYFRAMES & MARKERS</div>
+            
+            <select id="markerAction" class="modern-select">
+                <option value="glitch">⚡ Force I-Frame Glitch (1x)</option>
+                <optgroup label="✨ CUSTOM KEYFRAME">
+                    <option value="custom_state">🔧 Simpan Parameter Custom Saat Ini</option>
+                </optgroup>
+                <optgroup label="🎨 FILTER WARNA (ON/OFF)">
+                    <option value="filter_y2k">Filter: Y2K (ON)</option>
+                    <option value="filter_nightvision">Filter: Nightvision (ON)</option>
+                    <option value="filter_neon">Filter: Neon Edge (ON)</option>
+                    <option value="filter_none">🚫 Matikan Filter (OFF)</option>
+                </optgroup>
+                <optgroup label="⚙️ AUTOMATION PRESET DEFAULTS">
+                    <option value="preset_bleed">Preset: Bleed (I-Frame)</option>
+                    <option value="preset_smear">Preset: Smear (I-Frame)</option>
+                    <option value="preset_glitchcore">Preset: Glitchcore (Blocks)</option>
+                    <option value="preset_sort">Preset: Sort Streak</option>
+                </optgroup>
+            </select>
+
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button class="btn-action outline" id="btnAddMarker" style="flex: 2; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                    ADD AT <span id="markerTimeCode">0:00.0</span>
+                </button>
+                <button class="btn-action outline" id="btnClearMarkers" style="flex: 1; border-color: #FF3366; color: #FF3366;">CLEAR</button>
+            </div>
+            <div class="helper-text">Tips: Atur slider sesuai keinginan Anda, lalu pilih "Simpan Parameter Custom", maka klip akan selalu mengingat pengaturan tersebut pada detik yang ditandai.</div>
+        </div>
+
+        <div class="control-section" style="border-bottom:none;">
+            <div class="section-title">EXPORT / INPUT</div>
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button class="btn-action outline" id="btnInputSelect" style="flex: 1;">GANTI MEDIA</button>
+                <select id="videoFormat" class="modern-select" style="margin-bottom:0; flex:1;">
+                    <option value="video/webm">WEBM (HD)</option>
+                    <option value="video/mp4">MP4 (HD)</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-action outline" id="btnExportImg" style="flex: 1; border-color: #10B981; color: #10B981;">📸 FOTO</button>
+                <button class="btn-action" id="recordBtn" style="flex: 2; background: #fff; color: #000;">▶️ AUTO RENDER</button>
+            </div>
+            <div class="helper-text" style="margin-top: 10px; color: #F59E0B;">Auto Render akan merekam video dari 0:00 hingga selesai secara otomatis dengan Resolusi FULL HD 1080p.</div>
+        </div>
+    </div>
+
+    <!-- 2. MAIN PLAYER (VIEWPORT) -->
+    <div id="player-area">
+        <div class="top-nav">
+            <div class="app-title">DATAMOSH STUDIO</div>
+            <div class="nav-tools">
+                <span class="nav-icon" id="zoomOutBtn">-</span>
+                <span class="nav-icon" id="zoomDisplay" style="font-family:'Space Mono'; width:45px; text-align:center;">FIT</span>
+                <span class="nav-icon" id="zoomInBtn">+</span>
+                <span class="nav-icon" id="masterToggle" style="margin-left: 10px;">FX: ON</span>
+            </div>
+        </div>
+
+        <div id="canvas-container">
+            <div id="uploadOverlay">
+                <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
+                    <button id="camBtn" class="upload-box" style="border-color: #444; color: white;">
+                        <div style="font-size: 28px; margin-bottom: 10px;">📷</div>
+                        <div style="font-family: 'Space Mono'; font-size: 11px;">USE CAMERA</div>
+                    </button>
+                    <label for="uploadInput" class="upload-box" style="border-color: #444; color: white;">
+                        <div style="font-size: 28px; margin-bottom: 10px;">📁</div>
+                        <div style="font-family: 'Space Mono'; font-size: 11px;">UPLOAD VIDEO</div>
+                    </label>
+                </div>
+                <input type="file" id="uploadInput" accept="video/*" style="display:none;">
+            </div>
+
+            <video id="hiddenVideo" playsinline muted style="display:none;"></video>
+            <canvas id="displayCanvas"></canvas>
+        </div>
+    </div>
+
+    <!-- 3. TIMELINE -->
+    <div id="timeline-area">
+        <div class="tl-header">
+            <div class="tl-controls">
+                <button id="playBtn" class="play-btn">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+                <span class="timecode" id="tc-current">00:00.0</span>
+            </div>
+            <div style="font-size: 9px; color: #555;">
+                <span style="cursor:pointer;" onclick="snapBuffer()">⚡ FORCE DROP (SNAP)</span>
+            </div>
+        </div>
+
+        <div class="tl-tracks" id="timelineTrackArea">
+            <div class="track">
+                <div class="track-label">KF / FX</div>
+                <div class="track-content" id="track-kf"></div>
+            </div>
+            <div class="track">
+                <div class="track-label">SOURCE</div>
+                <div class="track-content">
+                    <div class="media-clip"></div>
+                </div>
+            </div>
+
+            <div id="playhead-container">
+                <div id="playhead"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. CONFIG & UI STATE ---
+        const cfg = {
+            fxActive: true, isMirrored: false, mode: 'iframe',
+            iframe: { chaos: 50, freeze: 12 },
+            blocks: { disp: 35, size: 32 },
+            pixelsort: { dir: 'vertical', thresh: 55, streak: 40 },
+            compression: { grid: 0, quantize: 0 }, 
+            quickFilter: 'none', 
+            currentPreset: 'none'
+        };
+
+        const tabs = document.querySelectorAll('.mode-tab');
+        const controls = document.querySelectorAll('.mode-controls');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                controls.forEach(c => c.style.display = 'none');
+                tab.classList.add('active'); cfg.mode = tab.dataset.mode;
+                document.getElementById(`controls-${cfg.mode}`).style.display = 'block';
+                snapBuffer();
+            });
+        });
+
+        function bindSlider(id, stateObj, stateKey, suffix='') {
+            const el = document.getElementById(`rng-${id}`);
+            const valEl = document.getElementById(`val-${id}`);
+            el.addEventListener('input', e => {
+                cfg[stateObj][stateKey] = parseInt(e.target.value);
+                valEl.textContent = e.target.value + suffix;
+            });
+        }
+        bindSlider('chaos', 'iframe', 'chaos', '%'); bindSlider('freeze', 'iframe', 'freeze', '%');
+        bindSlider('disp', 'blocks', 'disp', '%'); bindSlider('bsize', 'blocks', 'size', 'px');
+        bindSlider('thresh', 'pixelsort', 'thresh', '%'); bindSlider('streak', 'pixelsort', 'streak', '%');
+        bindSlider('cgrid', 'compression', 'grid', '%'); bindSlider('cquant', 'compression', 'quantize', '%');
+
+        document.querySelectorAll('input[name="sortDir"]').forEach(el => {
+            el.addEventListener('change', e => { cfg.pixelsort.dir = e.target.value; });
+        });
+
+        function applyPresetLogic(preset) {
+            cfg.currentPreset = preset;
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+            let btn = document.querySelector(`.preset-btn[data-preset="${preset}"]`);
+            if(btn) btn.classList.add('active');
+
+            if(preset === 'bleed') { tabs[0].click(); setSlider('chaos', 40); setSlider('freeze', 15); }
+            if(preset === 'smear') { tabs[0].click(); setSlider('chaos', 85); setSlider('freeze', 50); }
+            if(preset === 'glitchcore') { tabs[1].click(); setSlider('disp', 60); setSlider('bsize', 32); }
+            if(preset === 'sort') { tabs[2].click(); setSlider('streak', 80); }
+        }
+
+        // Apply Custom UI State from saved Keyframe
+        function applyCustomState(state) {
+            cfg.currentPreset = 'custom';
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+            
+            if(cfg.mode !== state.mode) {
+                document.querySelector(`.mode-tab[data-mode="${state.mode}"]`).click();
+            }
+            
+            setSlider('chaos', state.iframe.chaos);
+            setSlider('freeze', state.iframe.freeze);
+            setSlider('disp', state.blocks.disp);
+            setSlider('bsize', state.blocks.size);
+            setSlider('thresh', state.pixelsort.thresh);
+            setSlider('streak', state.pixelsort.streak);
+            setSlider('cgrid', state.compression.grid);
+            setSlider('cquant', state.compression.quantize);
+            
+            if(cfg.pixelsort.dir !== state.pixelsort.dir) {
+                cfg.pixelsort.dir = state.pixelsort.dir;
+                document.querySelector(`input[name="sortDir"][value="${state.pixelsort.dir}"]`).checked = true;
+            }
+        }
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', e => { applyPresetLogic(btn.dataset.preset); });
+        });
+
+        function setSlider(id, val) {
+            const el = document.getElementById(`rng-${id}`);
+            el.value = val; el.dispatchEvent(new Event('input'));
+        }
+
+        document.getElementById('masterToggle').addEventListener('click', e => {
+            cfg.fxActive = !cfg.fxActive;
+            e.target.textContent = cfg.fxActive ? 'FX: ON' : 'FX: OFF';
+            if(cfg.fxActive) {
+                e.target.classList.remove('active-toggle');
+                snapBuffer();
+            } else {
+                e.target.classList.add('active-toggle');
+            }
+        });
+
+        // --- ZOOM & PAN LOGIC ---
+        let zoom = 1; let isPanning = false; let startX = 0, startY = 0; let panX = 0, panY = 0;
+        const container = document.getElementById('canvas-container');
+        const canvasEl = document.getElementById('displayCanvas');
+
+        function updateTransform() {
+            canvasEl.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+            document.getElementById('zoomDisplay').textContent = (zoom === 1 && panX === 0 && panY === 0) ? 'FIT' : Math.round(zoom * 100) + '%';
+        }
+
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) zoom += 0.1; else zoom -= 0.1;
+            zoom = Math.max(0.1, Math.min(zoom, 5)); updateTransform();
+        });
+
+        container.addEventListener('mousedown', (e) => {
+            if (e.button !== 0 && e.button !== 1) return;
+            isPanning = true; startX = e.clientX - panX; startY = e.clientY - panY; container.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isPanning) return;
+            panX = e.clientX - startX; panY = e.clientY - startY; updateTransform();
+        });
+
+        window.addEventListener('mouseup', () => { isPanning = false; container.style.cursor = 'grab'; });
+        document.getElementById('zoomInBtn').addEventListener('click', () => { zoom = Math.min(zoom + 0.25, 5); updateTransform(); });
+        document.getElementById('zoomOutBtn').addEventListener('click', () => { zoom = Math.max(zoom - 0.25, 0.1); updateTransform(); });
+        document.getElementById('zoomDisplay').addEventListener('click', () => { zoom = 1; panX = 0; panY = 0; updateTransform(); });
+
+        // --- 2. TIMELINE, MARKERS & NLE LOGIC ---
+        const video = document.getElementById('hiddenVideo');
+        const displayCanvas = document.getElementById('displayCanvas');
+        const dCtx = displayCanvas.getContext('2d', { willReadFrequently: true });
+        const tempCanvas = document.createElement('canvas');
+        const tCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+        const motionScale = 0.25;
+        const motionCanvas = document.createElement('canvas');
+        const mCtx = motionCanvas.getContext('2d', { willReadFrequently: true });
+        let prevMotionData = null;
+        const oldMeltCanvas = document.createElement('canvas');
+        const omCtx = oldMeltCanvas.getContext('2d', { willReadFrequently: true });
+
+        let isPlaying = false, animationId, videoDuration = 10;
+        let markers = []; 
+        let lastScrubTime = -1;
+        let lastAppliedCustomTime = -1; // Prevent spamming DOM updates
+
+        const playBtn = document.getElementById('playBtn');
+        playBtn.addEventListener('click', () => {
+            if(!video.srcObject && !video.src) return;
+            if(video.paused) { video.play(); playBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`; } 
+            else { video.pause(); playBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`; }
+        });
+
+        function formatTime(seconds) {
+            let m = Math.floor(seconds / 60); let s = Math.floor(seconds % 60); let ms = Math.floor((seconds % 1) * 10);
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}.${ms}`;
+        }
+
+        video.addEventListener('timeupdate', () => {
+            videoDuration = video.srcObject ? 60 : (video.duration || 10);
+            let cTime = video.srcObject ? (video.currentTime % videoDuration) : video.currentTime;
+            
+            const timeStr = formatTime(cTime);
+            document.getElementById('tc-current').textContent = timeStr;
+            document.getElementById('markerTimeCode').textContent = timeStr;
+            document.getElementById('playhead').style.left = `${(cTime / videoDuration) * 100}%`;
+            
+            evaluateMarkersRealtime(cTime);
+        });
+
+        document.getElementById('timelineTrackArea').addEventListener('click', (e) => {
+            if(video.srcObject || !video.duration) return;
+            const rect = document.getElementById('playhead-container').getBoundingClientRect();
+            let pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            video.currentTime = pos * video.duration; 
+            evaluateMarkersRealtime(video.currentTime, true); 
+            snapBuffer();
+        });
+
+        // --- MARKERS SYSTEM ---
+        function renderTimelineMarkers() {
+            const track = document.getElementById('track-kf');
+            track.innerHTML = '';
+            markers.forEach((m, idx) => {
+                const progress = (m.time / videoDuration) * 100;
+                const markerEl = document.createElement('div');
+                
+                let cssClass = 'kf-marker type-glitch';
+                if (m.action.startsWith('filter_')) {
+                    cssClass = m.action === 'filter_none' ? 'kf-marker type-none' : 'kf-marker type-filter';
+                } else if (m.action.startsWith('preset_')) {
+                    cssClass = 'kf-marker type-preset';
+                } else if (m.action === 'custom_state') {
+                    cssClass = 'kf-marker type-custom';
+                }
+                
+                markerEl.className = cssClass;
+                markerEl.style.left = `calc(${progress}% - 4px)`;
+                markerEl.title = `Aksi: ${m.action} \nKlik untuk menghapus.`;
+                
+                markerEl.addEventListener('click', (e) => {
+                    e.stopPropagation(); 
+                    markers.splice(idx, 1);
+                    renderTimelineMarkers();
+                    let cTime = video.srcObject ? (video.currentTime % videoDuration) : video.currentTime;
+                    lastAppliedCustomTime = -1; // reset tracking
+                    evaluateMarkersRealtime(cTime, true);
+                    snapBuffer();
+                });
+
+                track.appendChild(markerEl);
+            });
+        }
+
+        document.getElementById('btnAddMarker').addEventListener('click', () => {
+            let cTime = video.srcObject ? (video.currentTime % videoDuration) : video.currentTime;
+            let actionVal = document.getElementById('markerAction').value;
+            
+            let customStateObj = null;
+            if (actionVal === 'custom_state') {
+                // Snapshot ALL current UI Settings!
+                customStateObj = {
+                    mode: cfg.mode,
+                    iframe: { ...cfg.iframe },
+                    blocks: { ...cfg.blocks },
+                    pixelsort: { ...cfg.pixelsort },
+                    compression: { ...cfg.compression }
+                };
+            }
+            
+            markers.push({ time: cTime, action: actionVal, customState: customStateObj, triggered: false });
+            markers.sort((a, b) => a.time - b.time); 
+            
+            renderTimelineMarkers();
+            lastAppliedCustomTime = -1;
+            evaluateMarkersRealtime(cTime, true); 
+            snapBuffer(); 
+        });
+
+        document.getElementById('btnClearMarkers').addEventListener('click', () => {
+            markers = [];
+            renderTimelineMarkers();
+            cfg.quickFilter = 'none';
+            lastAppliedCustomTime = -1;
+            applyPresetLogic('bleed');
+            snapBuffer();
+        });
+
+        function evaluateMarkersRealtime(cTime, forceScrub = false) {
+            let activeFilter = 'none';
+            let activePreset = null;
+            let activeCustom = null;
+            let customMarkerTime = -1;
+
+            for (let i = 0; i < markers.length; i++) {
+                if (cTime >= markers[i].time) {
+                    if (markers[i].action.startsWith('filter_')) {
+                        activeFilter = markers[i].action.replace('filter_', '');
+                    } else if (markers[i].action.startsWith('preset_')) {
+                        activePreset = markers[i].action.replace('preset_', '');
+                        activeCustom = null; 
+                    } else if (markers[i].action === 'custom_state') {
+                        activeCustom = markers[i].customState;
+                        activePreset = null; 
+                        customMarkerTime = markers[i].time;
+                    }
+                }
+            }
+
+            // Apply Filter
+            if (cfg.quickFilter !== activeFilter || forceScrub) {
+                cfg.quickFilter = activeFilter;
+                snapBuffer(); 
+            }
+
+            // Apply Automation States
+            if (activeCustom && lastAppliedCustomTime !== customMarkerTime) {
+                applyCustomState(activeCustom);
+                lastAppliedCustomTime = customMarkerTime;
+                snapBuffer();
+            } else if (activePreset && cfg.currentPreset !== activePreset) {
+                applyPresetLogic(activePreset);
+                snapBuffer();
+            }
+
+            // Apply 1-Time Glitch drops
+            if (lastScrubTime !== -1 && !forceScrub) {
+                markers.forEach(m => {
+                    if (m.action === 'glitch' && lastScrubTime < m.time && cTime >= m.time) {
+                        snapBuffer();
+                    }
+                });
+            }
+            lastScrubTime = cTime;
+        }
+
+        // --- SISTEM UPLOAD & CANVAS (HD 1080p) ---
+        document.getElementById('btnInputSelect').addEventListener('click', () => { document.getElementById('uploadOverlay').style.display = 'flex'; });
+
+        function initCanvases() {
+            // PAKSA 1080P UNTUK EXPORT KUALITAS HD!
+            const MAX_DIMENSION = 1920; 
+            let vw = video.videoWidth || 1280;
+            let vh = video.videoHeight || 720;
+
+            if (vw > MAX_DIMENSION || vh > MAX_DIMENSION) {
+                const ratio = Math.min(MAX_DIMENSION / vw, MAX_DIMENSION / vh);
+                vw = Math.floor(vw * ratio); vh = Math.floor(vh * ratio);
+            }
+
+            displayCanvas.width = tempCanvas.width = oldMeltCanvas.width = vw;
+            displayCanvas.height = tempCanvas.height = oldMeltCanvas.height = vh;
+            
+            // Motion scaling diatur ke 0.25 agar algoritma tidak lag meski video resolusi besar
+            motionCanvas.width = Math.floor(vw * motionScale);
+            motionCanvas.height = Math.floor(vh * motionScale);
+            
+            zoom = 1; panX = 0; panY = 0; updateTransform();
+            playBtn.click();
+            if(!isPlaying) { isPlaying = true; processFrame(); }
+        }
+
+        document.getElementById('uploadInput').addEventListener('change', (e) => {
+            const file = e.target.files[0]; if(!file) return;
+            if(window.stream) { window.stream.getTracks().forEach(t => t.stop()); window.stream = null; }
+            document.getElementById('uploadOverlay').style.display = 'none';
+            video.srcObject = null; video.src = URL.createObjectURL(file);
+            video.loop = true; cfg.isMirrored = false;
+            
+            document.getElementById('btnClearMarkers').click();
+            video.onloadedmetadata = initCanvases;
+        });
+
+        document.getElementById('camBtn').addEventListener('click', async () => {
+            if(window.stream) { window.stream.getTracks().forEach(t => t.stop()); }
+            try {
+                window.stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: 'user' }, audio: { echoCancellation: false, noiseSuppression: false } });
+                document.getElementById('uploadOverlay').style.display = 'none';
+                video.srcObject = window.stream; cfg.isMirrored = true;
+                
+                document.getElementById('btnClearMarkers').click();
+                video.onloadedmetadata = initCanvases;
+            } catch(e) { alert("Akses kamera ditolak."); }
+        });
+
+        // --- 3. RENDERING ENGINE ---
+        function snapBuffer() {
+            if(video.readyState >= 2) {
+                tCtx.save();
+                if (cfg.isMirrored) { tCtx.translate(tempCanvas.width, 0); tCtx.scale(-1, 1); }
+                tCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height); tCtx.restore();
+                dCtx.drawImage(tempCanvas, 0, 0, displayCanvas.width, displayCanvas.height);
+                mCtx.drawImage(tempCanvas, 0, 0, motionCanvas.width, motionCanvas.height);
+                prevMotionData = mCtx.getImageData(0, 0, motionCanvas.width, motionCanvas.height).data;
+            }
+        }
+
+        function applyQuickVisuals(ctx, w, h) {
+            if (cfg.quickFilter === 'none') return;
+            const imgData = ctx.getImageData(0, 0, w, h); const data = imgData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                if (cfg.quickFilter === 'y2k') {
+                    data[i] = Math.min(255, data[i] * 1.2 + 20); data[i+1] = data[i+1] * 0.9; data[i+2] = Math.min(255, data[i+2] * 1.1 + 40);
+                } else if (cfg.quickFilter === 'nightvision') {
+                    const luma = (data[i]*0.3 + data[i+1]*0.59 + data[i+2]*0.11);
+                    data[i] = 0; data[i+1] = Math.min(255, luma * 1.5 + (Math.random() - 0.5) * 50); data[i+2] = 0;
+                } else if (cfg.quickFilter === 'neon') {
+                    const luma = (data[i]*0.3 + data[i+1]*0.59 + data[i+2]*0.11);
+                    if (luma > 100 && luma < 150) { data[i] = 0; data[i+1] = 255; data[i+2] = 255; } 
+                    else { data[i] = data[i]*0.5; data[i+1] = data[i+1]*0.5; data[i+2] = data[i+2]*0.5; }
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+        }
+
+        function applyCompressionArtifacts(ctx, w, h) {
+            if (cfg.compression.grid === 0 && cfg.compression.quantize === 0) return;
+            const imgData = ctx.getImageData(0, 0, w, h); const data = imgData.data;
+
+            if (cfg.compression.quantize > 0) {
+                let steps = Math.max(4, 128 - (cfg.compression.quantize * 1.2)); let factor = 255 / steps;
+                for (let i = 0; i < data.length; i += 4) {
+                    data[i] = Math.floor((data[i] / 255) * steps) * factor; data[i+1] = Math.floor((data[i+1] / 255) * steps) * factor; data[i+2] = Math.floor((data[i+2] / 255) * steps) * factor;
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+
+            if (cfg.compression.grid > 0) {
+                const blockSize = 16; const alpha = cfg.compression.grid / 200;
+                ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+                for (let y = 0; y < h; y += blockSize) ctx.fillRect(0, y, w, 1);
+                for (let x = 0; x < w; x += blockSize) ctx.fillRect(x, 0, 1, h);
+                if (cfg.compression.grid > 50) {
+                    for(let i=0; i < (cfg.compression.grid / 10); i++) {
+                        ctx.fillStyle = `rgba(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255}, ${alpha})`;
+                        ctx.fillRect(Math.floor(Math.random() * (w / blockSize)) * blockSize, Math.floor(Math.random() * (h / blockSize)) * blockSize, blockSize, blockSize);
+                    }
+                }
+            }
+        }
+
+        function processFrame() {
+            if (video.paused || video.ended || !cfg.fxActive) {
+                if(!cfg.fxActive && video.readyState >= 2) {
+                    tCtx.save(); if (cfg.isMirrored) { tCtx.translate(tempCanvas.width, 0); tCtx.scale(-1, 1); }
+                    tCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height); tCtx.restore();
+                    dCtx.drawImage(tempCanvas, 0, 0, displayCanvas.width, displayCanvas.height);
+                }
+                animationId = requestAnimationFrame(processFrame); return;
+            }
+
+            const w = tempCanvas.width; const h = tempCanvas.height;
+            tCtx.save(); if (cfg.isMirrored) { tCtx.translate(w, 0); tCtx.scale(-1, 1); }
+            tCtx.drawImage(video, 0, 0, w, h); tCtx.restore();
+            applyQuickVisuals(tCtx, w, h);
+
+            if (cfg.mode === 'iframe') {
+                const mw = motionCanvas.width; const mh = motionCanvas.height;
+                mCtx.drawImage(tempCanvas, 0, 0, mw, mh);
+                const currMData = mCtx.getImageData(0, 0, mw, mh).data;
+
+                if (!prevMotionData) { snapBuffer(); animationId = requestAnimationFrame(processFrame); return; }
+
+                const mBlock = 4; const realBlock = mBlock / motionScale; const searchRange = 6; const step = 2;
+                const chaosThreshold = (100 - cfg.iframe.chaos) * 15;
+                omCtx.drawImage(displayCanvas, 0, 0);
+
+                for (let by = 0; by < mh; by += mBlock) {
+                    for (let bx = 0; bx < mw; bx += mBlock) {
+                        let bestSAD = Infinity; let bestVx = 0; let bestVy = 0;
+                        for (let dy = -searchRange; dy <= searchRange; dy += step) {
+                            for (let dx = -searchRange; dx <= searchRange; dx += step) {
+                                let sad = 0;
+                                for (let py = 0; py < mBlock; py++) {
+                                    for (let px = 0; px < mBlock; px++) {
+                                        let cx = bx + px; let cy = by + py; let rx = cx + dx; let ry = cy + dy;
+                                        if (rx >= 0 && rx < mw && ry >= 0 && ry < mh) { sad += Math.abs(currMData[(cy * mw + cx) * 4] - prevMotionData[(ry * mw + rx) * 4]); } 
+                                        else { sad += 255; }
+                                    }
+                                }
+                                if (sad < bestSAD) { bestSAD = sad; bestVx = dx; bestVy = dy; }
+                            }
+                        }
+
+                        let destX = bx / motionScale; let destY = by / motionScale;
+                        if (bestSAD > chaosThreshold && (bestVx !== 0 || bestVy !== 0)) {
+                            let srcX = destX + (bestVx / motionScale); let srcY = destY + (bestVy / motionScale);
+                            if (srcX >= 0 && srcX + realBlock <= w && srcY >= 0 && srcY + realBlock <= h) { dCtx.drawImage(oldMeltCanvas, srcX, srcY, realBlock, realBlock, destX, destY, realBlock, realBlock); } 
+                            else { dCtx.drawImage(oldMeltCanvas, destX, destY, realBlock, realBlock, destX, destY, realBlock, realBlock); }
+                        } else {
+                            if (Math.random() * 100 > cfg.iframe.freeze) { dCtx.drawImage(tempCanvas, destX, destY, realBlock, realBlock, destX, destY, realBlock, realBlock); } 
+                            else { dCtx.drawImage(oldMeltCanvas, destX, destY, realBlock, realBlock, destX, destY, realBlock, realBlock); }
+                        }
+                    }
+                }
+                prevMotionData = new Uint8ClampedArray(currMData);
+            } else if (cfg.mode === 'blocks') {
+                dCtx.drawImage(tempCanvas, 0, 0); const bw = cfg.blocks.size; const bh = cfg.blocks.size; const disp = cfg.blocks.disp;
+                for (let y = 0; y < h; y += bh) {
+                    for (let x = 0; x < w; x += bw) {
+                        if (Math.random() * 100 < disp) { dCtx.drawImage(tempCanvas, x, y, bw, bh, x + (Math.random() - 0.5) * (disp * 4), y + (Math.random() - 0.5) * (disp * 4), bw, bh); }
+                    }
+                }
+            } else if (cfg.mode === 'pixelsort') {
+                const currDataObj = tCtx.getImageData(0, 0, w, h); const currD = currDataObj.data;
+                const thresh = (cfg.pixelsort.thresh / 100) * 255; const streak = Math.floor(cfg.pixelsort.streak);
+                const isVert = cfg.pixelsort.dir === 'vertical';
+                for (let a = 0; a < (isVert ? w : h); a++) {
+                    let pullColor = null; let pullCount = 0;
+                    for (let b = 0; b < (isVert ? h : w); b++) {
+                        let i = isVert ? (b * w + a) * 4 : (a * w + b) * 4;
+                        let luma = currD[i]*0.3 + currD[i+1]*0.59 + currD[i+2]*0.11;
+                        if (luma > thresh && pullCount === 0) { pullColor = [currD[i], currD[i+1], currD[i+2]]; pullCount = streak * 2; }
+                        if (pullCount > 0 && pullColor) { currD[i] = pullColor[0]; currD[i+1] = pullColor[1]; currD[i+2] = pullColor[2]; pullCount--; }
+                    }
+                }
+                dCtx.putImageData(currDataObj, 0, 0);
+            }
+
+            applyCompressionArtifacts(dCtx, w, h);
+            animationId = requestAnimationFrame(processFrame);
+        }
+
+        // --- 4. EXPORT ENGINE (HD 1080p + AUTO RENDER) ---
+        let mediaRecorder; let recordedChunks = []; let isRecording = false;
+        
+        // FOTO INSTAN
+        document.getElementById('btnExportImg').addEventListener('click', () => {
+            if(!video.src && !video.srcObject) return;
+            const a = document.createElement('a'); 
+            a.download = `DATAMOSH_FRAME_${Date.now()}.png`; 
+            a.href = displayCanvas.toDataURL("image/png"); 
+            a.click();
+        });
+
+        // AUTO RENDER VIDEO
+        document.getElementById('recordBtn').addEventListener('click', (e) => {
+            if(!video.src && !video.srcObject) return alert("Unggah video atau aktifkan kamera terlebih dahulu!");
+            if(video.srcObject) return alert("Fitur auto-render hanya untuk file video, gunakan rekam manual pihak ketiga untuk Live Cam.");
+
+            if(isRecording) {
+                // Force Stop
+                mediaRecorder.stop(); isRecording = false; 
+                e.target.textContent = "▶️ AUTO RENDER"; e.target.style.background = "#fff"; e.target.style.color = "#000";
+                video.loop = true;
+            } else {
+                recordedChunks = []; 
+                const stream = displayCanvas.captureStream(30);
+                
+                if (video.src && !video.src.startsWith('blob:null')) {
+                    let mediaStream = video.captureStream ? video.captureStream() : (video.mozCaptureStream ? video.mozCaptureStream() : null);
+                    if (mediaStream && mediaStream.getAudioTracks().length > 0) stream.addTrack(mediaStream.getAudioTracks()[0]);
+                }
+                
+                let format = document.getElementById("videoFormat").value;
+                if (format === "video/mp4" && !MediaRecorder.isTypeSupported("video/mp4")) { format = "video/webm"; alert("MP4 tidak didukung, beralih ke WebM."); }
+                
+                // MENGGUNAKAN BITRATE SANGAT TINGGI (15 Mbps) AGAR HASIL DATAMOSH TIDAK PECAH
+                const options = { mimeType: format, videoBitsPerSecond: 15000000 };
+                
+                try { mediaRecorder = new MediaRecorder(stream, options); } 
+                catch(err) { mediaRecorder = new MediaRecorder(stream); format = "video/webm"; }
+                
+                mediaRecorder.ondataavailable = ev => { if(ev.data.size > 0) recordedChunks.push(ev.data); };
+                mediaRecorder.onstop = () => {
+                    const ext = format.includes("mp4") ? "mp4" : "webm";
+                    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(recordedChunks, { type: format })); a.download = `RBA_Datamosh_HD_${Date.now()}.${ext}`; a.click();
+                    
+                    isRecording = false;
+                    e.target.textContent = "▶️ AUTO RENDER"; e.target.style.background = "#fff"; e.target.style.color = "#000";
+                    video.loop = true; video.play();
+                };
+
+                // OTOMATISASI PLAY, RECORD, & STOP DI AKHIR VIDEO
+                video.loop = false; // Matikan loop agar bisa trigger event onended
+                video.currentTime = 0; // Kembalikan ke awal
+                
+                video.onended = () => {
+                    if (isRecording) mediaRecorder.stop();
+                };
+
+                if(video.paused) playBtn.click();
+                
+                mediaRecorder.start(); isRecording = true; 
+                e.target.textContent = "🛑 RENDERING..."; e.target.style.background = "#FF3366"; e.target.style.color = "#fff";
+            }
+        });
+
+        const isBlob = window.location.href.startsWith('blob:') || window.location.protocol === 'blob:';
+        if ('serviceWorker' in navigator && !isBlob && window.location.protocol !== 'file:') {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(reg => {
+                    reg.onupdatefound = () => {
+                        const installingWorker = reg.installing;
+                        installingWorker.onstatechange = () => { if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) window.location.reload(); };
+                    };
+                }).catch(err => console.log('SW error:', err));
+            });
+        }
+    </script>
+</body>
+</html>
