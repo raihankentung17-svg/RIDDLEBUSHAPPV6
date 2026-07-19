@@ -3,329 +3,267 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RBA System | VFX Tools</title>
-    
+    <title>RBA System | Mega Studio</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="logo.png">
-
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
-
-        :root {
-            /* Minimalist Color Palette */
-            --bg-base: #08080a;
-            --glass-bg: rgba(20, 20, 25, 0.45);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-highlight: rgba(255, 255, 255, 0.12);
-            --text-main: #f8f9fa;
-            --text-muted: #8b8d98;
-            --accent: #F59E0B;
-            --accent-soft: rgba(245, 158, 11, 0.15);
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap');
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-base);
-            color: var(--text-main);
-            overflow: hidden;
+            background-color: #050505;
+            color: #f3f4f6;
+            overflow-x: hidden;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            padding: 24px;
+            position: relative;
         }
 
-        /* --- AMBIENT BACKGROUND (Membuat efek kaca terlihat nyata) --- */
+        /* --- Ambient Glow Background --- */
         .ambient-bg {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
+            overflow: hidden;
             z-index: -1;
-            background: 
-                radial-gradient(circle at 15% 30%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 85% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.03) 0%, transparent 60%);
-            filter: blur(60px);
+            background: #050505;
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+        .orb-1 { width: 400px; height: 400px; background: #00FFFF; top: -10%; left: -10%; }
+        .orb-2 { width: 500px; height: 500px; background: #F59E0B; bottom: -20%; right: -10%; animation-delay: -5s; }
+        .orb-3 { width: 300px; height: 300px; background: #10B981; top: 40%; left: 40%; opacity: 0.3; animation-delay: -10s; }
+        .orb-4 { width: 400px; height: 400px; background: #8B5CF6; bottom: 10%; left: 10%; opacity: 0.2; animation-delay: -15s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 50px) scale(1.2); }
         }
 
-        /* --- GLASSMORPHISM MAIN CONTAINER --- */
-        .app-container {
-            width: 100%;
-            max-width: 1400px;
-            height: 100%;
-            max-height: 900px;
-            display: flex;
-            flex-direction: column;
-            background: var(--glass-bg);
+        /* --- Glassmorphism Container --- */
+        .glass-container {
+            width: 95%;
+            max-width: 1300px;
+            height: 90vh;
+            background: rgba(17, 17, 17, 0.4);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--glass-border);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px;
-            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
+            position: relative;
         }
 
-        /* HEADER */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 24px 40px;
-            border-bottom: 1px solid var(--glass-border);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         
         .logo { 
             font-family: 'Space Mono', monospace; 
             font-weight: 700; 
             font-size: 16px; 
-            letter-spacing: 3px; 
-            background: linear-gradient(90deg, #fff, #888);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .nav-links { display: flex; gap: 32px; align-items: center; }
-        .nav-links a { 
-            color: var(--text-muted); 
-            text-decoration: none; 
-            font-size: 12px; 
-            font-weight: 500; 
-            transition: all 0.3s ease; 
-            letter-spacing: 0.5px;
-        }
-        .nav-links a:hover { color: var(--text-main); }
-        .nav-links a.active { 
-            color: var(--text-main); 
-            background: var(--glass-highlight);
-            padding: 8px 16px; 
-            border-radius: 20px; 
-            border: 1px solid var(--glass-border);
+            letter-spacing: 4px; 
+            color: rgba(255, 255, 255, 0.9);
         }
 
-        /* MAIN CONTENT AREA */
         main {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
 
-        /* SIDEBAR (Minimalist) */
+        /* Sidebar Glass */
         .sidebar {
             width: 420px;
-            border-right: 1px solid var(--glass-border);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
             flex-direction: column;
+            background: rgba(0, 0, 0, 0.2);
         }
 
-        .search-container { padding: 32px 32px 16px 32px; }
+        .search-container { padding: 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.02);}
         .search-box {
-            width: 100%; 
-            padding: 14px 20px; 
-            background: rgba(0,0,0,0.2); 
-            border: 1px solid var(--glass-border);
-            border-radius: 12px; 
-            color: var(--text-main); 
+            width: 100%; padding: 14px 20px; 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px; color: white; 
             font-family: 'Inter', sans-serif; 
-            font-size: 13px;
-            outline: none;
-            transition: all 0.3s ease;
+            outline: none; transition: 0.3s;
         }
-        .search-box:focus { border-color: var(--text-muted); background: rgba(0,0,0,0.4); }
-        .search-box::placeholder { color: #555; }
-
-        .filters {
-            display: flex; gap: 10px; padding: 16px 32px; overflow-x: auto; scrollbar-width: none;
-        }
-        .filters::-webkit-scrollbar { display: none; }
-        .filter-tag {
-            background: transparent; 
-            border: 1px solid var(--glass-border); 
-            color: var(--text-muted);
-            padding: 6px 14px; 
-            border-radius: 20px; 
-            font-size: 10px; 
-            font-weight: 600;
-            cursor: pointer; 
-            white-space: nowrap; 
-            transition: all 0.3s ease;
-        }
-        .filter-tag:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
-        .filter-tag.active { background: var(--text-main); color: var(--bg-base); border-color: var(--text-main); }
+        .search-box:focus { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
 
         .tool-list {
-            flex: 1; overflow-y: auto; padding: 16px 32px 32px 32px; display: flex; flex-direction: column; gap: 16px;
+            flex: 1; overflow-y: auto; padding: 24px; 
+            display: flex; flex-direction: column; gap: 16px;
         }
         .tool-list::-webkit-scrollbar { width: 4px; }
         .tool-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 
-        /* GLASS TOOL CARDS */
         .tool-card {
-            background: rgba(255, 255, 255, 0.02); 
-            border: 1px solid var(--glass-border); 
-            border-radius: 16px;
-            padding: 24px; 
-            cursor: pointer; 
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-radius: 16px; padding: 20px; 
+            cursor: pointer; transition: all 0.3s ease;
         }
         .tool-card:hover { 
-            background: rgba(255, 255, 255, 0.04);
-            border-color: rgba(255,255,255,0.15); 
-            transform: translateY(-3px); 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+            background: rgba(255, 255, 255, 0.08); 
+            transform: translateY(-2px); 
         }
         .tool-card.active { 
-            background: var(--glass-highlight);
-            border-color: rgba(255,255,255,0.2); 
-        }
-        
-        .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .tool-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px;}
-        .badge { background: var(--accent-soft); color: var(--accent); padding: 4px 8px; border-radius: 6px; font-size: 9px; font-weight: 700; letter-spacing: 1px;}
-        .tool-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; font-weight: 300;}
-        
-        .tool-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-        .tag { 
-            background: rgba(0,0,0,0.3); 
-            border: 1px solid var(--glass-border);
-            font-family: 'Space Mono', monospace; 
-            font-size: 9px; 
-            padding: 4px 10px; 
-            border-radius: 6px; 
-            color: #777; 
+            background: rgba(255, 255, 255, 0.1); 
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* PREVIEW AREA */
+        .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .tool-title { font-size: 15px; font-weight: 600; letter-spacing: 0.5px; }
+        .badge { font-size: 9px; font-weight: 700; padding: 4px 8px; border-radius: 6px; letter-spacing: 1px;}
+        .badge.pro { background: rgba(245, 158, 11, 0.15); color: #F59E0B; }
+        .badge.beta { background: rgba(0, 255, 255, 0.15); color: #00FFFF; }
+        .badge.new { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+        .badge.node { background: rgba(139, 92, 246, 0.15); color: #8B5CF6; } /* Badge khusus Node.js */
+        .badge.app { background: rgba(236, 72, 153, 0.15); color: #EC4899; }
+
+        .tool-desc { font-size: 12px; color: rgba(255, 255, 255, 0.5); line-height: 1.6; font-weight: 300;}
+
+        /* Preview Area */
         .preview-area {
-            flex: 1; padding: 32px; display: flex; flex-direction: column; 
-            position: relative;
+            flex: 1; padding: 40px; display: flex; flex-direction: column;
+            position: relative; justify-content: center; align-items: center;
         }
         
         .preview-wrapper {
-            flex: 1; border-radius: 20px; overflow: hidden;
-            position: relative; display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            width: 100%; height: 100%; 
+            border-radius: 20px; overflow: hidden;
+            position: relative; 
+            background: rgba(0, 0, 0, 0.3);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
         }
 
-        .preview-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.8s ease; }
+        .preview-image { 
+            width: 100%; height: 100%; object-fit: cover; 
+            opacity: 0.6; transition: opacity 0.5s ease; 
+            position: absolute; top: 0; left: 0;
+        }
         
-        /* Glass overlay for the text inside preview */
         .preview-overlay {
-            position: absolute; bottom: 24px; left: 24px; right: 24px; 
-            padding: 32px;
-            background: rgba(10, 10, 15, 0.6);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            display: flex; justify-content: space-between; align-items: center;
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 40px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+            display: flex; justify-content: space-between; align-items: flex-end;
+            z-index: 2;
         }
 
-        .preview-info h1 { font-size: 28px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.5px;}
-        .preview-info p { color: #aaa; font-size: 14px; max-width: 450px; line-height: 1.6; font-weight: 300;}
+        .preview-info h1 { font-size: 32px; font-weight: 600; margin-bottom: 12px; letter-spacing: -0.5px;}
+        .preview-info p { color: rgba(255, 255, 255, 0.7); font-size: 14px; max-width: 450px; line-height: 1.6; font-weight: 300;}
 
-        /* Minimalist Button */
         .launch-btn {
-            background: var(--text-main); 
-            color: var(--bg-base); 
-            border: none; 
-            padding: 16px 32px; 
-            border-radius: 12px;
-            font-family: 'Inter', sans-serif; 
-            font-weight: 600; 
-            font-size: 13px; 
-            cursor: pointer;
-            transition: all 0.3s ease; 
-            display: flex; align-items: center; gap: 8px; text-decoration: none;
-            box-shadow: 0 8px 20px rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.9); color: black; 
+            border: none; padding: 16px 32px; border-radius: 12px;
+            font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px; 
+            cursor: pointer; transition: 0.3s; 
+            text-decoration: none; display: inline-block; white-space: nowrap;
         }
-        .launch-btn:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 12px 25px rgba(255,255,255,0.2);
-            background: #fff;
-        }
+        .launch-btn:hover { background: white; transform: scale(1.02); box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1); }
+        .launch-btn.external::after { content: ' ↗'; font-family: 'Space Mono'; font-weight: bold;}
 
-        @media (max-width: 900px) {
-            body { padding: 0; }
-            .app-container { border-radius: 0; border: none; max-height: 100vh; }
+        @media (max-width: 768px) {
+            .glass-container { width: 100%; height: 100vh; border-radius: 0; border: none; }
+            main { flex-direction: column; }
             header { padding: 20px; }
-            .nav-links { display: none; }
-            main { flex-direction: column; overflow-y: auto; }
-            .preview-area { order: 1; padding: 20px; flex: none; height: 40vh; }
-            .preview-overlay { bottom: 12px; left: 12px; right: 12px; padding: 20px; flex-direction: column; align-items: flex-start; gap: 20px; }
-            .launch-btn { width: 100%; justify-content: center; }
-            .sidebar { order: 2; width: 100%; border-right: none; overflow: visible; }
-            .search-container { padding: 20px; }
-            .tool-list { padding: 0 20px 40px 20px; }
+            .sidebar { width: 100%; border-right: none; overflow: visible; flex: none; height: 50vh;}
+            .preview-area { order: -1; padding: 20px; flex: none; height: 40vh; }
+            .preview-overlay { padding: 20px; flex-direction: column; align-items: flex-start; gap: 16px; }
+            .launch-btn { width: 100%; text-align: center; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Ambient Glowing Orbs -->
-    <div class="ambient-bg"></div>
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
+    </div>
 
-    <div class="app-container">
+    <div class="glass-container">
         <header>
-            <div class="logo">RBA.STUDIO</div>
-            <div class="nav-links">
-                <a href="#" class="active">Tools</a>
-                <a href="#">Projects</a>
-                <a href="#">Settings</a>
-            </div>
+            <div class="logo">RIDDLEBUSH ARCHIVE</div>
         </header>
 
         <main>
             <aside class="sidebar">
                 <div class="search-container">
-                    <input type="text" class="search-box" placeholder="Search algorithms...">
-                </div>
-                <div class="filters">
-                    <button class="filter-tag active">All</button>
-                    <button class="filter-tag">Vision</button>
-                    <button class="filter-tag">Glitch</button>
-                    <button class="filter-tag">Generative</button>
+                    <input type="text" class="search-box" placeholder="Search studio apps...">
                 </div>
 
                 <div class="tool-list">
-                    <!-- TOOL 1: BLOB TRACKER -->
-                    <div class="tool-card active" onclick="selectTool('tracker')">
+                    <!-- SECTION: CORE TOOLS (LOKAL) -->
+                    <div style="font-size: 10px; color: #888; font-weight: 700; letter-spacing: 1px; margin-top: 8px;">CORE ENGINE (HTML/JS)</div>
+                    
+                    <div class="tool-card active" onclick="selectTool('tracker', this)">
                         <div class="tool-header">
                             <div class="tool-title">Blob Tracker</div>
-                            <span class="badge">PRO</span>
+                            <span class="badge pro">PRO</span>
                         </div>
-                        <p class="tool-desc">AI-powered motion and pose tracking system. Bouncing boxes, crosshairs, and connection lines locked to movement.</p>
-                        <div class="tool-tags">
-                            <span class="tag">Vision</span>
-                            <span class="tag">Motion</span>
-                        </div>
+                        <p class="tool-desc">AI-Powered motion and pose tracking system designed for interactive art and VJ installations.</p>
                     </div>
 
-                    <!-- TOOL 2: DATAMOSH -->
-                    <div class="tool-card" onclick="selectTool('datamosh')">
+                    <div class="tool-card" onclick="selectTool('datamosh', this)">
                         <div class="tool-header">
                             <div class="tool-title">Datamosh</div>
-                            <span class="badge" style="background: rgba(0,255,255,0.1); color: #00FFFF;">BETA</span>
+                            <span class="badge beta">BETA</span>
                         </div>
-                        <p class="tool-desc">Simulated I-Frame drop for classic pixel bleed and chunky compression shifts on media.</p>
-                        <div class="tool-tags">
-                            <span class="tag">Glitch</span>
-                            <span class="tag">Video</span>
-                        </div>
+                        <p class="tool-desc">Simulate I-Frame drop and pixel bleed. Create the iconic melting transition effect in your browser.</p>
                     </div>
                     
-                    <!-- TOOL 3: SLIT-SCAN MATRIX -->
-                    <div class="tool-card" onclick="selectTool('regang')">
+                    <div class="tool-card" onclick="selectTool('regang', this)">
                         <div class="tool-header">
                             <div class="tool-title">Slit-Scan Matrix</div>
-                            <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">NEW</span>
+                            <span class="badge new">NEW</span>
                         </div>
-                        <p class="tool-desc">Advanced grid-based image distortion. Stretch, slice, and mutate images with generative AI annotations.</p>
-                        <div class="tool-tags">
-                            <span class="tag">Generative</span>
-                            <span class="tag">Image</span>
+                        <p class="tool-desc">Advanced grid-based image distortion. Stretch, slice, and mutate images with AI annotations.</p>
+                    </div>
+
+                    <!-- SECTION: SATELLITE APPS (NODE.JS / VITE) -->
+                    <div style="font-size: 10px; color: #888; font-weight: 700; letter-spacing: 1px; margin-top: 16px;">SATELLITE APPS (VITE/REACT)</div>
+
+                    <div class="tool-card" onclick="selectTool('gridtools', this)">
+                        <div class="tool-header">
+                            <div class="tool-title">Grid Tools</div>
+                            <span class="badge node">NODE</span>
                         </div>
+                        <p class="tool-desc">Kumpulan alat grid modern dan dinamis. Dibangun menggunakan arsitektur Node.js dan Vite.</p>
+                    </div>
+
+                    <div class="tool-card" onclick="selectTool('proyek_pip', this)">
+                        <div class="tool-header">
+                            <div class="tool-title">Proyek-PiP</div>
+                            <span class="badge app">APP</span>
+                        </div>
+                        <p class="tool-desc">Aplikasi Picture-in-Picture studio. Memisahkan *window* untuk manajemen ruang kerja multi-layar.</p>
+                    </div>
+
+                    <div class="tool-card" onclick="selectTool('editor_tts', this)">
+                        <div class="tool-header">
+                            <div class="tool-title">Editor TTS</div>
+                            <span class="badge node">NODE</span>
+                        </div>
+                        <p class="tool-desc">Sistem sintesis teks-ke-suara tingkat lanjut dengan pengaturan intonasi dan editor skrip visual.</p>
                     </div>
                 </div>
             </aside>
@@ -337,10 +275,10 @@
                     <div class="preview-overlay">
                         <div class="preview-info">
                             <h1 id="preview-title">Blob Tracker</h1>
-                            <p id="preview-desc">AI-powered motion and pose tracking system designed for interactive art and VJ installations.</p>
+                            <p id="preview-desc">AI-Powered motion and pose tracking system designed for interactive art and VJ installations.</p>
                         </div>
                         <a class='launch-btn' href='tracker.html' id='launch-link'>
-                            Launch App →
+                            LAUNCH APP
                         </a>
                     </div>
                 </div>
@@ -350,46 +288,86 @@
 
     <script>
         const tools = {
+            // --- CORE TOOLS (DI FOLDER YANG SAMA) ---
             'tracker': {
                 title: 'Blob Tracker',
-                desc: 'AI-powered motion and pose tracking system designed for interactive art and VJ installations.',
+                desc: 'AI-Powered motion and pose tracking system designed for interactive art and VJ installations.',
                 img: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000&auto=format&fit=crop',
-                link: 'tracker.html'
+                link: 'tracker.html',
+                isExternal: false
             },
             'datamosh': {
                 title: 'Datamosh',
                 desc: 'Simulate I-Frame drop and pixel bleed. Create the iconic melting transition effect directly in your browser.',
                 img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1000&auto=format&fit=crop', 
-                link: 'datamosh.html' 
+                link: 'datamosh.html',
+                isExternal: false
             },
             'regang': {
                 title: 'Slit-Scan Matrix',
                 desc: 'Advanced grid-based image distortion. Stretch, slice, and mutate images with AI-assisted generative annotations.',
                 img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop', 
-                link: 'regang.html'
+                link: 'regang.html',
+                isExternal: false
+            },
+
+            // --- SATELLITE APPS (NODE.JS / FOLDER BERBEDA) ---
+            'gridtools': {
+                title: 'Grid Tools Studio',
+                desc: 'Kumpulan alat grid modern dan dinamis. Dibangun menggunakan arsitektur Node.js dan Vite.',
+                img: 'https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?q=80&w=1000&auto=format&fit=crop', // Gambar estetika grid
+                link: 'https://ISI_DENGAN_URL_VERCEL_GRIDTOOLS.vercel.app', 
+                isExternal: true
+            },
+            'proyek_pip': {
+                title: 'Proyek-PiP',
+                desc: 'Aplikasi Picture-in-Picture studio. Memisahkan window untuk manajemen ruang kerja multi-layar yang efisien.',
+                img: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1000&auto=format&fit=crop', // Gambar estetika layar
+                link: 'https://ISI_DENGAN_URL_VERCEL_PIP.vercel.app',
+                isExternal: true
+            },
+            'editor_tts': {
+                title: 'Editor TTS',
+                desc: 'Sistem sintesis teks-ke-suara tingkat lanjut dengan pengaturan intonasi dan editor skrip visual.',
+                img: 'https://images.unsplash.com/photo-1589903308904-1010c2294adc?q=80&w=1000&auto=format&fit=crop', // Gambar estetika audio/teks
+                link: 'https://ISI_DENGAN_URL_VERCEL_TTS.vercel.app',
+                isExternal: true
             }
         };
 
-        function selectTool(toolId) {
+        function selectTool(toolId, element) {
             document.querySelectorAll('.tool-card').forEach(card => card.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            element.classList.add('active');
 
             const data = tools[toolId];
+            
+            // Animasi transisi gambar
+            const imgEl = document.getElementById('preview-img');
+            imgEl.style.opacity = 0;
+            setTimeout(() => {
+                imgEl.src = data.img;
+                imgEl.style.opacity = 0.6;
+            }, 300);
+            
             document.getElementById('preview-title').textContent = data.title;
             document.getElementById('preview-desc').textContent = data.desc;
             
-            const imgEl = document.getElementById('preview-img');
-            imgEl.style.opacity = '0';
-            setTimeout(() => {
-                imgEl.src = data.img;
-                imgEl.style.opacity = '0.8';
-            }, 300);
-            
             const launchBtn = document.getElementById('launch-link');
             launchBtn.href = data.link;
-        }
 
-        // PENDAFTARAN SERVICE WORKER
+            // Jika aplikasi luar (Satelit), buka di tab baru dan ubah gaya tombol
+            if (data.isExternal) {
+                launchBtn.target = '_blank';
+                launchBtn.textContent = 'LAUNCH EXTERNAL APP';
+                launchBtn.classList.add('external');
+            } else {
+                launchBtn.target = '_self';
+                launchBtn.textContent = 'LAUNCH APP';
+                launchBtn.classList.remove('external');
+            }
+        }
+        
+        // PWA Setup
         const isSecureEnv = window.location.protocol === 'https:' || window.location.protocol === 'http:';
         if ('serviceWorker' in navigator && isSecureEnv && !window.location.href.startsWith('blob:')) {
             window.addEventListener('load', () => {
@@ -398,7 +376,6 @@
                         const installingWorker = reg.installing;
                         installingWorker.onstatechange = () => {
                             if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                console.log('Update RBA System tersedia, me-refresh halaman...');
                                 window.location.reload();
                             }
                         };
