@@ -810,21 +810,29 @@
                 const mockDet = getPixelClusters(activeMediaElement, canvas.width, canvas.height, config.trackingMode);
                 processResultsWrapper(activeMediaElement, mockDet);
             } else if (cocoModel) {
-                const preds = await cocoModel.detect(activeMediaElement);
+                // PERBAIKAN: Paksa AI mencari hingga 100 objek & turunkan ambang batas
+                const preds = await cocoModel.detect(activeMediaElement, 100, 0.2);
+                
+                // HACK: Tambahkan 'teddy bear' karena AI sering mengira monyet/koala adalah boneka
                 let tClasses = config.trackingMode === 'person' ? ['person'] : 
-                               config.trackingMode === 'animal' ? ['cat', 'dog', 'bird', 'horse', 'cow', 'sheep', 'bear', 'zebra', 'giraffe', 'elephant'] : 
+                               config.trackingMode === 'animal' ? ['cat', 'dog', 'bird', 'horse', 'cow', 'sheep', 'bear', 'zebra', 'giraffe', 'elephant', 'teddy bear'] : 
                                ['potted plant'];
                 
                 const filtered = preds.filter(p => tClasses.includes(p.class.toLowerCase()));
                 
-                /* PERBAIKAN 3: Proteksi dimensi kosong agar tidak NaN Crash */
                 const cw = activeMediaElement.videoWidth || activeMediaElement.width || 1;
                 const ch = activeMediaElement.videoHeight || activeMediaElement.height || 1;
                 
-                let mockDet = filtered.map(d => ({ 
-                    boundingBox: { xCenter: (d.bbox[0]+d.bbox[2]/2)/cw, yCenter: (d.bbox[1]+d.bbox[3]/2)/ch, width: d.bbox[2]/cw, height: d.bbox[3]/ch }, 
-                    label: d.class.toUpperCase() 
-                }));
+                let mockDet = filtered.map(d => {
+                    let finalLabel = d.class.toUpperCase();
+                    // VISUAL MASKING: Ubah tebakan konyol AI menjadi label generik yang elegan
+                    if (config.trackingMode === 'animal') finalLabel = "ANIMAL";
+                    
+                    return { 
+                        boundingBox: { xCenter: (d.bbox[0]+d.bbox[2]/2)/cw, yCenter: (d.bbox[1]+d.bbox[3]/2)/ch, width: d.bbox[2]/cw, height: d.bbox[3]/ch }, 
+                        label: finalLabel 
+                    };
+                });
                 processResultsWrapper(activeMediaElement, mockDet);
             }
             setElText("statusText", "IMAGE ANALYZED");
@@ -851,7 +859,6 @@
                         /* PERBAIKAN 4: Asynchronous Non-Blocking Engine */
                         const now = performance.now();
                         
-                        // Limit ke max 10 FPS untuk model berat, dan kunci jika sedang menganalisis
                         if (now - lastCocoScanTime > 100 && !isDetectingCoco) {
                             isDetectingCoco = true;
                             lastCocoScanTime = now;
@@ -860,26 +867,32 @@
                             const ch = activeMediaElement.videoHeight || activeMediaElement.height;
 
                             if (cw && ch) {
-                                // JANGAN gunakan await di sini agar loop kamera tetap berjalan 60fps
-                                cocoModel.detect(activeMediaElement).then(preds => {
+                                cocoModel.detect(activeMediaElement, 50, 0.25).then(preds => {
+                                    // HACK: Tambahkan 'teddy bear'
                                     let tClasses = config.trackingMode === 'person' ? ['person'] : 
-                                                   config.trackingMode === 'animal' ? ['cat', 'dog', 'bird', 'horse', 'cow', 'sheep', 'bear', 'zebra', 'giraffe', 'elephant'] : 
+                                                   config.trackingMode === 'animal' ? ['cat', 'dog', 'bird', 'horse', 'cow', 'sheep', 'bear', 'zebra', 'giraffe', 'elephant', 'teddy bear'] : 
                                                    ['potted plant'];
                                     
                                     const filtered = preds.filter(p => tClasses.includes(p.class.toLowerCase()));
                                     
-                                    let mockDet = filtered.map(d => ({ 
-                                        boundingBox: { 
-                                            xCenter: (d.bbox[0]+d.bbox[2]/2)/cw, 
-                                            yCenter: (d.bbox[1]+d.bbox[3]/2)/ch, 
-                                            width: d.bbox[2]/cw, 
-                                            height: d.bbox[3]/ch 
-                                        }, 
-                                        label: d.class.toUpperCase() 
-                                    }));
+                                    let mockDet = filtered.map(d => {
+                                        let finalLabel = d.class.toUpperCase();
+                                        // VISUAL MASKING: Ubah tebakan AI menjadi label generik
+                                        if (config.trackingMode === 'animal') finalLabel = "ANIMAL";
+                                        
+                                        return { 
+                                            boundingBox: { 
+                                                xCenter: (d.bbox[0]+d.bbox[2]/2)/cw, 
+                                                yCenter: (d.bbox[1]+d.bbox[3]/2)/ch, 
+                                                width: d.bbox[2]/cw, 
+                                                height: d.bbox[3]/ch 
+                                            }, 
+                                            label: finalLabel 
+                                        };
+                                    });
                                     
                                     processResultsWrapper(activeMediaElement, mockDet);
-                                    isDetectingCoco = false; // Buka kunci setelah selesai
+                                    isDetectingCoco = false; 
                                 }).catch(err => {
                                     console.error("TFJS Processing Error:", err);
                                     isDetectingCoco = false;
