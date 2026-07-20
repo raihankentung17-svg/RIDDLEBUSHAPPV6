@@ -7,8 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#050505">
     
-    <title>RIDDLEBUSHARCHIVE</title>
-    <!-- Pastikan v= di manifest dinaikkan angkanya setiap update -->
+    <title>RIDDLEBUSHARCHIVE | Tracker</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="logo.png">
     
@@ -24,7 +23,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: "Space Mono", monospace;
-            background: #050505; color: #d1d5db;
+            background: #050505; color: #e5e5e5;
             overflow: hidden; font-size: 11px;
             overscroll-behavior-y: contain; 
         }
@@ -33,7 +32,7 @@
         
         #canvas-container {
             flex: 1; display: flex; align-items: center; justify-content: center;
-            position: relative; background: #000; border-right: 1px solid #222; overflow: hidden;
+            position: relative; background: #050505; border-right: 1px solid #222; overflow: hidden;
         }
         #videoCanvas { max-width: 100%; max-height: 100%; object-fit: contain; }
         
@@ -44,80 +43,86 @@
         }
         
         #controls {
-            width: 360px; background: #111; padding: 14px;
-            overflow-y: auto; border-left: 1px solid #333; z-index: 20;
+            width: 360px; background: #0a0a0a; padding: 16px;
+            overflow-y: auto; border-left: 1px solid #222; z-index: 20;
         }
         
         @media (max-width: 768px) {
             #container { flex-direction: column; }
-            #canvas-container { flex: none; height: 50vh; border-right: none; border-bottom: 1px solid #333; }
-            #controls { width: 100%; flex: 1; border-left: none; padding-bottom: 40px; padding: 10px; }
+            #canvas-container { flex: none; height: 50vh; border-right: none; border-bottom: 1px solid #222; }
+            #controls { width: 100%; flex: 1; border-left: none; padding-bottom: 40px; padding: 12px; }
             #status { transform: scale(0.85); transform-origin: top left; }
         }
 
-        .section-box { background: #1a1a1a; border: 1px solid #333; padding: 12px; border-radius: 6px; margin-bottom: 14px; }
-        .section-box h3 { font-size: 11px; margin-bottom: 12px; text-transform: uppercase; font-weight: 700; color: #d1d5db; display: flex; justify-content: space-between; align-items: center;}
+        .section-box { background: #111; border: 1px solid #222; padding: 14px; border-radius: 8px; margin-bottom: 16px; }
+        .section-box h3 { font-size: 11px; margin-bottom: 14px; text-transform: uppercase; font-weight: 700; color: #888; display: flex; justify-content: space-between; align-items: center; letter-spacing: 1px;}
         
-        .pro-badge { background: #F59E0B; color: #000; padding: 2px 6px; border-radius: 3px; font-size: 8px; font-weight: bold; }
-        .new-badge { background: #00FFFF; color: #000; padding: 2px 6px; border-radius: 3px; font-size: 8px; font-weight: bold; }
+        .pro-badge { background: rgba(245, 158, 11, 0.15); color: #F59E0B; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; border: 1px solid rgba(245, 158, 11, 0.3);}
+        .new-badge { background: rgba(0, 255, 255, 0.15); color: #00FFFF; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; border: 1px solid rgba(0, 255, 255, 0.3);}
 
-        label { display: block; margin-bottom: 6px; font-size: 10px; color: #9ca3af; }
+        label { display: block; margin-bottom: 6px; font-size: 10px; color: #aaa; font-weight: bold;}
         .inline-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;}
         
-        input[type="range"] { width: 100%; margin-bottom: 8px; height: 6px; background: #374151; outline: none; -webkit-appearance: none; border-radius: 3px; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; background: #9ca3af; cursor: pointer; border-radius: 50%; }
-        input[type="range"]:active::-webkit-slider-thumb { background: #F59E0B; }
+        input[type="range"] { width: 100%; margin-bottom: 8px; height: 4px; background: #222; outline: none; -webkit-appearance: none; border-radius: 4px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: #00FFFF; cursor: pointer; border-radius: 50%; box-shadow: 0 0 5px rgba(0,255,255,0.5);}
+        input[type="range"]:active::-webkit-slider-thumb { background: #10B981; box-shadow: 0 0 8px rgba(16,185,129,0.8);}
         
-        input[type="checkbox"] { margin-right: 8px; -webkit-appearance: none; width: 14px; height: 14px; border: 1px solid #6b7280; background: #27272a; cursor: pointer; position: relative; border-radius: 3px; transition: 0.2s;}
-        input[type="checkbox"]:checked { background: #F59E0B; border-color: #F59E0B; }
-        .checkbox-label { display: flex; align-items: center; cursor: pointer; font-size: 10px; color: #d1d5db; margin-bottom: 0;}
-        .checkbox-label:hover { color: #F59E0B; }
+        input[type="checkbox"] { margin-right: 8px; -webkit-appearance: none; width: 16px; height: 16px; border: 1px solid #444; background: #111; cursor: pointer; position: relative; border-radius: 4px; transition: 0.2s;}
+        input[type="checkbox"]:checked { background: #10B981; border-color: #10B981; }
+        .checkbox-label { display: flex; align-items: center; cursor: pointer; font-size: 10px; color: #ccc; margin-bottom: 0; font-weight: normal;}
+        .checkbox-label:hover { color: #fff; }
         
-        select { width: 100%; padding: 8px 10px; background: #27272a; color: #fff; border: 1px solid #3f3f46; margin-bottom: 12px; font-family: "Space Mono", monospace; font-size: 10px; outline: none; cursor: pointer; border-radius: 4px; transition: 0.2s;}
-        select:focus { border-color: #F59E0B; }
+        select { width: 100%; padding: 10px; background: #111; color: #fff; border: 1px solid #333; margin-bottom: 12px; font-family: "Space Mono", monospace; font-size: 10px; outline: none; cursor: pointer; border-radius: 6px; transition: 0.2s;}
+        select:focus { border-color: #10B981; }
         
-        button { width: 100%; padding: 12px; background: #27272a; color: #d1d5db; border: 1px solid #3f3f46; cursor: pointer; font-family: "Space Mono", monospace; font-weight: bold; margin-bottom: 8px; font-size: 10px; transition: all 0.2s; border-radius: 4px; text-transform: uppercase;}
-        button:hover { background: #3f3f46; color: #fff; }
-        button.primary { color: #F59E0B; border-color: #F59E0B; }
-        button.primary:hover { background: #F59E0B; color: #000; }
-        button.danger { color: #ef4444; border-color: #ef4444; }
-        button.danger:hover { background: #ef4444; color: #000; }
-        button.action { color: #00FFFF; border-color: #00FFFF; }
-        button.action:hover { background: #00FFFF; color: #000; }
-        button.magic { color: #a855f7; border-color: #a855f7; }
-        button.magic:hover { background: #a855f7; color: #000; }
+        button { width: 100%; padding: 12px; background: #222; color: #ccc; border: 1px solid #333; cursor: pointer; font-family: "Space Mono", monospace; font-weight: bold; margin-bottom: 8px; font-size: 11px; transition: all 0.2s; border-radius: 6px; text-transform: uppercase;}
+        button:hover { background: #333; color: #fff; }
+        button:active { transform: scale(0.98); }
+        
+        /* Cyberpunk Button Themes */
+        button.primary { background: #10B981; color: #000; border: none; box-shadow: 0 0 15px rgba(16,185,129,0.2); }
+        button.primary:hover { background: #059669; color: #000; box-shadow: 0 0 20px rgba(16,185,129,0.4); }
+        
+        button.danger { background: #EF4444; color: #000; border: none; box-shadow: 0 0 15px rgba(239,68,68,0.2); }
+        button.danger:hover { background: #DC2626; color: #000; box-shadow: 0 0 20px rgba(239,68,68,0.4); }
+        
+        button.action { background: #00FFFF; color: #000; border: none; box-shadow: 0 0 15px rgba(0,255,255,0.2); }
+        button.action:hover { background: #0891B2; color: #000; box-shadow: 0 0 20px rgba(0,255,255,0.4); }
+        
+        button.magic { background: #8B5CF6; color: #000; border: none; box-shadow: 0 0 15px rgba(139,92,246,0.2); }
+        button.magic:hover { background: #7C3AED; color: #000; box-shadow: 0 0 20px rgba(139,92,246,0.4); }
 
-        .app-title-header { font-size: 14px; font-weight: 700; color: #00FFFF; margin-bottom: 16px; letter-spacing: 2px; text-align: center; padding: 10px; border: 1px solid #00FFFF; background: rgba(0, 255, 255, 0.05); border-radius: 4px;}
+        .app-title-header { font-size: 14px; font-weight: 700; color: #10B981; margin-bottom: 16px; letter-spacing: 2px; text-align: center; padding: 12px; border: 1px solid #222; background: #111; border-radius: 8px;}
 
-        .value-display { font-weight: 700; font-size: 10px; color: #F59E0B; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;}
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px;}
+        .value-display { font-weight: 700; font-size: 10px; color: #00FFFF; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;}
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px;}
         
-        #status { position: absolute; top: 16px; left: 16px; background: rgba(0, 0, 0, 0.8); color: #00FFFF; padding: 8px 12px; border: 1px solid #00FFFF; font-size: 10px; z-index: 20; backdrop-filter: blur(4px); border-radius: 4px; }
-        .color-picker { width: 100%; height: 28px; border: 1px solid #3f3f46; cursor: pointer; -webkit-appearance: none; padding: 0; background: transparent; border-radius: 4px;}
+        #status { position: absolute; top: 20px; left: 20px; background: rgba(10, 10, 10, 0.9); color: #00FFFF; padding: 10px 16px; border: 1px solid #222; font-size: 10px; z-index: 20; backdrop-filter: blur(8px); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); font-weight: bold;}
+        .color-picker { width: 100%; height: 32px; border: 1px solid #333; cursor: pointer; -webkit-appearance: none; padding: 0; background: #111; border-radius: 6px;}
         
-        .segmented-control { display: flex; width: 100%; background: #1a1a1a; border: 1px solid #3f3f46; border-radius: 4px; overflow: hidden; margin-bottom: 12px;}
+        .segmented-control { display: flex; width: 100%; background: #111; border: 1px solid #333; border-radius: 6px; overflow: hidden; margin-bottom: 12px;}
         .segmented-control input[type="radio"] { display: none; }
-        .segmented-control label { flex: 1; text-align: center; padding: 8px 4px; margin: 0; font-weight: bold; font-size: 10px; color: #6b7280; cursor: pointer; border-right: 1px solid #3f3f46; transition: 0.2s; background: #27272a; white-space: nowrap;}
+        .segmented-control label { flex: 1; text-align: center; padding: 10px 4px; margin: 0; font-weight: bold; font-size: 10px; color: #888; cursor: pointer; border-right: 1px solid #333; transition: 0.2s; background: #1a1a1a; white-space: nowrap;}
         .segmented-control label:last-child { border-right: none; }
-        .segmented-control label:hover { color: #d1d5db; background: #333;}
-        .segmented-control input[type="radio"]:checked + label { background: #374151; color: #F59E0B; box-shadow: inset 0 -2px 0 #F59E0B;}
+        .segmented-control label:hover { color: #fff; background: #222;}
+        .segmented-control input[type="radio"]:checked + label { background: #222; color: #00FFFF; box-shadow: inset 0 -2px 0 #00FFFF;}
         
-        .segmented-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; border: 1px solid #3f3f46; border-radius: 4px; overflow: hidden; margin-bottom: 12px;}
-        .segmented-grid label { padding: 8px 0; border-right: 1px solid #3f3f46; background: #27272a; }
+        .segmented-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; border: 1px solid #333; border-radius: 6px; overflow: hidden; margin-bottom: 12px;}
+        .segmented-grid label { padding: 8px 0; border-right: 1px solid #333; background: #1a1a1a; }
         .segmented-grid label:last-child { border-right: none; }
 
-        .tool-group { border: 1px solid #2a2a2a; padding: 10px; border-radius: 4px; margin-bottom: 12px; background: #151515;}
+        .tool-group { border: 1px solid #222; padding: 12px; border-radius: 8px; margin-bottom: 14px; background: #0a0a0a;}
 
-        #controls::-webkit-scrollbar { width: 6px; }
-        #controls::-webkit-scrollbar-track { background: #111; }
-        #controls::-webkit-scrollbar-thumb { background: #444; border-radius: 3px;}
+        #controls::-webkit-scrollbar { width: 4px; }
+        #controls::-webkit-scrollbar-track { background: transparent; }
+        #controls::-webkit-scrollbar-thumb { background: #333; border-radius: 4px;}
 
         #webcam { display: none; }
 
-        #msgBox { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10,10,10,0.95); border: 1px solid #00FFFF; padding: 20px; z-index: 100; display: none; text-align: center; border-radius: 8px; box-shadow: 0 0 20px rgba(0,255,255,0.2); width: 80%; max-width: 300px;}
-        #msgBox h4 { color: #00FFFF; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;}
-        #msgBox button { width: auto; padding: 6px 20px; margin-top: 15px;}
+        #msgBox { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10,10,10,0.95); border: 1px solid #10B981; padding: 24px; z-index: 100; display: none; text-align: center; border-radius: 12px; box-shadow: 0 0 30px rgba(16,185,129,0.2); width: 80%; max-width: 320px; backdrop-filter: blur(10px);}
+        #msgBox h4 { color: #10B981; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;}
+        #msgBox button { width: auto; padding: 10px 24px; margin-top: 20px;}
     </style>
 </head>
 <body>
@@ -127,23 +132,22 @@
             <canvas id="videoCanvas"></canvas>
             
             <div id="status">
-                <div><span id="statusText" class="text-[#00FFFF]">SYSTEM STANDBY</span> | FPS: <span id="fpsDisplay">0</span> | TGT: <span id="targetCount">0</span></div>
+                <div><span id="statusText" style="color:#10B981;">SYSTEM STANDBY</span> | FPS: <span id="fpsDisplay">0</span> | TGT: <span id="targetCount">0</span></div>
             </div>
 
             <div id="msgBox">
                 <h4 id="msgTitle">PEMBERITAHUAN</h4>
-                <p id="msgDesc">Deskripsi</p>
+                <p id="msgDesc" style="color: #ccc; line-height: 1.5;">Deskripsi</p>
                 <button class="primary" onclick="document.getElementById('msgBox').style.display='none'">TUTUP</button>
             </div>
         </div>
 
         <div id="controls">
-            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                <a href="index.html" onmouseover="this.style.background='#3f3f46'; this.style.color='#fff'" onmouseout="this.style.background='#27272a'; this.style.color='#d1d5db'" style="background: #27272a; color: #d1d5db; text-decoration: none; padding: 10px 12px; border: 1px solid #3f3f46; border-radius: 4px; font-size: 10px; display: flex; align-items: center; transition: 0.2s; font-weight: bold;">← HUB</a>
-                <div class="app-title-header" style="margin-bottom: 0; flex: 1;">RIDDLEBUSHARCHIVE</div>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <a href="index.html" onmouseover="this.style.background='#333'; this.style.color='#fff'" onmouseout="this.style.background='#222'; this.style.color='#ccc'" style="background: #222; color: #ccc; text-decoration: none; padding: 12px 14px; border: 1px solid #333; border-radius: 8px; font-size: 11px; display: flex; align-items: center; transition: 0.2s; font-weight: bold;">← HUB</a>
+                <div class="app-title-header" style="margin-bottom: 0; flex: 1;">BLOB TRACKER</div>
             </div>
             
-            <!-- SECTION 1: SYSTEM INPUT -->
             <div class="section-box">
                 <h3>System Input <span class="new-badge">APP</span></h3>
                 
@@ -162,7 +166,7 @@
                     <button id="cameraBtn" class="primary">LIVE CAM</button>
                     <button id="stopBtn" class="danger" style="display: none;">STOP LIVE</button>
                     <div>
-                        <label for="mediaUpload" style="display:flex; justify-content:center; align-items:center; width:100%; height:36px; background:#27272a; color:#00FFFF; border:1px solid #00FFFF; cursor:pointer; font-weight:bold; border-radius:4px; font-size:10px; transition:0.2s;">UNGGAH FILE</label>
+                        <label for="mediaUpload" style="display:flex; justify-content:center; align-items:center; width:100%; height:40px; background:#222; color:#00FFFF; border:1px solid #333; cursor:pointer; font-weight:bold; border-radius:6px; font-size:11px; transition:0.2s;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='#222'">UNGGAH FILE</label>
                         <input type="file" id="mediaUpload" accept="image/*,video/*" style="display: none;" />
                     </div>
                 </div>
@@ -173,7 +177,6 @@
                 </div>
             </div>
 
-            <!-- SECTION 2: AI TRACKING -->
             <div class="section-box">
                 <h3>AI Tracking Mode <span class="pro-badge">AI</span></h3>
                 <select id="trackingMode">
@@ -186,13 +189,12 @@
                     <option value="luma">Cahaya Terang (Luma Blobs)</option>
                 </select>
 
-                <!-- MOTION RATE CONTROL -->
                 <div id="motionRateContainer" class="tool-group" style="display:none;">
                     <div class="inline-label">
                         <label style="margin:0;">Sensitivitas Deteksi</label>
                         <span class="value-display" id="mrateLabel">0.25</span>
                     </div>
-                    <div class="segmented-control" style="margin-bottom:0; margin-top:8px;">
+                    <div class="segmented-control" style="margin-bottom:0; margin-top:10px;">
                         <input type="radio" name="mrate" id="mr1" value="0.25" checked><label for="mr1">0.25</label>
                         <input type="radio" name="mrate" id="mr2" value="0.5"><label for="mr2">0.5</label>
                         <input type="radio" name="mrate" id="mr3" value="0.75"><label for="mr3">0.75</label>
@@ -200,10 +202,9 @@
                     </div>
                 </div>
 
-                <!-- BLOB COUNT CONTROL -->
                 <div id="blobControlContainer" class="tool-group" style="display:none;">
-                    <div class="inline-label"><label style="margin:0; color:#F59E0B;">Blob Control</label></div>
-                    <div class="segmented-control" style="margin-top:8px; margin-bottom: 8px;">
+                    <div class="inline-label"><label style="margin:0; color:#10B981;">Blob Control</label></div>
+                    <div class="segmented-control" style="margin-top:10px; margin-bottom: 10px;">
                         <input type="radio" name="blobMode" id="bm_size" value="size" checked><label for="bm_size">By Size</label>
                         <input type="radio" name="blobMode" id="bm_count" value="count"><label for="bm_count">By Count</label>
                     </div>
@@ -218,7 +219,6 @@
                 </div>
             </div>
 
-            <!-- SECTION 3: BOUNDING & REGION STYLE -->
             <div class="section-box">
                 <h3>Region Style <span class="pro-badge">PRO</span></h3>
                 
@@ -242,7 +242,7 @@
 
                 <div class="tool-group">
                     <div class="inline-label"><label style="margin:0;">Bounding Size</label></div>
-                    <div class="segmented-control segmented-grid" style="margin-top:8px; margin-bottom:0;">
+                    <div class="segmented-control segmented-grid" style="margin-top:10px; margin-bottom:0;">
                         <input type="radio" name="bsize" id="bs0" value="0" checked><label for="bs0">Auto</label>
                         <input type="radio" name="bsize" id="bs32" value="32"><label for="bs32">32</label>
                         <input type="radio" name="bsize" id="bs64" value="64"><label for="bs64">64</label>
@@ -264,11 +264,10 @@
                 </div>
             </div>
 
-            <!-- SECTION 4: CONNECTIONS & DATA -->
             <div class="section-box">
                 <h3>Connection & Data <span class="pro-badge">PRO</span></h3>
                 
-                <div class="grid-3" style="margin-bottom: 12px;">
+                <div class="grid-3" style="margin-bottom: 14px;">
                     <label class="checkbox-label"><input type="checkbox" id="drawConnections" checked /><span>Jaring</span></label>
                     <label class="checkbox-label"><input type="checkbox" id="centerHub" /><span>Hub</span></label>
                     <label class="checkbox-label"><input type="checkbox" id="drawTrails" checked /><span>Jejak</span></label>
@@ -276,7 +275,7 @@
                 
                 <div class="tool-group">
                     <div class="inline-label"><label style="margin:0;">Line Style</label></div>
-                    <div class="segmented-control" style="margin-top:8px; margin-bottom:0;">
+                    <div class="segmented-control" style="margin-top:10px; margin-bottom:0;">
                         <input type="radio" name="lineStyle" id="ls_solid" value="solid" checked><label for="ls_solid">Line</label>
                         <input type="radio" name="lineStyle" id="ls_dashed" value="dashed"><label for="ls_dashed">Dash</label>
                         <input type="radio" name="lineStyle" id="ls_curve" value="curve"><label for="ls_curve">Curve</label>
@@ -292,7 +291,7 @@
                 <div class="grid-2">
                     <div>
                         <label>Warna Garis Jaring</label>
-                        <input type="color" id="trailColor" value="#F59E0B" class="color-picker" />
+                        <input type="color" id="trailColor" value="#10B981" class="color-picker" />
                     </div>
                     <div>
                         <label>Warna Teks Data</label>
@@ -300,18 +299,17 @@
                     </div>
                 </div>
 
-                <div class="tool-group" style="margin-top: 8px;">
+                <div class="tool-group" style="margin-top: 10px;">
                     <div class="inline-label"><label style="margin:0;">Ukuran Font</label><span class="value-display" id="fontSizeVal">12px</span></div>
                     <input type="range" id="fontSize" min="8" max="72" value="12" style="margin-bottom:0;" />
                 </div>
 
-                <div class="grid-2" style="margin-top: 4px;">
+                <div class="grid-2" style="margin-top: 6px;">
                     <label class="checkbox-label"><input type="checkbox" id="showIds" checked /><span>Label ID</span></label>
                     <label class="checkbox-label"><input type="checkbox" id="showMetrics" checked /><span>Metrics</span></label>
                 </div>
             </div>
 
-            <!-- SECTION 5: VFX FILTERS -->
             <div class="section-box">
                 <h3>Global & Local Filter <span class="pro-badge">VFX</span></h3>
                 <div class="grid-2">
@@ -355,7 +353,6 @@
                 </div>
             </div>
 
-            <!-- SECTION 6: EXPORT ENGINE -->
             <div class="section-box">
                 <h3>Export Engine</h3>
                 <label>Format Resolusi Video</label>
@@ -364,8 +361,8 @@
                     <option value="video/mp4">MP4 (Jika Didukung HP)</option>
                 </select>
                 <div class="grid-2">
-                    <button id="saveImgBtn" style="color:#10B981; border-color:#10B981;">FOTO PNG</button>
-                    <button id="recordVideoBtn" style="color:#EF4444; border-color:#EF4444;">REKAM KAMERA</button>
+                    <button id="saveImgBtn" style="color:#10B981; border-color:#10B981;" onmouseover="this.style.background='#10B981'; this.style.color='#000'" onmouseout="this.style.background='#222'; this.style.color='#10B981'">FOTO PNG</button>
+                    <button id="recordVideoBtn" style="color:#EF4444; border-color:#EF4444;" onmouseover="this.style.background='#EF4444'; this.style.color='#000'" onmouseout="this.style.background='#222'; this.style.color='#EF4444'">REKAM KAMERA</button>
                 </div>
                 <button id="autoRenderBtn" class="magic" style="display:none; width:100%;">RENDER & SIMPAN UPLOAD</button>
             </div>
@@ -373,9 +370,6 @@
     </div>
 
     <script>
-        // ---------------------------------------------------------
-        // FUNGSI PENGAMAN HTML & JAVASCRIPT (ANTI-CRASH)
-        // ---------------------------------------------------------
         function setElDisplay(id, val) {
             const el = document.getElementById(id);
             if (el) el.style.display = val;
@@ -429,7 +423,7 @@
             trackingMode: "face", isMirrored: true, audioBeep: true,
             lensFilter: "none", localFilter: "none", shapeType: "box", 
             boundingSize: 0, motionRate: 0.25, blobMode: "size", blobValue: 64,
-            outlineColor: "#00FFFF", blockColor: "#000000", trailColor: "#F59E0B", textColor: "#FFFFFF", 
+            outlineColor: "#00FFFF", blockColor: "#000000", trailColor: "#10B981", textColor: "#FFFFFF", 
             thickness: 2, fontSize: 12,
             drawTrails: true, drawConnections: true, centerHub: false, lineStyle: "solid",
             showIds: true, showMetrics: true, showScanlines: true
@@ -691,9 +685,6 @@
 
             let blobs = [];
             
-            // LOGIKA BARU ARTKIT: By Size mengatur Radius Penggabungan (Clustering Granularity)
-            // Nilai kecil (16) = mergeDist sangat dekat -> Blob pecah jadi banyak partikel kecil
-            // Nilai besar (512) = mergeDist raksasa -> Seluruh pergerakan menyatu jadi 1-2 blob besar
             let mergeDist = 6; 
             if (config.blobMode === 'size') {
                 mergeDist = Math.max(2, config.blobValue / 8);
@@ -748,8 +739,6 @@
                     let h = Math.max(2, b.maxY - b.minY);
                     
                     let area = w * h;
-                    
-                    // Artkit Logic: Seluruh blob dimasukkan, pembatasan bentuk sudah dikendalikan total oleh 'mergeDist'
                     validBlobs.push({cx, cy, w, h, area});
                 }
             }
@@ -1372,13 +1361,11 @@
        if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').then(reg => {
-                    // Deteksi jika ada Service Worker baru yang terinstal
                     reg.onupdatefound = () => {
                         const installingWorker = reg.installing;
                         installingWorker.onstatechange = () => {
                             if (installingWorker.state === 'installed') {
                                 if (navigator.serviceWorker.controller) {
-                                    // Versi baru terdeteksi, refresh halaman untuk update
                                     console.log('Versi baru tersedia, melakukan pembaruan...');
                                     window.location.reload();
                                 }
