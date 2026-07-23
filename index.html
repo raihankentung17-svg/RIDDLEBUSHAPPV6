@@ -241,6 +241,7 @@
                     <!-- SECTION: SATELLITE APPS (NODE.JS / VITE) -->
                     <div style="font-size: 10px; color: #888; font-weight: 700; letter-spacing: 1px; margin-top: 16px;">SATELLITE APPS (VITE/REACT)</div>
 
+                    <!-- 1. GRID TOOLS -->
                     <div class="tool-card" onclick="selectTool('gridtools', this)">
                         <div class="tool-header">
                             <div class="tool-title">Grid Tools Studio</div>
@@ -249,6 +250,7 @@
                         <p class="tool-desc">Generative slit-scan distortion tool. Features seeded RNG processing and AI-assisted annotations.</p>
                     </div>
 
+                    <!-- 2. PROYEK PiP -->
                     <div class="tool-card" onclick="selectTool('proyek_pip', this)">
                         <div class="tool-header">
                             <div class="tool-title">Proyek-PiP</div>
@@ -257,12 +259,22 @@
                         <p class="tool-desc">Professional picture-in-picture video compositor. Features dynamic rulers, pan/zoom, and 60fps rendering.</p>
                     </div>
 
+                    <!-- 3. EDITOR TTS -->
                     <div class="tool-card" onclick="selectTool('editor_tts', this)">
                         <div class="tool-header">
-                            <div class="tool-title">Texture & Typography Studio</div>
+                            <div class="tool-title">Texture & Typography</div>
                             <span class="badge node">NODE</span>
                         </div>
                         <p class="tool-desc">Advanced typography and texture layout studio. Create cyberpunk grids, poster collages, and dynamic blending.</p>
+                    </div>
+
+                    <!-- 4. BLUEPRINT GENERATOR (APLIKASI BARU KITA) -->
+                    <div class="tool-card" onclick="selectTool('generator', this)">
+                        <div class="tool-header">
+                            <div class="tool-title">Blueprint Data Engine</div>
+                            <span class="badge node">NODE</span>
+                        </div>
+                        <p class="tool-desc">Generative architectural blueprints, custom typography stamps, and data-driven assets with dynamic gravity nodes.</p>
                     </div>
                 </div>
             </aside>
@@ -326,9 +338,19 @@
             'editor_tts': {
                 title: 'Texture & Typography Studio',
                 desc: 'Advanced typography and texture layout studio. Create cyberpunk grids, poster collages, and dynamic layer blending.',
-                // 3D Vibrant Abstract Shapes (Sangat cocok untuk Typography/Texture)
+                // 3D Vibrant Abstract Shapes
                 img: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1000&auto=format&fit=crop', 
                 link: 'https://editor-tts.vercel.app',
+                isExternal: true
+            },
+            
+            // --- APLIKASI BARU (BLUEPRINT DATA ENGINE) ---
+            'generator': {
+                title: 'Blueprint Data Engine',
+                desc: 'Create generative architectural blueprints, custom typography stamps, and data-driven visual assets with dynamic gravity nodes.',
+                // GAMBAR UNGU-BIRU ABSTRAK YANG DIJAMIN 100% BEKERJA 
+                img: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=1000&auto=format&fit=crop', 
+                link: 'https://riddlebush-generator.vercel.app/',
                 isExternal: true
             }
         };
