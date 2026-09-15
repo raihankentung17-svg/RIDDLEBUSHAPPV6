@@ -1,19 +1,21 @@
 <!doctype html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#050505">
-    
+
     <title>RIDDLEBUSHARCHIVE | Tracker Pro</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="logo.png">
-    
+
     <!-- External AI Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"
+        crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd" crossorigin="anonymous"></script>
@@ -21,118 +23,494 @@
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap");
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: "Space Mono", monospace;
-            background: #050505; color: #e5e5e5;
-            overflow: hidden; font-size: 11px;
-            overscroll-behavior-y: contain; 
+            background: #050505;
+            color: #e5e5e5;
+            overflow: hidden;
+            font-size: 11px;
+            overscroll-behavior-y: contain;
         }
-        
-        #container { display: flex; height: 100vh; width: 100vw; flex-direction: row; }
-        
+
+        #container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            flex-direction: row;
+        }
+
         #canvas-container {
-            flex: 1; display: flex; align-items: center; justify-content: center;
-            position: relative; background: #050505; border-right: 1px solid #222; overflow: hidden;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: #050505;
+            border-right: 1px solid #222;
+            overflow: hidden;
         }
-        #videoCanvas { max-width: 100%; max-height: 100%; object-fit: contain; }
-        
+
+        #videoCanvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
         #canvas-container.scanlines-active::after {
-            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-            background-size: 100% 4px; pointer-events: none; z-index: 10;
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 10;
         }
-        
+
         #controls {
-            width: 360px; background: #0a0a0a; padding: 16px;
-            overflow-y: auto; border-left: 1px solid #222; z-index: 20;
+            width: 360px;
+            background: #0a0a0a;
+            padding: 16px;
+            overflow-y: auto;
+            border-left: 1px solid #222;
+            z-index: 20;
         }
-        
+
         @media (max-width: 768px) {
-            #container { flex-direction: column; }
-            #canvas-container { flex: none; height: 50vh; border-right: none; border-bottom: 1px solid #222; }
-            #controls { width: 100%; flex: 1; border-left: none; padding-bottom: 40px; padding: 12px; }
-            #status { transform: scale(0.85); transform-origin: top left; }
+            #container {
+                flex-direction: column;
+            }
+
+            #canvas-container {
+                flex: none;
+                height: 50vh;
+                border-right: none;
+                border-bottom: 1px solid #222;
+            }
+
+            #controls {
+                width: 100%;
+                flex: 1;
+                border-left: none;
+                padding-bottom: 40px;
+                padding: 12px;
+            }
+
+            #status {
+                transform: scale(0.85);
+                transform-origin: top left;
+            }
         }
 
-        .section-box { background: #111; border: 1px solid #222; padding: 14px; border-radius: 8px; margin-bottom: 16px; }
-        .section-box h3 { font-size: 11px; margin-bottom: 14px; text-transform: uppercase; font-weight: 700; color: #888; display: flex; justify-content: space-between; align-items: center; letter-spacing: 1px;}
-        
-        .pro-badge { background: rgba(245, 158, 11, 0.15); color: #F59E0B; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; border: 1px solid rgba(245, 158, 11, 0.3);}
-        .new-badge { background: rgba(0, 255, 255, 0.15); color: #00FFFF; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; border: 1px solid rgba(0, 255, 255, 0.3);}
+        .section-box {
+            background: #111;
+            border: 1px solid #222;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
 
-        label { display: block; margin-bottom: 6px; font-size: 10px; color: #aaa; font-weight: bold;}
-        .inline-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;}
-        
-        input[type="range"] { width: 100%; margin-bottom: 8px; height: 4px; background: #222; outline: none; -webkit-appearance: none; border-radius: 4px; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: #00FFFF; cursor: pointer; border-radius: 50%; box-shadow: 0 0 5px rgba(0,255,255,0.5);}
-        input[type="range"]:active::-webkit-slider-thumb { background: #10B981; box-shadow: 0 0 8px rgba(16,185,129,0.8);}
-        
-        input[type="checkbox"] { margin-right: 8px; -webkit-appearance: none; width: 16px; height: 16px; border: 1px solid #444; background: #111; cursor: pointer; position: relative; border-radius: 4px; transition: 0.2s;}
-        input[type="checkbox"]:checked { background: #10B981; border-color: #10B981; }
-        .checkbox-label { display: flex; align-items: center; cursor: pointer; font-size: 10px; color: #ccc; margin-bottom: 0; font-weight: normal;}
-        .checkbox-label:hover { color: #fff; }
-        
-        select { width: 100%; padding: 10px; background: #111; color: #fff; border: 1px solid #333; margin-bottom: 12px; font-family: "Space Mono", monospace; font-size: 10px; outline: none; cursor: pointer; border-radius: 6px; transition: 0.2s;}
-        select:focus { border-color: #10B981; }
-        
-        button { width: 100%; padding: 12px; background: #222; color: #ccc; border: 1px solid #333; cursor: pointer; font-family: "Space Mono", monospace; font-weight: bold; margin-bottom: 8px; font-size: 11px; transition: all 0.2s; border-radius: 6px; text-transform: uppercase;}
-        button:hover { background: #333; color: #fff; }
-        button:active { transform: scale(0.98); }
-        
-        button.primary { background: #10B981; color: #000; border: none; box-shadow: 0 0 15px rgba(16,185,129,0.2); }
-        button.primary:hover { background: #059669; color: #000; box-shadow: 0 0 20px rgba(16,185,129,0.4); }
-        
-        button.danger { background: #EF4444; color: #000; border: none; box-shadow: 0 0 15px rgba(239,68,68,0.2); }
-        button.danger:hover { background: #DC2626; color: #000; box-shadow: 0 0 20px rgba(239,68,68,0.4); }
-        
-        button.action { background: #00FFFF; color: #000; border: none; box-shadow: 0 0 15px rgba(0,255,255,0.2); }
-        button.action:hover { background: #0891B2; color: #000; box-shadow: 0 0 20px rgba(0,255,255,0.4); }
-        
-        button.magic { background: #8B5CF6; color: #000; border: none; box-shadow: 0 0 15px rgba(139,92,246,0.2); }
-        button.magic:hover { background: #7C3AED; color: #000; box-shadow: 0 0 20px rgba(139,92,246,0.4); }
+        .section-box h3 {
+            font-size: 11px;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #888;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            letter-spacing: 1px;
+        }
 
-        .app-title-header { font-size: 14px; font-weight: 700; color: #10B981; margin-bottom: 16px; letter-spacing: 2px; text-align: center; padding: 12px; border: 1px solid #222; background: #111; border-radius: 8px;}
+        .pro-badge {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: bold;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
 
-        .value-display { font-weight: 700; font-size: 10px; color: #00FFFF; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;}
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px;}
-        
-        #status { position: absolute; top: 20px; left: 20px; background: rgba(10, 10, 10, 0.9); color: #00FFFF; padding: 10px 16px; border: 1px solid #222; font-size: 10px; z-index: 20; backdrop-filter: blur(8px); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); font-weight: bold;}
-        .color-picker { width: 100%; height: 32px; border: 1px solid #333; cursor: pointer; -webkit-appearance: none; padding: 0; background: #111; border-radius: 6px;}
-        
-        .segmented-control { display: flex; width: 100%; background: #111; border: 1px solid #333; border-radius: 6px; overflow: hidden; margin-bottom: 12px;}
-        .segmented-control input[type="radio"] { display: none; }
-        .segmented-control label { flex: 1; text-align: center; padding: 10px 4px; margin: 0; font-weight: bold; font-size: 10px; color: #888; cursor: pointer; border-right: 1px solid #333; transition: 0.2s; background: #1a1a1a; white-space: nowrap;}
-        .segmented-control label:last-child { border-right: none; }
-        .segmented-control label:hover { color: #fff; background: #222;}
-        .segmented-control input[type="radio"]:checked + label { background: #222; color: #00FFFF; box-shadow: inset 0 -2px 0 #00FFFF;}
-        
-        .segmented-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; border: 1px solid #333; border-radius: 6px; overflow: hidden; margin-bottom: 12px;}
-        .segmented-grid label { padding: 8px 0; border-right: 1px solid #333; background: #1a1a1a; }
-        .segmented-grid label:last-child { border-right: none; }
+        .new-badge {
+            background: rgba(0, 255, 255, 0.15);
+            color: #00FFFF;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: bold;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
 
-        .tool-group { border: 1px solid #222; padding: 12px; border-radius: 8px; margin-bottom: 14px; background: #0a0a0a;}
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 10px;
+            color: #aaa;
+            font-weight: bold;
+        }
 
-        #controls::-webkit-scrollbar { width: 4px; }
-        #controls::-webkit-scrollbar-track { background: transparent; }
-        #controls::-webkit-scrollbar-thumb { background: #333; border-radius: 4px;}
+        .inline-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
 
-        #webcam { display: none; }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 8px;
+            height: 4px;
+            background: #222;
+            outline: none;
+            -webkit-appearance: none;
+            border-radius: 4px;
+        }
 
-        #msgBox { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10,10,10,0.95); border: 1px solid #10B981; padding: 24px; z-index: 100; display: none; text-align: center; border-radius: 12px; box-shadow: 0 0 30px rgba(16,185,129,0.2); width: 80%; max-width: 320px; backdrop-filter: blur(10px);}
-        #msgBox h4 { color: #10B981; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;}
-        #msgBox button { width: auto; padding: 10px 24px; margin-top: 20px;}
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #00FFFF;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+
+        input[type="range"]:active::-webkit-slider-thumb {
+            background: #10B981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+        }
+
+        input[type="checkbox"] {
+            margin-right: 8px;
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 1px solid #444;
+            background: #111;
+            cursor: pointer;
+            position: relative;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+        input[type="checkbox"]:checked {
+            background: #10B981;
+            border-color: #10B981;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 10px;
+            color: #ccc;
+            margin-bottom: 0;
+            font-weight: normal;
+        }
+
+        .checkbox-label:hover {
+            color: #fff;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            background: #111;
+            color: #fff;
+            border: 1px solid #333;
+            margin-bottom: 12px;
+            font-family: "Space Mono", monospace;
+            font-size: 10px;
+            outline: none;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+
+        select:focus {
+            border-color: #10B981;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #222;
+            color: #ccc;
+            border: 1px solid #333;
+            cursor: pointer;
+            font-family: "Space Mono", monospace;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 11px;
+            transition: all 0.2s;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background: #333;
+            color: #fff;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button.primary {
+            background: #10B981;
+            color: #000;
+            border: none;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        button.primary:hover {
+            background: #059669;
+            color: #000;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+
+        button.danger {
+            background: #EF4444;
+            color: #000;
+            border: none;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
+
+        button.danger:hover {
+            background: #DC2626;
+            color: #000;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+
+        button.action {
+            background: #00FFFF;
+            color: #000;
+            border: none;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+
+        button.action:hover {
+            background: #0891B2;
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+
+        button.magic {
+            background: #8B5CF6;
+            color: #000;
+            border: none;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+        }
+
+        button.magic:hover {
+            background: #7C3AED;
+            color: #000;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .app-title-header {
+            font-size: 14px;
+            font-weight: 700;
+            color: #10B981;
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+            text-align: center;
+            padding: 12px;
+            border: 1px solid #222;
+            background: #111;
+            border-radius: 8px;
+        }
+
+        .value-display {
+            font-weight: 700;
+            font-size: 10px;
+            color: #00FFFF;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        #status {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(10, 10, 10, 0.9);
+            color: #00FFFF;
+            padding: 10px 16px;
+            border: 1px solid #222;
+            font-size: 10px;
+            z-index: 20;
+            backdrop-filter: blur(8px);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            font-weight: bold;
+        }
+
+        .color-picker {
+            width: 100%;
+            height: 32px;
+            border: 1px solid #333;
+            cursor: pointer;
+            -webkit-appearance: none;
+            padding: 0;
+            background: #111;
+            border-radius: 6px;
+        }
+
+        .segmented-control {
+            display: flex;
+            width: 100%;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .segmented-control input[type="radio"] {
+            display: none;
+        }
+
+        .segmented-control label {
+            flex: 1;
+            text-align: center;
+            padding: 10px 4px;
+            margin: 0;
+            font-weight: bold;
+            font-size: 10px;
+            color: #888;
+            cursor: pointer;
+            border-right: 1px solid #333;
+            transition: 0.2s;
+            background: #1a1a1a;
+            white-space: nowrap;
+        }
+
+        .segmented-control label:last-child {
+            border-right: none;
+        }
+
+        .segmented-control label:hover {
+            color: #fff;
+            background: #222;
+        }
+
+        .segmented-control input[type="radio"]:checked+label {
+            background: #222;
+            color: #00FFFF;
+            box-shadow: inset 0 -2px 0 #00FFFF;
+        }
+
+        .segmented-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0;
+            border: 1px solid #333;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .segmented-grid label {
+            padding: 8px 0;
+            border-right: 1px solid #333;
+            background: #1a1a1a;
+        }
+
+        .segmented-grid label:last-child {
+            border-right: none;
+        }
+
+        .tool-group {
+            border: 1px solid #222;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 14px;
+            background: #0a0a0a;
+        }
+
+        #controls::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #controls::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #controls::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        #webcam {
+            display: none;
+        }
+
+        #msgBox {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid #10B981;
+            padding: 24px;
+            z-index: 100;
+            display: none;
+            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+            width: 80%;
+            max-width: 320px;
+            backdrop-filter: blur(10px);
+        }
+
+        #msgBox h4 {
+            color: #10B981;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        #msgBox button {
+            width: auto;
+            padding: 10px 24px;
+            margin-top: 20px;
+        }
     </style>
 </head>
+
 <body>
     <div id="container">
         <div id="canvas-container" class="scanlines-active">
             <video id="webcam" playsinline muted></video>
             <canvas id="videoCanvas"></canvas>
-            
+
             <div id="status">
-                <div><span id="statusText" style="color:#10B981;">SYSTEM STANDBY</span> | FPS: <span id="fpsDisplay">0</span> | TGT: <span id="targetCount">0</span></div>
+                <div><span id="statusText" style="color:#10B981;">SYSTEM STANDBY</span> | FPS: <span
+                        id="fpsDisplay">0</span> | TGT: <span id="targetCount">0</span></div>
             </div>
 
             <div id="msgBox">
@@ -144,33 +522,42 @@
 
         <div id="controls">
             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <a href="index.html" onmouseover="this.style.background='#333'; this.style.color='#fff'" onmouseout="this.style.background='#222'; this.style.color='#ccc'" style="background: #222; color: #ccc; text-decoration: none; padding: 12px 14px; border: 1px solid #333; border-radius: 8px; font-size: 11px; display: flex; align-items: center; transition: 0.2s; font-weight: bold;">← HUB</a>
+                <a href="index.html" onmouseover="this.style.background='#333'; this.style.color='#fff'"
+                    onmouseout="this.style.background='#222'; this.style.color='#ccc'"
+                    style="background: #222; color: #ccc; text-decoration: none; padding: 12px 14px; border: 1px solid #333; border-radius: 8px; font-size: 11px; display: flex; align-items: center; transition: 0.2s; font-weight: bold;">←
+                    HUB</a>
                 <div class="app-title-header" style="margin-bottom: 0; flex: 1;">BLOB TRACKER</div>
             </div>
-            
+
             <div class="section-box">
                 <h3>System Input <span class="new-badge">APP</span></h3>
-                
+
                 <select id="cameraSelect">
                     <option value="user">Kamera Depan (Default)</option>
                     <option value="environment">Kamera Belakang (Default)</option>
                 </select>
 
                 <div class="grid-3" style="margin-bottom: 12px;">
-                    <label class="checkbox-label"><input type="checkbox" id="isMirrored" checked /><span>Mirror</span></label>
-                    <label class="checkbox-label"><input type="checkbox" id="audioBeep" checked /><span>Beep</span></label>
-                    <label class="checkbox-label"><input type="checkbox" id="showScanlines" checked /><span>Efek CRT</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="isMirrored"
+                            checked /><span>Mirror</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="audioBeep"
+                            checked /><span>Beep</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="showScanlines" checked /><span>Efek
+                            CRT</span></label>
                 </div>
 
                 <div class="grid-2">
                     <button id="cameraBtn" class="primary">LIVE CAM</button>
                     <button id="stopBtn" class="danger" style="display: none;">STOP LIVE</button>
                     <div>
-                        <label for="mediaUpload" style="display:flex; justify-content:center; align-items:center; width:100%; height:40px; background:#222; color:#00FFFF; border:1px solid #333; cursor:pointer; font-weight:bold; border-radius:6px; font-size:11px; transition:0.2s;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='#222'">UNGGAH FILE</label>
+                        <label for="mediaUpload"
+                            style="display:flex; justify-content:center; align-items:center; width:100%; height:40px; background:#222; color:#00FFFF; border:1px solid #333; cursor:pointer; font-weight:bold; border-radius:6px; font-size:11px; transition:0.2s;"
+                            onmouseover="this.style.background='#333'" onmouseout="this.style.background='#222'">UNGGAH
+                            FILE</label>
                         <input type="file" id="mediaUpload" accept="image/*,video/*" style="display: none;" />
                     </div>
                 </div>
-                
+
                 <div class="grid-2">
                     <button id="playPauseBtn" class="action" style="display: none;">PAUSE / PLAY PREVIEW</button>
                     <button id="torchBtn" class="action" style="display: none;">SENTER</button>
@@ -205,23 +592,29 @@
                 <div id="blobControlContainer" class="tool-group" style="display:none;">
                     <div class="inline-label"><label style="margin:0; color:#10B981;">Blob Control</label></div>
                     <div class="segmented-control" style="margin-top:10px; margin-bottom: 10px;">
-                        <input type="radio" name="blobMode" id="bm_size" value="size" checked><label for="bm_size">By Size</label>
-                        <input type="radio" name="blobMode" id="bm_count" value="count"><label for="bm_count">By Count</label>
+                        <input type="radio" name="blobMode" id="bm_size" value="size" checked><label for="bm_size">By
+                            Size</label>
+                        <input type="radio" name="blobMode" id="bm_count" value="count"><label for="bm_count">By
+                            Count</label>
                     </div>
                     <div class="segmented-control segmented-grid" style="margin-bottom:0;">
                         <input type="radio" name="blobVal" id="bv1" value="16"><label for="bv1" id="lbl_bv1">16</label>
                         <input type="radio" name="blobVal" id="bv2" value="32"><label for="bv2" id="lbl_bv2">32</label>
-                        <input type="radio" name="blobVal" id="bv3" value="64" checked><label for="bv3" id="lbl_bv3">64</label>
-                        <input type="radio" name="blobVal" id="bv4" value="128"><label for="bv4" id="lbl_bv4">128</label>
-                        <input type="radio" name="blobVal" id="bv5" value="256"><label for="bv5" id="lbl_bv5">256</label>
-                        <input type="radio" name="blobVal" id="bv6" value="512"><label for="bv6" id="lbl_bv6">512</label>
+                        <input type="radio" name="blobVal" id="bv3" value="64" checked><label for="bv3"
+                            id="lbl_bv3">64</label>
+                        <input type="radio" name="blobVal" id="bv4" value="128"><label for="bv4"
+                            id="lbl_bv4">128</label>
+                        <input type="radio" name="blobVal" id="bv5" value="256"><label for="bv5"
+                            id="lbl_bv5">256</label>
+                        <input type="radio" name="blobVal" id="bv6" value="512"><label for="bv6"
+                            id="lbl_bv6">512</label>
                     </div>
                 </div>
             </div>
 
             <div class="section-box">
                 <h3>Region Style <span class="pro-badge">PRO</span></h3>
-                
+
                 <label>Gaya Bentuk Objek (Shape)</label>
                 <select id="shapeType">
                     <option value="box">Basic (Frame Biasa)</option>
@@ -266,25 +659,31 @@
 
             <div class="section-box">
                 <h3>Connection & Data <span class="pro-badge">PRO</span></h3>
-                
+
                 <div class="grid-3" style="margin-bottom: 14px;">
-                    <label class="checkbox-label"><input type="checkbox" id="drawConnections" checked /><span>Jaring</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="drawConnections"
+                            checked /><span>Jaring</span></label>
                     <label class="checkbox-label"><input type="checkbox" id="centerHub" /><span>Hub</span></label>
-                    <label class="checkbox-label"><input type="checkbox" id="drawTrails" checked /><span>Jejak</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="drawTrails"
+                            checked /><span>Jejak</span></label>
                 </div>
-                
+
                 <div class="tool-group">
                     <div class="inline-label"><label style="margin:0;">Line Style</label></div>
                     <div class="segmented-control" style="margin-top:10px; margin-bottom:0;">
-                        <input type="radio" name="lineStyle" id="ls_solid" value="solid" checked><label for="ls_solid">Line</label>
-                        <input type="radio" name="lineStyle" id="ls_dashed" value="dashed"><label for="ls_dashed">Dash</label>
-                        <input type="radio" name="lineStyle" id="ls_curve" value="curve"><label for="ls_curve">Curve</label>
+                        <input type="radio" name="lineStyle" id="ls_solid" value="solid" checked><label
+                            for="ls_solid">Line</label>
+                        <input type="radio" name="lineStyle" id="ls_dashed" value="dashed"><label
+                            for="ls_dashed">Dash</label>
+                        <input type="radio" name="lineStyle" id="ls_curve" value="curve"><label
+                            for="ls_curve">Curve</label>
                         <input type="radio" name="lineStyle" id="ls_step" value="step"><label for="ls_step">Step</label>
                     </div>
                 </div>
 
                 <div class="tool-group">
-                    <div class="inline-label"><label style="margin:0;">Stroke Width (Tebal)</label><span class="value-display" id="thicknessVal">2px</span></div>
+                    <div class="inline-label"><label style="margin:0;">Stroke Width (Tebal)</label><span
+                            class="value-display" id="thicknessVal">2px</span></div>
                     <input type="range" id="thickness" min="1" max="10" value="2" style="margin-bottom:0;" />
                 </div>
 
@@ -300,16 +699,20 @@
                 </div>
 
                 <div class="tool-group" style="margin-top: 10px;">
-                    <div class="inline-label"><label style="margin:0;">Ukuran Font</label><span class="value-display" id="fontSizeVal">12px</span></div>
+                    <div class="inline-label"><label style="margin:0;">Ukuran Font</label><span class="value-display"
+                            id="fontSizeVal">12px</span></div>
                     <input type="range" id="fontSize" min="8" max="72" value="12" style="margin-bottom:0;" />
                 </div>
 
                 <div class="grid-2" style="margin-top: 6px;">
-                    <label class="checkbox-label"><input type="checkbox" id="showIds" checked /><span>Label ID</span></label>
-                    <label class="checkbox-label"><input type="checkbox" id="showMetrics" checked /><span>Metrics</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="showIds" checked /><span>Label
+                            ID</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="showMetrics"
+                            checked /><span>Metrics</span></label>
                 </div>
             </div>
 
+            <!-- GLOBAL & LOCAL FILTER (VFX) -->
             <div class="section-box">
                 <h3>Global & Local Filter <span class="pro-badge">VFX</span></h3>
                 <div class="grid-2">
@@ -324,6 +727,7 @@
                             <option value="edge">Edge Outline</option>
                             <option value="glitch">Glitch RGB</option>
                             <option value="tone">Tone/Sepia</option>
+                            <option value="zoom">Zoom In</option>
                             <option value="mask">Dark Mask</option>
                             <option value="thermal">Thermal</option>
                             <option value="blur">Blur</option>
@@ -363,10 +767,15 @@
                     <option value="video/mp4">MP4 (Jika Didukung HP)</option>
                 </select>
                 <div class="grid-2">
-                    <button id="saveImgBtn" style="color:#10B981; border-color:#10B981;" onmouseover="this.style.background='#10B981'; this.style.color='#000'" onmouseout="this.style.background='#222'; this.style.color='#10B981'">FOTO PNG</button>
-                    <button id="recordVideoBtn" style="color:#EF4444; border-color:#EF4444;" onmouseover="this.style.background='#EF4444'; this.style.color='#000'" onmouseout="this.style.background='#222'; this.style.color='#EF4444'">REKAM KAMERA</button>
+                    <button id="saveImgBtn" style="color:#10B981; border-color:#10B981;"
+                        onmouseover="this.style.background='#10B981'; this.style.color='#000'"
+                        onmouseout="this.style.background='#222'; this.style.color='#10B981'">FOTO PNG</button>
+                    <button id="recordVideoBtn" style="color:#EF4444; border-color:#EF4444;"
+                        onmouseover="this.style.background='#EF4444'; this.style.color='#000'"
+                        onmouseout="this.style.background='#222'; this.style.color='#EF4444'">REKAM KAMERA</button>
                 </div>
-                <button id="autoRenderBtn" class="magic" style="display:none; width:100%;">RENDER & SIMPAN UPLOAD</button>
+                <button id="autoRenderBtn" class="magic" style="display:none; width:100%;">RENDER & SIMPAN
+                    UPLOAD</button>
             </div>
         </div>
     </div>
@@ -384,7 +793,7 @@
             const el = document.getElementById(id);
             if (el) el.textContent = text;
         }
-        
+
         function showMsg(title, desc) {
             setElText('msgTitle', title);
             setElText('msgDesc', desc);
@@ -394,8 +803,11 @@
         const video = document.getElementById("webcam");
         const canvas = document.getElementById("videoCanvas");
         const ctx = canvas ? canvas.getContext("2d") : null;
-        
-        // Single Shared Offscreen Canvas (Mencegah GC Thrashing)
+
+        // Persistent Offscreen Canvases (Mencegah GC Thrashing & Kebocoran RAM)
+        const cleanCanvas = document.createElement('canvas');
+        const cleanCtx = cleanCanvas.getContext('2d');
+
         const sharedTmpCanvas = document.createElement('canvas');
         const sharedTmpCtx = sharedTmpCanvas.getContext('2d');
 
@@ -415,11 +827,11 @@
         if (window.tf) {
             tf.ready().then(() => {
                 if (window.cocoSsd) {
-                    cocoSsd.load({base: 'lite_mobilenet_v2'}).then(model => {
+                    cocoSsd.load({ base: 'lite_mobilenet_v2' }).then(model => {
                         cocoModel = model;
                         isCocoLoading = false;
                         const sText = document.getElementById("statusText");
-                        if(sText && sText.textContent === "SYSTEM STANDBY") {
+                        if (sText && sText.textContent === "SYSTEM STANDBY") {
                             setElText("statusText", "AI READY");
                         }
                     }).catch(err => {
@@ -431,12 +843,12 @@
         }
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let lastBeepTime = 0; // Throttle audio beep cooldown
+        let lastBeepTime = 0;
 
         function playBeep() {
             if (!config.audioBeep || audioCtx.state === 'suspended') return;
             const now = performance.now();
-            if (now - lastBeepTime < 100) return; // Cooldown 100ms
+            if (now - lastBeepTime < 100) return;
             lastBeepTime = now;
 
             try {
@@ -449,14 +861,14 @@
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
                 osc.connect(gain); gain.connect(audioCtx.destination);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.08);
-            } catch (e) {}
+            } catch (e) { }
         }
 
         const config = {
             trackingMode: "face", isMirrored: true, audioBeep: true,
-            lensFilter: "none", localFilter: "none", shapeType: "box", 
+            lensFilter: "none", localFilter: "none", shapeType: "box",
             boundingSize: 0, motionRate: 0.25, blobMode: "size", blobValue: 64,
-            outlineColor: "#00FFFF", blockColor: "#000000", trailColor: "#10B981", textColor: "#FFFFFF", 
+            outlineColor: "#00FFFF", blockColor: "#000000", trailColor: "#10B981", textColor: "#FFFFFF",
             thickness: 2, fontSize: 12,
             drawTrails: true, drawConnections: true, centerHub: false, lineStyle: "solid",
             showIds: true, showMetrics: true, showScanlines: true
@@ -465,25 +877,25 @@
         function distance(p1, p2) { return Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2); }
 
         // ==========================================
-        // 3. DRAWING & RENDERING ENGINE
+        // 3. DRAWING & RENDERING SHAPES
         // ==========================================
         function drawShape(ctx, type, x, y, w, h, col, th, id, labelTxt, metricsTxt) {
             ctx.save();
-            ctx.strokeStyle = col; ctx.fillStyle = col; 
-            ctx.lineWidth = th; ctx.setLineDash([]); ctx.shadowBlur = 0; 
+            ctx.strokeStyle = col; ctx.fillStyle = col;
+            ctx.lineWidth = th; ctx.setLineDash([]); ctx.shadowBlur = 0;
             ctx.font = `bold ${config.fontSize}px Space Mono`;
 
-            if (type === 'box') { 
-                ctx.strokeRect(x, y, w, h); 
+            if (type === 'box') {
+                ctx.strokeRect(x, y, w, h);
             }
-            else if (type === 'solid') { 
-                ctx.fillStyle = config.blockColor; 
-                ctx.fillRect(x, y, w, h); 
-                ctx.strokeRect(x, y, w, h); 
+            else if (type === 'solid') {
+                ctx.fillStyle = config.blockColor;
+                ctx.fillRect(x, y, w, h);
+                ctx.strokeRect(x, y, w, h);
             }
             else if (type === 'glow') {
-                ctx.shadowBlur = 15; ctx.shadowColor = col; 
-                ctx.strokeRect(x, y, w, h); 
+                ctx.shadowBlur = 15; ctx.shadowColor = col;
+                ctx.strokeRect(x, y, w, h);
                 ctx.shadowBlur = 0;
             }
             else if (type === 'dash') {
@@ -492,7 +904,7 @@
             else if (type === 'frame') {
                 ctx.strokeRect(x, y, w, h);
                 const p = Math.min(w, h) * 0.1;
-                if(p > 2) ctx.strokeRect(x + p, y + p, w - p*2, h - p*2);
+                if (p > 2) ctx.strokeRect(x + p, y + p, w - p * 2, h - p * 2);
             }
             else if (type === 'xframe') {
                 ctx.strokeRect(x, y, w, h);
@@ -502,35 +914,35 @@
             else if (type === 'grid') {
                 ctx.strokeRect(x, y, w, h);
                 ctx.beginPath();
-                ctx.moveTo(x + w/3, y); ctx.lineTo(x + w/3, y + h);
-                ctx.moveTo(x + 2*w/3, y); ctx.lineTo(x + 2*w/3, y + h);
-                ctx.moveTo(x, y + h/3); ctx.lineTo(x + w, y + h/3);
-                ctx.moveTo(x, y + 2*h/3); ctx.lineTo(x + w, y + 2*h/3);
+                ctx.moveTo(x + w / 3, y); ctx.lineTo(x + w / 3, y + h);
+                ctx.moveTo(x + 2 * w / 3, y); ctx.lineTo(x + 2 * w / 3, y + h);
+                ctx.moveTo(x, y + h / 3); ctx.lineTo(x + w, y + h / 3);
+                ctx.moveTo(x, y + 2 * h / 3); ctx.lineTo(x + w, y + 2 * h / 3);
                 ctx.stroke();
             }
             else if (type === 'scope') {
-                const cx = x + w/2, cy = y + h/2, r = Math.min(w, h) / 2;
-                ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+                const cx = x + w / 2, cy = y + h / 2, r = Math.min(w, h) / 2;
+                ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(cx - r - 15, cy); ctx.lineTo(cx + r + 15, cy); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(cx, cy - r - 15); ctx.lineTo(cx, cy + r + 15); ctx.stroke();
-                ctx.fillRect(cx-2, cy-2, 4, 4);
+                ctx.fillRect(cx - 2, cy - 2, 4, 4);
             }
             else if (type === 'brackets') {
-                const bl = Math.min(w, h) * 0.2; 
-                ctx.beginPath(); ctx.moveTo(x, y+bl); ctx.lineTo(x, y); ctx.lineTo(x+bl, y); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(x+w-bl, y); ctx.lineTo(x+w, y); ctx.lineTo(x+w, y+bl); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(x, y+h-bl); ctx.lineTo(x, y+h); ctx.lineTo(x+bl, y+h); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(x+w-bl, y+h); ctx.lineTo(x+w, y+h); ctx.lineTo(x+w, y+h-bl); ctx.stroke();
-            } 
+                const bl = Math.min(w, h) * 0.2;
+                ctx.beginPath(); ctx.moveTo(x, y + bl); ctx.lineTo(x, y); ctx.lineTo(x + bl, y); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x + w - bl, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + bl); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x, y + h - bl); ctx.lineTo(x, y + h); ctx.lineTo(x + bl, y + h); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x + w - bl, y + h); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w, y + h - bl); ctx.stroke();
+            }
             else if (type === 'cross') {
-                const cx = x + w/2, cy = y + h/2, sz = Math.min(w,h) * 0.4;
+                const cx = x + w / 2, cy = y + h / 2, sz = Math.min(w, h) * 0.4;
                 ctx.beginPath(); ctx.moveTo(cx - sz, cy); ctx.lineTo(cx + sz, cy); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(cx, cy - sz); ctx.lineTo(cx, cy + sz); ctx.stroke();
             }
             else if (type === 'particle') {
-                for(let i=0; i<15; i++){
-                    let px = x + Math.random()*w; let py = y + Math.random()*h;
-                    ctx.fillRect(px, py, th*2, th*2);
+                for (let i = 0; i < 15; i++) {
+                    let px = x + Math.random() * w; let py = y + Math.random() * h;
+                    ctx.fillRect(px, py, th * 2, th * 2);
                 }
                 ctx.strokeRect(x, y, w, h);
             }
@@ -541,56 +953,55 @@
                 ctx.fillStyle = config.blockColor || "#000"; ctx.fillRect(x, y, textW, config.fontSize + 8);
                 ctx.fillStyle = config.textColor; ctx.fillText(title, x + 4, y + config.fontSize);
                 ctx.restore();
-                return; 
+                return;
             }
             else if (type === 'win2k') {
                 const headerH = Math.max(16, config.fontSize + 6);
                 const headerY = y < headerH ? y : y - headerH;
-                ctx.fillStyle = col; ctx.strokeRect(x, y, w, h); 
-                ctx.fillStyle = "#0000AA"; ctx.fillRect(x, headerY, w, headerH); 
-                ctx.strokeRect(x, headerY, w, headerH); 
-                
+                ctx.fillStyle = col; ctx.strokeRect(x, y, w, h);
+                ctx.fillStyle = "#0000AA"; ctx.fillRect(x, headerY, w, headerH);
+                ctx.strokeRect(x, headerY, w, headerH);
+
                 ctx.fillStyle = "#FFFFFF"; ctx.font = `${config.fontSize}px sans-serif`;
                 let title = labelTxt !== "WAJAH" ? labelTxt : "Target";
-                if(config.showIds) title = `ID:${id} ` + title;
+                if (config.showIds) title = `ID:${id} ` + title;
                 ctx.fillText(title, x + 4, headerY + headerH - 4);
-                
-                ctx.fillStyle = "#C0C0C0"; ctx.fillRect(x + w - headerH + 2, headerY + 2, headerH-4, headerH-4);
+
+                ctx.fillStyle = "#C0C0C0"; ctx.fillRect(x + w - headerH + 2, headerY + 2, headerH - 4, headerH - 4);
                 ctx.fillStyle = "#000000"; ctx.fillText("x", x + w - headerH + 4, headerY + headerH - 4);
-                
-                if(config.showMetrics) {
+
+                if (config.showMetrics) {
                     ctx.fillStyle = config.textColor; ctx.font = `${config.fontSize}px Space Mono`;
-                    ctx.fillText(metricsTxt, x + w/4, y + h/2);
+                    ctx.fillText(metricsTxt, x + w / 4, y + h / 2);
                 }
             }
             else if (type === 'labelBox') {
                 const headerH = Math.max(16, config.fontSize + 6);
                 const headerY = y < headerH ? y : y - headerH;
                 ctx.strokeStyle = col; ctx.strokeRect(x, y, w, h);
-                
+
                 let title = labelTxt !== "WAJAH" ? labelTxt : "Object";
                 if (config.showIds) title = `[ID:${id}] ` + title;
                 ctx.font = `${config.fontSize}px Arial`;
                 const textW = ctx.measureText(title).width + 8;
-                
+
                 ctx.fillStyle = "#FFFFFF"; ctx.fillRect(x, headerY, textW, headerH);
                 ctx.fillStyle = "#000000"; ctx.fillText(title, x + 4, headerY + headerH - 4);
-                
-                if(config.showMetrics) {
+
+                if (config.showMetrics) {
                     ctx.fillStyle = config.textColor;
                     ctx.fillText(metricsTxt, x + 4, y + h + config.fontSize);
                 }
             }
-            
-            // Render text biasa jika bukan win2k, labelBox, atau label
+
             if (type !== 'win2k' && type !== 'labelBox' && type !== 'label') {
                 ctx.fillStyle = config.textColor; ctx.font = `bold ${config.fontSize}px Space Mono`;
                 let txtY = y > 15 ? y - 8 : y + config.fontSize + 4;
-                
+
                 let titleParts = [];
                 if (config.showIds) titleParts.push(`[ID:${id}]`);
                 if (labelTxt && (labelTxt !== "WAJAH" || !config.showIds)) titleParts.push(labelTxt);
-                
+
                 if (titleParts.length > 0) ctx.fillText(titleParts.join(" "), x, txtY);
                 if (config.showMetrics) ctx.fillText(`V:${metricsTxt}`, x, y + h + config.fontSize + 4);
             }
@@ -598,93 +1009,130 @@
         }
 
         // ==========================================
-        // 4. PIXEL MANIPULATION & VFX FILTERS
+        // 4. PIXEL MANIPULATION & ADVANCED VFX FILTERS
         // ==========================================
-        function applyPixelManipulation(ctx, type, rx, ry, rw, rh) {
+        function applyPixelManipulation(targetCtx, type, rx, ry, rw, rh) {
             if (rw <= 0 || rh <= 0 || type === 'none' || type === 'pixelate' || type === 'zoom' || type === 'blur') return;
-            
-            // Clamping koordinat dengan aman
-            if (rx < 0) { rw += rx; rx = 0; }
-            if (ry < 0) { rh += ry; ry = 0; }
-            if (rx + rw > canvas.width) rw = canvas.width - rx;
-            if (ry + rh > canvas.height) rh = canvas.height - ry;
-            if (rw <= 0 || rh <= 0) return;
 
-            const imgData = ctx.getImageData(rx, ry, rw, rh);
+            const imgData = targetCtx.getImageData(rx, ry, rw, rh);
             const data = imgData.data;
             const cx = rw / 2; const cy = rh / 2;
-            const maxRadius = Math.sqrt(cx*cx + cy*cy);
-            const origData = (type === 'water' || type === 'crt' || type === 'glitch' || type === 'edge') ? new Uint8ClampedArray(data) : null;
+            const maxRadius = Math.sqrt(cx * cx + cy * cy);
+            const origData = new Uint8ClampedArray(data);
             const time = performance.now();
 
-            for (let i = 0; i < data.length; i += 4) {
-                if (type === 'invert') { 
-                    data[i] = 255 - data[i]; data[i+1] = 255 - data[i+1]; data[i+2] = 255 - data[i+2]; 
-                }
-                else if (type === 'thermal') {
-                    const luma = (data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114);
-                    if (luma < 64) { data[i]=0; data[i+1]=0; data[i+2]=luma*4; } 
-                    else if (luma < 128) { data[i]=(luma-64)*4; data[i+1]=0; data[i+2]=255-(luma-64)*4; } 
-                    else if (luma < 192) { data[i]=255; data[i+1]=(luma-128)*4; data[i+2]=0; } 
-                    else { data[i]=255; data[i+1]=255; data[i+2]=(luma-192)*4; } 
-                }
-                else if (type === 'dither') {
-                    const luma = (data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114);
-                    const threshold = 128 + (Math.random() * 64 - 32); 
-                    const bw = luma > threshold ? 255 : 0;
-                    data[i] = bw; data[i+1] = bw; data[i+2] = bw;
-                }
-                else if (type === 'xray') {
-                    const luma = (data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114);
-                    const xray = 255 - luma; 
-                    data[i] = Math.min(255, xray * 1.2); data[i+1] = Math.min(255, xray * 1.5 + 20); data[i+2] = Math.min(255, xray * 1.5 + 50);
-                }
-                else if (type === 'tone') {
-                    const luma = (data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114);
-                    data[i] = Math.min(255, luma + 60); data[i+1] = Math.min(255, luma + 30); data[i+2] = Math.max(0, luma - 20);
-                }
-                else if (type === 'mask') {
-                    data[i] = data[i] * 0.15; data[i+1] = data[i+1] * 0.15; data[i+2] = data[i+2] * 0.15;
-                }
-                else if (type === 'crt') {
-                    let pxlIdx = i / 4; let py = Math.floor(pxlIdx / rw);
-                    let darken = (py % 3 === 0) ? 0.6 : 1.1;
-                    let shift = 4;
-                    data[i] = (i - shift >= 0) ? origData[i - shift] * darken : origData[i] * darken;
-                    data[i+1] = origData[i+1] * darken;
-                    data[i+2] = (i + shift + 2 < data.length) ? origData[i + shift + 2] * darken : origData[i+2] * darken;
-                }
-                else if (type === 'water') {
-                    let pxlIdx = i / 4; let px = pxlIdx % rw; let py = Math.floor(pxlIdx / rw);
-                    let offset = Math.floor(Math.sin(py * 0.1 + time * 0.005) * 8);
-                    let srcX = Math.max(0, Math.min(rw - 1, px + offset));
-                    let srcIdx = (py * rw + srcX) * 4;
-                    data[i] = origData[srcIdx]; data[i+1] = origData[srcIdx+1]; data[i+2] = origData[srcIdx+2];
-                }
-                else if (type === 'nightvision') {
-                    const px = (i / 4) % rw; const py = Math.floor((i / 4) / rw);
-                    const dist = Math.sqrt(Math.pow(px-cx, 2) + Math.pow(py-cy, 2));
-                    const vignette = Math.max(0, 1.0 - Math.pow(dist / (maxRadius * 0.8), 3));
-                    const gray = (data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114);
-                    const noise = (Math.random() - 0.5) * 40; 
-                    data[i] = 0; 
-                    data[i+1] = Math.max(0, Math.min(255, ((gray * 1.8) + noise) * vignette)); 
-                    data[i+2] = 0; 
-                }
-                else if (type === 'glitch') {
-                    const shift = Math.floor(Math.random() * 16);
-                    if (Math.random() > 0.88 && i + shift * 4 < data.length) data[i] = origData[i + shift * 4];
-                    if (Math.random() > 0.88 && i - shift * 4 >= 0) data[i+2] = origData[i - shift * 4 + 2];
-                }
-                else if (type === 'edge') {
-                    if (i + 4 < data.length) {
-                        const diff = Math.abs(origData[i] - origData[i+4]) + Math.abs(origData[i+1] - origData[i+5]);
-                        const c = diff > 30 ? 255 : 0; 
-                        data[i] = c; data[i+1] = c; data[i+2] = c;
+            if (type === 'glitch') {
+                const glitchBlock = Math.floor(time / 120);
+                for (let y = 0; y < rh; y++) {
+                    let isGlitchLine = ((y + glitchBlock * 17) % 37 < 4) || ((y * 3 + glitchBlock * 7) % 73 === 0);
+                    let shift = isGlitchLine ? Math.floor(((Math.sin(y * 0.5 + time * 0.01) + 1) * 8) - 4) : 2;
+                    for (let x = 0; x < rw; x++) {
+                        let idx = (y * rw + x) * 4;
+                        let redX = Math.max(0, Math.min(rw - 1, x + shift));
+                        let blueX = Math.max(0, Math.min(rw - 1, x - shift));
+                        let redIdx = (y * rw + redX) * 4;
+                        let blueIdx = (y * rw + blueX) * 4;
+                        data[idx] = origData[redIdx];
+                        data[idx + 1] = origData[idx + 1];
+                        data[idx + 2] = origData[blueIdx + 2];
                     }
                 }
             }
-            ctx.putImageData(imgData, rx, ry);
+            else if (type === 'edge') {
+                for (let y = 0; y < rh - 1; y++) {
+                    for (let x = 0; x < rw - 1; x++) {
+                        let idx = (y * rw + x) * 4;
+                        let rightIdx = idx + 4;
+                        let downIdx = ((y + 1) * rw + x) * 4;
+                        let diffH = Math.abs(origData[idx] - origData[rightIdx]) + Math.abs(origData[idx + 1] - origData[rightIdx + 1]);
+                        let diffV = Math.abs(origData[idx] - origData[downIdx]) + Math.abs(origData[idx + 1] - origData[downIdx + 1]);
+                        let c = (diffH + diffV > 35) ? 255 : 0;
+                        data[idx] = c; data[idx + 1] = c; data[idx + 2] = c;
+                    }
+                }
+            }
+            else if (type === 'crt') {
+                for (let y = 0; y < rh; y++) {
+                    let darken = (y % 3 === 0) ? 0.65 : 1.05;
+                    for (let x = 0; x < rw; x++) {
+                        let idx = (y * rw + x) * 4;
+                        let rIdx = (y * rw + Math.max(0, x - 2)) * 4;
+                        let bIdx = (y * rw + Math.min(rw - 1, x + 2)) * 4;
+                        data[idx] = Math.min(255, origData[rIdx] * darken);
+                        data[idx + 1] = Math.min(255, origData[idx + 1] * darken);
+                        data[idx + 2] = Math.min(255, origData[bIdx + 2] * darken);
+                    }
+                }
+            }
+            else if (type === 'water') {
+                for (let y = 0; y < rh; y++) {
+                    let offset = Math.floor(Math.sin(y * 0.08 + time * 0.005) * 8);
+                    for (let x = 0; x < rw; x++) {
+                        let srcX = Math.max(0, Math.min(rw - 1, x + offset));
+                        let dstIdx = (y * rw + x) * 4;
+                        let srcIdx = (y * rw + srcX) * 4;
+                        data[dstIdx] = origData[srcIdx];
+                        data[dstIdx + 1] = origData[srcIdx + 1];
+                        data[dstIdx + 2] = origData[srcIdx + 2];
+                    }
+                }
+            }
+            else if (type === 'nightvision') {
+                const maxDist = maxRadius * 0.85;
+                for (let y = 0; y < rh; y++) {
+                    for (let x = 0; x < rw; x++) {
+                        let idx = (y * rw + x) * 4;
+                        let dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
+                        let vignette = Math.max(0.2, 1.0 - Math.pow(dist / maxDist, 2.5));
+                        let gray = (data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114);
+                        let noise = (Math.random() - 0.5) * 35;
+                        data[idx] = 0;
+                        data[idx + 1] = Math.max(0, Math.min(255, (gray * 1.7 + noise) * vignette));
+                        data[idx + 2] = Math.max(0, Math.min(80, (gray * 0.2) * vignette));
+                    }
+                }
+            }
+            else {
+                for (let i = 0; i < data.length; i += 4) {
+                    if (type === 'invert') {
+                        data[i] = 255 - data[i]; data[i + 1] = 255 - data[i + 1]; data[i + 2] = 255 - data[i + 2];
+                    }
+                    else if (type === 'thermal') {
+                        const luma = (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
+                        if (luma < 64) {
+                            data[i] = 0; data[i + 1] = Math.floor(luma * 2); data[i + 2] = Math.min(255, Math.floor(luma * 4));
+                        } else if (luma < 128) {
+                            let factor = (luma - 64) * 4;
+                            data[i] = factor; data[i + 1] = 0; data[i + 2] = 255 - factor;
+                        } else if (luma < 192) {
+                            let factor = (luma - 128) * 4;
+                            data[i] = 255; data[i + 1] = factor; data[i + 2] = 0;
+                        } else {
+                            let factor = (luma - 192) * 4;
+                            data[i] = 255; data[i + 1] = 255; data[i + 2] = factor;
+                        }
+                    }
+                    else if (type === 'dither') {
+                        const luma = (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
+                        const threshold = 128 + (Math.random() * 64 - 32);
+                        const bw = luma > threshold ? 255 : 0;
+                        data[i] = bw; data[i + 1] = bw; data[i + 2] = bw;
+                    }
+                    else if (type === 'xray') {
+                        const luma = (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
+                        const xray = 255 - luma;
+                        data[i] = Math.min(255, xray * 1.2); data[i + 1] = Math.min(255, xray * 1.5 + 20); data[i + 2] = Math.min(255, xray * 1.5 + 50);
+                    }
+                    else if (type === 'tone') {
+                        const luma = (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
+                        data[i] = Math.min(255, luma + 60); data[i + 1] = Math.min(255, luma + 30); data[i + 2] = Math.max(0, luma - 20);
+                    }
+                    else if (type === 'mask') {
+                        data[i] = data[i] * 0.18; data[i + 1] = data[i + 1] * 0.18; data[i + 2] = data[i + 2] * 0.18;
+                    }
+                }
+            }
+            targetCtx.putImageData(imgData, rx, ry);
         }
 
         // ==========================================
@@ -693,42 +1141,41 @@
         function updateTrackedFaces(detections, canvasWidth, canvasHeight) {
             let currentFaces = [];
             detections.forEach(det => {
-                let box = det.boundingBox, lbl = det.label || "WAJAH"; 
+                let box = det.boundingBox, lbl = det.label || "WAJAH";
                 let w = box.width * canvasWidth, h = box.height * canvasHeight;
                 let cx = box.xCenter * canvasWidth, cy = box.yCenter * canvasHeight;
 
                 if (config.boundingSize > 0) {
                     w = config.boundingSize; h = config.boundingSize;
                 }
-                
+
                 let x = cx - (w / 2), y = cy - (h / 2);
                 currentFaces.push({ x, y, w, h, cx, cy, area: w * h, label: lbl });
             });
 
-            // Tracking threshold adaptif terhadap resolusi layar
             const dynamicDistanceThreshold = Math.max(80, Math.min(canvasWidth, canvasHeight) * 0.2);
             const newTrackedFaces = [];
 
             currentFaces.forEach(cf => {
-                let bestMatch = null, minDistance = dynamicDistanceThreshold; 
+                let bestMatch = null, minDistance = dynamicDistanceThreshold;
                 trackedFaces.forEach(tf => {
                     if (tf.claimed) return;
-                    const dist = distance({x: cf.cx, y: cf.cy}, {x: tf.cx, y: tf.cy});
+                    const dist = distance({ x: cf.cx, y: cf.cy }, { x: tf.cx, y: tf.cy });
                     if (dist < minDistance) { minDistance = dist; bestMatch = tf; }
                 });
-                
+
                 if (bestMatch) {
-                    bestMatch.claimed = true; 
-                    cf.id = bestMatch.id; 
-                    cf.history = bestMatch.history || []; 
+                    bestMatch.claimed = true;
+                    cf.id = bestMatch.id;
+                    cf.history = bestMatch.history || [];
                     cf.history.push({ x: cf.cx, y: cf.cy });
                     if (cf.history.length > 20) cf.history.shift();
-                    cf.vx = cf.cx - bestMatch.cx; cf.vy = cf.cy - bestMatch.cy; 
-                    cf.label = bestMatch.label || cf.label; 
+                    cf.vx = cf.cx - bestMatch.cx; cf.vy = cf.cy - bestMatch.cy;
+                    cf.label = bestMatch.label || cf.label;
                 } else {
-                    cf.id = nextFaceId++; 
+                    cf.id = nextFaceId++;
                     cf.history = [{ x: cf.cx, y: cf.cy }];
-                    cf.vx = 0; cf.vy = 0; 
+                    cf.vx = 0; cf.vy = 0;
                     playBeep();
                 }
                 newTrackedFaces.push(cf);
@@ -736,36 +1183,36 @@
             trackedFaces = newTrackedFaces;
         }
 
-        const motionRes = 64; 
-        
+        const motionRes = 64;
+
         function getPixelClusters(vidElement, canvasWidth, canvasHeight, mode) {
             if (!window.pixelCanvas) {
                 window.pixelCanvas = document.createElement('canvas');
                 window.pixelCanvas.width = motionRes; window.pixelCanvas.height = motionRes;
-                window.pixelCtx = window.pixelCanvas.getContext('2d', {willReadFrequently: true});
+                window.pixelCtx = window.pixelCanvas.getContext('2d', { willReadFrequently: true });
             }
             const pCtx = window.pixelCtx;
             pCtx.drawImage(vidElement, 0, 0, motionRes, motionRes);
             const currData = pCtx.getImageData(0, 0, motionRes, motionRes).data;
             let detections = [];
 
-            const sensitivity = parseFloat(config.motionRate); 
-            const motionThreshold = 25 + (sensitivity * 50); 
-            const lumaThreshold = 255 - (sensitivity * 120); 
+            const sensitivity = parseFloat(config.motionRate);
+            const motionThreshold = 25 + (sensitivity * 50);
+            const lumaThreshold = 255 - (sensitivity * 120);
 
             let blobs = [];
             let mergeDist = config.blobMode === 'size' ? Math.max(2, config.blobValue / 8) : 6;
 
             for (let i = 0; i < currData.length; i += 4) {
                 let isActive = false;
-                
+
                 if (mode === 'motion' && window.lastPixelData) {
-                    let diff = Math.abs(currData[i]-window.lastPixelData[i]) + 
-                               Math.abs(currData[i+1]-window.lastPixelData[i+1]) + 
-                               Math.abs(currData[i+2]-window.lastPixelData[i+2]);
+                    let diff = Math.abs(currData[i] - window.lastPixelData[i]) +
+                        Math.abs(currData[i + 1] - window.lastPixelData[i + 1]) +
+                        Math.abs(currData[i + 2] - window.lastPixelData[i + 2]);
                     if (diff > motionThreshold) isActive = true;
                 } else if (mode === 'luma') {
-                    let luma = (currData[i] * 0.299 + currData[i+1] * 0.587 + currData[i+2] * 0.114);
+                    let luma = (currData[i] * 0.299 + currData[i + 1] * 0.587 + currData[i + 2] * 0.114);
                     if (luma > lumaThreshold) isActive = true;
                 }
 
@@ -773,12 +1220,11 @@
                     let pxlIdx = i / 4;
                     let x = pxlIdx % motionRes;
                     let y = Math.floor(pxlIdx / motionRes);
-                    
+
                     let matchedBlob = null;
                     for (let b of blobs) {
                         let dx = Math.max(b.minX - x, 0, x - b.maxX);
                         let dy = Math.max(b.minY - y, 0, y - b.maxY);
-                        
                         if (dx <= mergeDist && dy <= mergeDist) {
                             matchedBlob = b; break;
                         }
@@ -800,17 +1246,17 @@
 
             let validBlobs = [];
             for (let b of blobs) {
-                if (b.count > 2) { 
+                if (b.count > 2) {
                     let cx = b.sumX / b.count;
                     let cy = b.sumY / b.count;
                     let w = Math.max(2, b.maxX - b.minX);
                     let h = Math.max(2, b.maxY - b.minY);
-                    validBlobs.push({cx, cy, w, h, area: w * h});
+                    validBlobs.push({ cx, cy, w, h, area: w * h });
                 }
             }
 
             if (config.blobMode === 'count') {
-                validBlobs.sort((a,b) => b.area - a.area);
+                validBlobs.sort((a, b) => b.area - a.area);
                 validBlobs = validBlobs.slice(0, config.blobValue);
             }
 
@@ -829,22 +1275,21 @@
         }
 
         // MediaPipe Face
-        const faceDetection = new FaceDetection({locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${f}`});
+        const faceDetection = new FaceDetection({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${f}` });
         faceDetection.setOptions({ model: 'short', minDetectionConfidence: 0.5 });
-        faceDetection.onResults((res) => { 
+        faceDetection.onResults((res) => {
             if (isTracking && config.trackingMode === 'face') {
-                processResultsWrapper(res.image, res.detections || []); 
+                processResultsWrapper(res.image, res.detections || []);
             }
         });
 
         // MediaPipe Pose
-        const poseDetection = new Pose({locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}`});
+        const poseDetection = new Pose({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}` });
         poseDetection.setOptions({ modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
-        poseDetection.onResults((res) => { 
+        poseDetection.onResults((res) => {
             if (isTracking && config.trackingMode === 'pose') {
                 poseLandmarks = res.poseLandmarks || null;
                 let mockDetections = [];
-                // Buat bounding box tubuh utuh jika landmark terdeteksi
                 if (poseLandmarks && poseLandmarks.length > 0) {
                     let xs = poseLandmarks.map(p => p.x), ys = poseLandmarks.map(p => p.y);
                     let minX = Math.max(0, Math.min(...xs)), maxX = Math.min(1, Math.max(...xs));
@@ -859,7 +1304,7 @@
                         label: "POSE"
                     });
                 }
-                processResultsWrapper(res.image, mockDetections); 
+                processResultsWrapper(res.image, mockDetections);
             }
         });
 
@@ -867,16 +1312,16 @@
             if (!isTracking) return;
             lastResults = { image: imageSrc };
             if (config.trackingMode !== 'pose') poseLandmarks = null;
-            
+
             if (!isStaticMedia) {
                 const now = performance.now();
                 if (now - lastFrameTime > 0) fps = 1000 / (now - lastFrameTime);
-                lastFrameTime = now; 
+                lastFrameTime = now;
                 setElText("fpsDisplay", Math.round(fps));
             } else {
                 setElText("fpsDisplay", "STATIC");
             }
-            
+
             if (canvas) updateTrackedFaces(detectionsRaw, canvas.width, canvas.height);
             setElText("targetCount", trackedFaces.length);
             renderVisuals();
@@ -885,42 +1330,42 @@
         // ==========================================
         // 6. TRACKER LOOPS & STATIC MEDIA
         // ==========================================
-        let lastMotionScanTime = 0; 
+        let lastMotionScanTime = 0;
         let lastCocoScanTime = 0;
         let isDetectingCoco = false;
 
         async function processStaticMedia() {
             if (!activeMediaElement || !isStaticMedia) return;
             setElText("statusText", "ANALYZING IMAGE...");
-            
+
             if (config.trackingMode === 'face') {
-                await faceDetection.send({image: activeMediaElement});
+                await faceDetection.send({ image: activeMediaElement });
             } else if (config.trackingMode === 'pose') {
-                await poseDetection.send({image: activeMediaElement});
+                await poseDetection.send({ image: activeMediaElement });
             } else if (config.trackingMode === 'motion' || config.trackingMode === 'luma') {
                 const mockDet = getPixelClusters(activeMediaElement, canvas.width, canvas.height, config.trackingMode);
                 processResultsWrapper(activeMediaElement, mockDet);
             } else if (cocoModel) {
                 const preds = await cocoModel.detect(activeMediaElement, 50, 0.25);
-                let tClasses = config.trackingMode === 'person' ? ['person'] : 
-                               config.trackingMode === 'animal' ? ['cat', 'dog', 'bird', 'horse', 'cow', 'sheep', 'bear', 'zebra', 'giraffe', 'elephant', 'teddy bear'] : 
-                               ['potted plant'];
-                
+                let tClasses = config.trackingMode === 'person' ? ['person'] :
+                    config.trackingMode === 'animal' ? ['cat', 'dog', 'bird', 'horse', 'cow', 'sheep', 'bear', 'zebra', 'giraffe', 'elephant', 'teddy bear'] :
+                        ['potted plant'];
+
                 const filtered = preds.filter(p => tClasses.includes(p.class.toLowerCase()));
                 const cw = activeMediaElement.width || activeMediaElement.videoWidth || 1;
                 const ch = activeMediaElement.height || activeMediaElement.videoHeight || 1;
-                
+
                 let mockDet = filtered.map(d => {
                     let finalLabel = d.class.toUpperCase();
                     if (config.trackingMode === 'animal') finalLabel = "ANIMAL";
-                    return { 
-                        boundingBox: { 
-                            xCenter: (d.bbox[0] + d.bbox[2]/2) / cw, 
-                            yCenter: (d.bbox[1] + d.bbox[3]/2) / ch, 
-                            width: d.bbox[2] / cw, 
-                            height: d.bbox[3] / ch 
-                        }, 
-                        label: finalLabel 
+                    return {
+                        boundingBox: {
+                            xCenter: (d.bbox[0] + d.bbox[2] / 2) / cw,
+                            yCenter: (d.bbox[1] + d.bbox[3] / 2) / ch,
+                            width: d.bbox[2] / cw,
+                            height: d.bbox[3] / ch
+                        },
+                        label: finalLabel
                     };
                 });
                 processResultsWrapper(activeMediaElement, mockDet);
@@ -935,9 +1380,9 @@
             try {
                 if (activeMediaElement.tagName === 'VIDEO' && activeMediaElement.readyState >= 2 && !activeMediaElement.paused) {
                     if (config.trackingMode === 'face') {
-                        await faceDetection.send({image: activeMediaElement});
+                        await faceDetection.send({ image: activeMediaElement });
                     } else if (config.trackingMode === 'pose') {
-                        await poseDetection.send({image: activeMediaElement});
+                        await poseDetection.send({ image: activeMediaElement });
                     } else if (config.trackingMode === 'motion' || config.trackingMode === 'luma') {
                         const now = performance.now();
                         if (now - lastMotionScanTime > 50) {
@@ -959,26 +1404,26 @@
                             if (cw && ch) {
                                 cocoModel.detect(activeMediaElement, 50, 0.25).then(preds => {
                                     if (!isTracking) { isDetectingCoco = false; return; }
-                                    let tClasses = config.trackingMode === 'person' ? ['person'] : 
-                                                   config.trackingMode === 'animal' ? ['cat', 'dog', 'bird', 'horse', 'cow', 'sheep', 'bear', 'zebra', 'giraffe', 'elephant', 'teddy bear'] : 
-                                                   ['potted plant'];
-                                    
+                                    let tClasses = config.trackingMode === 'person' ? ['person'] :
+                                        config.trackingMode === 'animal' ? ['cat', 'dog', 'bird', 'horse', 'cow', 'sheep', 'bear', 'zebra', 'giraffe', 'elephant', 'teddy bear'] :
+                                            ['potted plant'];
+
                                     const filtered = preds.filter(p => tClasses.includes(p.class.toLowerCase()));
                                     let mockDet = filtered.map(d => {
                                         let finalLabel = d.class.toUpperCase();
                                         if (config.trackingMode === 'animal') finalLabel = "ANIMAL";
-                                        return { 
-                                            boundingBox: { 
-                                                xCenter: (d.bbox[0] + d.bbox[2]/2) / cw, 
-                                                yCenter: (d.bbox[1] + d.bbox[3]/2) / ch, 
-                                                width: d.bbox[2] / cw, 
-                                                height: d.bbox[3] / ch 
-                                            }, 
-                                            label: finalLabel 
+                                        return {
+                                            boundingBox: {
+                                                xCenter: (d.bbox[0] + d.bbox[2] / 2) / cw,
+                                                yCenter: (d.bbox[1] + d.bbox[3] / 2) / ch,
+                                                width: d.bbox[2] / cw,
+                                                height: d.bbox[3] / ch
+                                            },
+                                            label: finalLabel
                                         };
                                     });
                                     processResultsWrapper(activeMediaElement, mockDet);
-                                    isDetectingCoco = false; 
+                                    isDetectingCoco = false;
                                 }).catch(() => { isDetectingCoco = false; });
                             } else {
                                 isDetectingCoco = false;
@@ -989,7 +1434,7 @@
                     }
                 }
             } catch (err) { console.error(err); }
-            
+
             if (isTracking && !isStaticMedia) {
                 if (animationFrameId) cancelAnimationFrame(animationFrameId);
                 animationFrameId = requestAnimationFrame(runTrackerLoop);
@@ -1019,145 +1464,165 @@
         }
 
         // ==========================================
-        // 7. COMPOSITING VISUALS
+        // 7. COMPOSITING VISUALS (DUAL-LAYER VFX PIPELINE)
         // ==========================================
         function renderVisuals() {
             if (!isTracking || !lastResults || !ctx) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.save(); 
-            if (config.isMirrored) { 
-                ctx.translate(canvas.width, 0); 
-                ctx.scale(-1, 1); 
+            const w = canvas.width, h = canvas.height;
+            if (w <= 0 || h <= 0) return;
+
+            // STEP 1: Persiapkan Clean Canvas (Frame Asli)
+            cleanCanvas.width = w;
+            cleanCanvas.height = h;
+            cleanCtx.save();
+            if (config.isMirrored) {
+                cleanCtx.translate(w, 0);
+                cleanCtx.scale(-1, 1);
             }
-            
-            if (config.lensFilter === 'blur') ctx.filter = 'blur(10px)'; 
-            else ctx.filter = 'none';
-            
-            if (config.lensFilter === 'pixelate') {
-                // Gunakan shared offscreen canvas
-                sharedTmpCanvas.width = Math.max(1, Math.floor(canvas.width * 0.05));
-                sharedTmpCanvas.height = Math.max(1, Math.floor(canvas.height * 0.05));
-                sharedTmpCtx.drawImage(lastResults.image, 0, 0, sharedTmpCanvas.width, sharedTmpCanvas.height);
+            cleanCtx.drawImage(lastResults.image, 0, 0, w, h);
+            cleanCtx.restore();
+
+            // STEP 2: Render Layer Latar (Global Filter)
+            ctx.clearRect(0, 0, w, h);
+
+            if (config.lensFilter === 'none') {
+                ctx.drawImage(cleanCanvas, 0, 0);
+            } else if (config.lensFilter === 'blur') {
+                ctx.save();
+                ctx.filter = 'blur(10px)';
+                ctx.drawImage(cleanCanvas, 0, 0);
+                ctx.restore();
+            } else if (config.lensFilter === 'pixelate') {
+                sharedTmpCanvas.width = Math.max(1, Math.floor(w * 0.04));
+                sharedTmpCanvas.height = Math.max(1, Math.floor(h * 0.04));
+                sharedTmpCtx.drawImage(cleanCanvas, 0, 0, sharedTmpCanvas.width, sharedTmpCanvas.height);
                 ctx.imageSmoothingEnabled = false;
-                ctx.drawImage(sharedTmpCanvas, 0, 0, sharedTmpCanvas.width, sharedTmpCanvas.height, 0, 0, canvas.width, canvas.height);
+                ctx.drawImage(sharedTmpCanvas, 0, 0, sharedTmpCanvas.width, sharedTmpCanvas.height, 0, 0, w, h);
                 ctx.imageSmoothingEnabled = true;
+            } else if (config.lensFilter === 'zoom') {
+                ctx.drawImage(cleanCanvas, w * 0.15, h * 0.15, w * 0.7, h * 0.7, 0, 0, w, h);
             } else {
-                ctx.drawImage(lastResults.image, 0, 0, canvas.width, canvas.height);
+                ctx.drawImage(cleanCanvas, 0, 0);
+                applyPixelManipulation(ctx, config.lensFilter, 0, 0, w, h);
             }
-            ctx.restore(); 
 
-            ctx.filter = 'none';
-            applyPixelManipulation(ctx, config.lensFilter, 0, 0, canvas.width, canvas.height);
+            const getDrawX = (x, boxW) => config.isMirrored ? w - x - boxW : x;
+            const getDrawCX = (cx) => config.isMirrored ? w - cx : cx;
 
-            const getDrawX = (x, w) => config.isMirrored ? canvas.width - x - w : x;
-            const getDrawCX = (cx) => config.isMirrored ? canvas.width - cx : cx;
-
-            // Render Filter Lokal dalam Kotak Target
-            if (config.localFilter !== 'none' && trackedFaces.length > 0) {
+            // STEP 3: Render Layer Objek (Dalam Kotak / Local Filter)
+            if (trackedFaces.length > 0) {
                 trackedFaces.forEach(f => {
                     let rx = Math.floor(getDrawX(f.x, f.w)), ry = Math.floor(f.y), rw = Math.floor(f.w), rh = Math.floor(f.h);
-                    
-                    // Clamping batas kanvas
+
                     let cx1 = Math.max(0, rx), cy1 = Math.max(0, ry);
-                    let cx2 = Math.min(canvas.width, rx + rw), cy2 = Math.min(canvas.height, ry + rh);
+                    let cx2 = Math.min(w, rx + rw), cy2 = Math.min(h, ry + rh);
                     let crw = cx2 - cx1, crh = cy2 - cy1;
 
                     if (crw > 0 && crh > 0) {
-                        if (config.localFilter === 'pixelate' || config.localFilter === 'zoom' || config.localFilter === 'blur') {
-                            sharedTmpCanvas.width = crw; sharedTmpCanvas.height = crh;
-                            if (config.localFilter === 'pixelate') {
-                                const pxW = Math.max(1, Math.floor(crw * 0.1)), pxH = Math.max(1, Math.floor(crh * 0.1));
-                                sharedTmpCanvas.width = pxW; sharedTmpCanvas.height = pxH;
-                                sharedTmpCtx.drawImage(canvas, cx1, cy1, crw, crh, 0, 0, pxW, pxH);
-                                ctx.imageSmoothingEnabled = false;
-                                ctx.drawImage(sharedTmpCanvas, 0, 0, pxW, pxH, cx1, cy1, crw, crh);
-                                ctx.imageSmoothingEnabled = true;
-                            } else if (config.localFilter === 'zoom') {
-                                sharedTmpCtx.drawImage(canvas, cx1 + crw * 0.25, cy1 + crh * 0.25, crw * 0.5, crh * 0.5, 0, 0, crw, crh);
-                                ctx.drawImage(sharedTmpCanvas, 0, 0, crw, crh, cx1, cy1, crw, crh);
-                            } else if (config.localFilter === 'blur') {
-                                sharedTmpCtx.filter = 'blur(12px)';
-                                sharedTmpCtx.drawImage(canvas, cx1, cy1, crw, crh, 0, 0, crw, crh);
-                                sharedTmpCtx.filter = 'none';
-                                ctx.drawImage(sharedTmpCanvas, 0, 0, crw, crh, cx1, cy1, crw, crh);
+                        if (config.localFilter === 'none') {
+                            // Jika Latar ada efek, kembalikan area dalam kotak ke video asli (normal/fokus)
+                            if (config.lensFilter !== 'none') {
+                                ctx.drawImage(cleanCanvas, cx1, cy1, crw, crh, cx1, cy1, crw, crh);
                             }
                         } else {
-                            applyPixelManipulation(ctx, config.localFilter, cx1, cy1, crw, crh);
+                            // Terapkan efek lokal langsung dari frame bersih asli
+                            sharedTmpCanvas.width = crw;
+                            sharedTmpCanvas.height = crh;
+
+                            if (config.localFilter === 'blur') {
+                                sharedTmpCtx.save();
+                                sharedTmpCtx.filter = 'blur(12px)';
+                                sharedTmpCtx.drawImage(cleanCanvas, cx1, cy1, crw, crh, 0, 0, crw, crh);
+                                sharedTmpCtx.restore();
+                                ctx.drawImage(sharedTmpCanvas, cx1, cy1);
+                            } else if (config.localFilter === 'pixelate') {
+                                const pxW = Math.max(1, Math.floor(crw * 0.1)), pxH = Math.max(1, Math.floor(crh * 0.1));
+                                const pCanvas = document.createElement('canvas');
+                                pCanvas.width = pxW; pCanvas.height = pxH;
+                                pCanvas.getContext('2d').drawImage(cleanCanvas, cx1, cy1, crw, crh, 0, 0, pxW, pxH);
+                                ctx.imageSmoothingEnabled = false;
+                                ctx.drawImage(pCanvas, 0, 0, pxW, pxH, cx1, cy1, crw, crh);
+                                ctx.imageSmoothingEnabled = true;
+                            } else if (config.localFilter === 'zoom') {
+                                sharedTmpCtx.drawImage(cleanCanvas, cx1 + crw * 0.2, cy1 + crh * 0.2, crw * 0.6, crh * 0.6, 0, 0, crw, crh);
+                                ctx.drawImage(sharedTmpCanvas, cx1, cy1);
+                            } else {
+                                sharedTmpCtx.drawImage(cleanCanvas, cx1, cy1, crw, crh, 0, 0, crw, crh);
+                                applyPixelManipulation(sharedTmpCtx, config.localFilter, 0, 0, crw, crh);
+                                ctx.drawImage(sharedTmpCanvas, cx1, cy1);
+                            }
                         }
                     }
                 });
             }
-            
+
+            // STEP 4: Render Vektor UI (Jaring, Jejak, Garis Kotak)
             const ocol = config.outlineColor, tcol = config.trailColor;
             ctx.strokeStyle = tcol; ctx.lineWidth = config.thickness;
-            
-            // Draw Jaring Koneksi Antar Target
+
             if (config.drawConnections && trackedFaces.length > 1) {
                 if (!config.centerHub) {
-                    for (let i=0; i<trackedFaces.length; i++) {
-                        for (let j=i+1; j<trackedFaces.length; j++) { 
+                    for (let i = 0; i < trackedFaces.length; i++) {
+                        for (let j = i + 1; j < trackedFaces.length; j++) {
                             drawConnectLine(ctx, getDrawCX(trackedFaces[i].cx), trackedFaces[i].cy, getDrawCX(trackedFaces[j].cx), trackedFaces[j].cy, config.lineStyle);
                         }
                     }
                 } else {
-                    for (let i=1; i<trackedFaces.length; i++) { 
+                    for (let i = 1; i < trackedFaces.length; i++) {
                         drawConnectLine(ctx, getDrawCX(trackedFaces[0].cx), trackedFaces[0].cy, getDrawCX(trackedFaces[i].cx), trackedFaces[i].cy, config.lineStyle);
                     }
                 }
             }
-            
-            // Draw Jejak Gerakan (Trails)
+
             if (config.drawTrails) {
-                ctx.setLineDash([]); 
+                ctx.setLineDash([]);
                 trackedFaces.forEach(f => {
                     if (f.history && f.history.length > 1) {
-                        ctx.beginPath(); 
+                        ctx.beginPath();
                         ctx.moveTo(getDrawCX(f.history[0].x), f.history[0].y);
-                        for (let i=1; i<f.history.length; i++) ctx.lineTo(getDrawCX(f.history[i].x), f.history[i].y);
+                        for (let i = 1; i < f.history.length; i++) ctx.lineTo(getDrawCX(f.history[i].x), f.history[i].y);
                         ctx.stroke();
                     }
                 });
             }
 
-            // Draw Kerangka Pose
             if (poseLandmarks && config.trackingMode === 'pose') {
                 ctx.strokeStyle = config.outlineColor;
                 ctx.fillStyle = config.outlineColor;
                 ctx.lineWidth = config.thickness;
-                
+
                 const skeleton = [
-                    [11,12], [11,13], [13,15], [15,17], [15,19], [15,21], 
-                    [12,14], [14,16], [16,18], [16,20], [16,22],
-                    [11,23], [12,24], [23,24], 
-                    [23,25], [25,27], [27,29], [27,31], [29,31],
-                    [24,26], [26,28], [28,30], [28,32], [30,32],
-                    [0,1], [1,2], [2,3], [3,7], [0,4], [4,5], [5,6], [6,8], [9,10]
+                    [11, 12], [11, 13], [13, 15], [15, 17], [15, 19], [15, 21],
+                    [12, 14], [14, 16], [16, 18], [16, 20], [16, 22],
+                    [11, 23], [12, 24], [23, 24],
+                    [23, 25], [25, 27], [27, 29], [27, 31], [29, 31],
+                    [24, 26], [26, 28], [28, 30], [28, 32], [30, 32],
+                    [0, 1], [1, 2], [2, 3], [3, 7], [0, 4], [4, 5], [5, 6], [6, 8], [9, 10]
                 ];
-                
+
                 skeleton.forEach(pair => {
                     const p1 = poseLandmarks[pair[0]];
                     const p2 = poseLandmarks[pair[1]];
                     if (p1 && p2 && (p1.visibility ?? 1) > 0.4 && (p2.visibility ?? 1) > 0.4) {
-                        drawConnectLine(ctx, getDrawCX(p1.x * canvas.width), p1.y * canvas.height, getDrawCX(p2.x * canvas.width), p2.y * canvas.height, config.lineStyle);
+                        drawConnectLine(ctx, getDrawCX(p1.x * w), p1.y * h, getDrawCX(p2.x * w), p2.y * h, config.lineStyle);
                     }
                 });
 
                 ctx.setLineDash([]);
                 poseLandmarks.forEach((lm, idx) => {
                     if ((lm.visibility ?? 1) > 0.4) {
-                        let nx = getDrawCX(lm.x * canvas.width);
-                        let ny = lm.y * canvas.height;
+                        let nx = getDrawCX(lm.x * w);
+                        let ny = lm.y * h;
                         if (config.shapeType === 'particle') {
                             ctx.fillRect(nx - 2, ny - 2, 4, 4);
                         } else if (config.shapeType === 'glow') {
                             ctx.shadowBlur = 15; ctx.shadowColor = config.outlineColor;
-                            ctx.beginPath(); ctx.arc(nx, ny, config.thickness*2, 0, 2*Math.PI); ctx.fill();
+                            ctx.beginPath(); ctx.arc(nx, ny, config.thickness * 2, 0, 2 * Math.PI); ctx.fill();
                             ctx.shadowBlur = 0;
                         } else {
-                            ctx.strokeRect(nx - config.thickness, ny - config.thickness, config.thickness*2, config.thickness*2);
+                            ctx.strokeRect(nx - config.thickness, ny - config.thickness, config.thickness * 2, config.thickness * 2);
                         }
-                        
+
                         if (config.showIds && (idx === 0 || idx === 15 || idx === 16 || idx === 27 || idx === 28)) {
                             ctx.fillStyle = config.textColor;
                             ctx.font = `${config.fontSize}px Space Mono`;
@@ -1167,11 +1632,10 @@
                     }
                 });
             }
-            
-            // Draw Kotak Objek
+
             trackedFaces.forEach(f => {
                 let dx = getDrawX(f.x, f.w);
-                let vel = Math.sqrt((f.vx || 0)**2 + (f.vy || 0)**2).toFixed(2);
+                let vel = Math.sqrt((f.vx || 0) ** 2 + (f.vy || 0) ** 2).toFixed(2);
                 drawShape(ctx, config.shapeType, dx, f.y, f.w, f.h, ocol, config.thickness, f.id, f.label, vel);
             });
         }
@@ -1180,17 +1644,16 @@
         // 8. CAMERA & SYSTEM CONTROLLER
         // ==========================================
         function stopSystem() {
-            isTracking = false; 
+            isTracking = false;
             isStaticMedia = false;
-            
+
             if (animationFrameId) {
                 cancelAnimationFrame(animationFrameId);
                 animationFrameId = null;
             }
-            
-            // Hentikan perekaman jika masih aktif
+
             if (isRecording && mediaRecorder && mediaRecorder.state !== 'inactive') {
-                try { mediaRecorder.stop(); } catch(e) {}
+                try { mediaRecorder.stop(); } catch (e) { }
                 isRecording = false;
                 const recBtn = document.getElementById("recordVideoBtn");
                 if (recBtn) {
@@ -1200,15 +1663,15 @@
                 }
             }
 
-            if (cameraStream) { 
-                cameraStream.getTracks().forEach(t => t.stop()); 
-                cameraStream = null; 
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(t => t.stop());
+                cameraStream = null;
             }
-            
+
             if (video) {
-                video.pause(); 
-                video.srcObject = null; 
-                video.src = ""; 
+                video.pause();
+                video.srcObject = null;
+                video.src = "";
                 video.onplay = null;
                 video.onloadedmetadata = null;
             }
@@ -1218,27 +1681,27 @@
                 currentUploadedBlobUrl = null;
             }
 
-            activeMediaElement = null; 
-            lastResults = null; 
-            window.lastPixelData = null; 
+            activeMediaElement = null;
+            lastResults = null;
+            window.lastPixelData = null;
             poseLandmarks = null;
-            
+
             if (ctx && canvas) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height); 
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
-            trackedFaces = []; 
+            trackedFaces = [];
             nextFaceId = 1;
-            
+
             setElText("statusText", "SYSTEM STANDBY");
             setElText("targetCount", "0");
             setElText("fpsDisplay", "0");
-            
+
             setElDisplay("stopBtn", "none");
             setElDisplay("cameraBtn", "block");
             setElDisplay("torchBtn", "none");
             setElDisplay("playPauseBtn", "none");
             setElDisplay("autoRenderBtn", "none");
-            
+
             const tBtn = document.getElementById('torchBtn');
             if (tBtn) {
                 tBtn.textContent = "SENTER";
@@ -1258,7 +1721,7 @@
                 try {
                     await track.applyConstraints({ advanced: [{ torch: isTorchOn }] });
                     const tBtn = document.getElementById('torchBtn');
-                    if(tBtn) {
+                    if (tBtn) {
                         tBtn.textContent = isTorchOn ? "MATIKAN SENTER" : "SENTER";
                         tBtn.style.backgroundColor = isTorchOn ? "#00FFFF" : "transparent";
                         tBtn.style.color = isTorchOn ? "#000" : "#00FFFF";
@@ -1274,15 +1737,15 @@
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 const videoDevices = devices.filter(device => device.kind === 'videoinput');
                 const select = document.getElementById('cameraSelect');
-                
+
                 if (select && videoDevices.length > 0 && videoDevices[0].label !== "") {
                     const currentVal = select.value;
                     select.innerHTML = '';
-                    
+
                     const optUser = document.createElement('option');
                     optUser.value = "user"; optUser.text = "Kamera Depan (Default)";
                     select.appendChild(optUser);
-                    
+
                     const optEnv = document.createElement('option');
                     optEnv.value = "environment"; optEnv.text = "Kamera Belakang (Default)";
                     select.appendChild(optEnv);
@@ -1303,8 +1766,8 @@
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const camSelect = document.getElementById("cameraSelect");
             const selectedDevice = camSelect ? camSelect.value : "user";
-            
-            stopSystem(); 
+
+            stopSystem();
             setElText("statusText", "CONNECTING...");
 
             let videoConstraints = { width: { ideal: 1280 }, height: { ideal: 720 } };
@@ -1316,18 +1779,17 @@
             }
 
             try {
-                // Default tanpa audio agar izin kamera tidak diblokir jika tanpa mikrofon
                 cameraStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: false });
                 const track = cameraStream.getVideoTracks()[0];
                 const label = track ? track.label.toLowerCase() : "";
-                
+
                 const mChk = document.getElementById("isMirrored");
                 if (selectedDevice === 'user' || label.includes('front') || label.includes('depan')) {
-                    config.isMirrored = true; 
-                    if(mChk) mChk.checked = true;
+                    config.isMirrored = true;
+                    if (mChk) mChk.checked = true;
                 } else {
-                    config.isMirrored = false; 
-                    if(mChk) mChk.checked = false;
+                    config.isMirrored = false;
+                    if (mChk) mChk.checked = false;
                 }
 
                 if (track && track.getCapabilities && typeof track.getCapabilities === 'function') {
@@ -1337,32 +1799,32 @@
                 }
 
                 if (video) {
-                    video.srcObject = cameraStream; 
+                    video.srcObject = cameraStream;
                     video.muted = true;
                     video.onloadedmetadata = () => {
                         if (canvas) {
-                            canvas.width = video.videoWidth; 
+                            canvas.width = video.videoWidth;
                             canvas.height = video.videoHeight;
                         }
                         video.play().then(() => {
-                            activeMediaElement = video; 
+                            activeMediaElement = video;
                             isTracking = true;
                             setElText("statusText", "TRACKING ACTIVE");
-                            
+
                             setElDisplay("cameraBtn", "none");
                             setElDisplay("stopBtn", "block");
                             setElDisplay("playPauseBtn", "none");
                             setElDisplay("autoRenderBtn", "none");
-                            
-                            getDevices(); 
+
+                            getDevices();
                             if (animationFrameId) cancelAnimationFrame(animationFrameId);
                             runTrackerLoop();
                         }).catch(e => console.error("Video play failed:", e));
                     };
                 }
-            } catch (err) { 
+            } catch (err) {
                 console.error(err);
-                showMsg("GAGAL BUKA KAMERA", "Pastikan memberikan izin akses kamera pada browser."); 
+                showMsg("GAGAL BUKA KAMERA", "Pastikan memberikan izin akses kamera pada browser.");
                 setElText("statusText", "SYSTEM STANDBY");
             }
         }
@@ -1370,73 +1832,77 @@
         // ==========================================
         // 9. EVENT LISTENERS & BINDINGS
         // ==========================================
-        const btnCamera = document.getElementById("cameraBtn"); if(btnCamera) btnCamera.addEventListener("click", startCamera);
-        const btnStop = document.getElementById("stopBtn"); if(btnStop) btnStop.addEventListener("click", stopSystem);
-        const btnTorch = document.getElementById("torchBtn"); if(btnTorch) btnTorch.addEventListener("click", toggleTorch);
-        const selCamera = document.getElementById("cameraSelect"); if(selCamera) selCamera.addEventListener("change", () => { if(isTracking && !isStaticMedia) startCamera(); });
+        const btnCamera = document.getElementById("cameraBtn"); if (btnCamera) btnCamera.addEventListener("click", startCamera);
+        const btnStop = document.getElementById("stopBtn"); if (btnStop) btnStop.addEventListener("click", stopSystem);
+        const btnTorch = document.getElementById("torchBtn"); if (btnTorch) btnTorch.addEventListener("click", toggleTorch);
+        const selCamera = document.getElementById("cameraSelect"); if (selCamera) selCamera.addEventListener("change", () => { if (isTracking && !isStaticMedia) startCamera(); });
 
         const btnPlayPause = document.getElementById("playPauseBtn");
-        if(btnPlayPause) {
+        if (btnPlayPause) {
             btnPlayPause.addEventListener("click", () => {
-                if(activeMediaElement && activeMediaElement.tagName === 'VIDEO') {
-                    if(activeMediaElement.paused) { 
+                if (activeMediaElement && activeMediaElement.tagName === 'VIDEO') {
+                    if (activeMediaElement.paused) {
                         activeMediaElement.play().then(() => {
                             setElText("statusText", "VIDEO PREVIEW (PLAYING)");
                             if (animationFrameId) cancelAnimationFrame(animationFrameId);
                             runTrackerLoop();
                         });
-                    } else { 
-                        activeMediaElement.pause(); 
-                        setElText("statusText", "VIDEO PREVIEW (PAUSED)"); 
+                    } else {
+                        activeMediaElement.pause();
+                        setElText("statusText", "VIDEO PREVIEW (PAUSED)");
                     }
                 }
             });
         }
 
         const binds = [
-            {id: "trackingMode", type: "value", cb: () => { 
-                setElDisplay("motionRateContainer", (config.trackingMode === 'motion' || config.trackingMode === 'luma') ? 'block' : 'none'); 
-                setElDisplay("blobControlContainer", (config.trackingMode === 'motion' || config.trackingMode === 'luma') ? 'block' : 'none'); 
-                window.lastPixelData = null;
-                if (isStaticMedia) { processStaticMedia(); }
-            }}, 
-            {id: "isMirrored", type: "checked"}, {id: "centerHub", type: "checked"},
-            {id: "lensFilter", type: "value"}, {id: "localFilter", type: "value"},
-            {id: "shapeType", type: "value"}, {id: "outlineColor", type: "value"}, {id: "blockColor", type: "value"}, {id: "trailColor", type: "value"}, {id: "textColor", type: "value"},
-            {id: "drawConnections", type: "checked"}, {id: "drawTrails", type: "checked"}, {id: "audioBeep", type: "checked"},
-            {id: "showIds", type: "checked"}, {id: "showMetrics", type: "checked"}, {id: "showScanlines", type: "checked", cb: () => {
-                const cContainer = document.getElementById("canvas-container");
-                if (cContainer) cContainer.classList.toggle("scanlines-active", config.showScanlines);
-            }}
+            {
+                id: "trackingMode", type: "value", cb: () => {
+                    setElDisplay("motionRateContainer", (config.trackingMode === 'motion' || config.trackingMode === 'luma') ? 'block' : 'none');
+                    setElDisplay("blobControlContainer", (config.trackingMode === 'motion' || config.trackingMode === 'luma') ? 'block' : 'none');
+                    window.lastPixelData = null;
+                    if (isStaticMedia) { processStaticMedia(); }
+                }
+            },
+            { id: "isMirrored", type: "checked" }, { id: "centerHub", type: "checked" },
+            { id: "lensFilter", type: "value" }, { id: "localFilter", type: "value" },
+            { id: "shapeType", type: "value" }, { id: "outlineColor", type: "value" }, { id: "blockColor", type: "value" }, { id: "trailColor", type: "value" }, { id: "textColor", type: "value" },
+            { id: "drawConnections", type: "checked" }, { id: "drawTrails", type: "checked" }, { id: "audioBeep", type: "checked" },
+            { id: "showIds", type: "checked" }, { id: "showMetrics", type: "checked" }, {
+                id: "showScanlines", type: "checked", cb: () => {
+                    const cContainer = document.getElementById("canvas-container");
+                    if (cContainer) cContainer.classList.toggle("scanlines-active", config.showScanlines);
+                }
+            }
         ];
 
         binds.forEach(b => {
             const el = document.getElementById(b.id);
             if (el) {
                 el.addEventListener("change", (e) => {
-                    if(b.type === "value") config[b.id] = e.target.value;
-                    else if(b.type === "checked") config[b.id] = e.target.checked;
-                    if(b.cb) b.cb();
-                    if(isTracking && isStaticMedia) renderVisuals();
+                    if (b.type === "value") config[b.id] = e.target.value;
+                    else if (b.type === "checked") config[b.id] = e.target.checked;
+                    if (b.cb) b.cb();
+                    if (isTracking && isStaticMedia) renderVisuals();
                 });
             }
         });
 
         const segmentedAndSlidedBinds = [
-            {name: "mrate", var: "motionRate", isFloat: true},
-            {name: "blobVal", var: "blobValue", isFloat: false},
-            {name: "bsize", var: "boundingSize", isFloat: false},
-            {name: "lineStyle", var: "lineStyle", isFloat: false}
+            { name: "mrate", var: "motionRate", isFloat: true },
+            { name: "blobVal", var: "blobValue", isFloat: false },
+            { name: "bsize", var: "boundingSize", isFloat: false },
+            { name: "lineStyle", var: "lineStyle", isFloat: false }
         ];
 
         segmentedAndSlidedBinds.forEach(sb => {
             document.querySelectorAll(`input[name="${sb.name}"]`).forEach((elem) => {
-                elem.addEventListener("change", function(e) {
+                elem.addEventListener("change", function (e) {
                     let val = e.target.value;
                     config[sb.var] = sb.isFloat ? parseFloat(val) : (isNaN(val) ? val : parseInt(val));
-                    
-                    if(sb.name === "mrate") setElText("mrateLabel", val);
-                    if(isTracking && isStaticMedia) {
+
+                    if (sb.name === "mrate") setElText("mrateLabel", val);
+                    if (isTracking && isStaticMedia) {
                         if (sb.name.includes("blob") || sb.name === "mrate") processStaticMedia(); else renderVisuals();
                     }
                 });
@@ -1444,21 +1910,21 @@
         });
 
         document.querySelectorAll('input[name="blobMode"]').forEach((elem) => {
-            elem.addEventListener("change", function(e) {
+            elem.addEventListener("change", function (e) {
                 config.blobMode = e.target.value;
                 const sizeVals = [16, 32, 64, 128, 256, 512];
                 const countVals = [1, 2, 4, 8, 16, 32];
                 let targetVals = config.blobMode === 'size' ? sizeVals : countVals;
-                
-                for(let i=1; i<=6; i++) {
-                    const inp = document.getElementById('bv'+i);
-                    const lbl = document.getElementById('lbl_bv'+i);
+
+                for (let i = 1; i <= 6; i++) {
+                    const inp = document.getElementById('bv' + i);
+                    const lbl = document.getElementById('lbl_bv' + i);
                     if (inp && lbl) {
-                        inp.value = targetVals[i-1];
-                        lbl.textContent = targetVals[i-1];
+                        inp.value = targetVals[i - 1];
+                        lbl.textContent = targetVals[i - 1];
                     }
                 }
-                
+
                 const activeVal = document.querySelector('input[name="blobVal"]:checked');
                 if (activeVal) config.blobValue = parseInt(activeVal.value);
                 if (isTracking && isStaticMedia) processStaticMedia();
@@ -1467,84 +1933,84 @@
 
         const thicknessEl = document.getElementById("thickness");
         if (thicknessEl) {
-            thicknessEl.addEventListener("input", (e) => { 
-                config.thickness = parseInt(e.target.value); 
-                setElText("thicknessVal", config.thickness+"px"); 
-                if(isTracking && isStaticMedia) renderVisuals(); 
+            thicknessEl.addEventListener("input", (e) => {
+                config.thickness = parseInt(e.target.value);
+                setElText("thicknessVal", config.thickness + "px");
+                if (isTracking && isStaticMedia) renderVisuals();
             });
         }
 
         const fontSizeEl = document.getElementById("fontSize");
         if (fontSizeEl) {
-            fontSizeEl.addEventListener("input", (e) => { 
-                config.fontSize = parseInt(e.target.value); 
-                setElText("fontSizeVal", config.fontSize+"px"); 
-                if(isTracking && isStaticMedia) renderVisuals(); 
+            fontSizeEl.addEventListener("input", (e) => {
+                config.fontSize = parseInt(e.target.value);
+                setElText("fontSizeVal", config.fontSize + "px");
+                if (isTracking && isStaticMedia) renderVisuals();
             });
         }
-        
+
         // ==========================================
         // 10. FILE UPLOAD (IMAGE & VIDEO)
         // ==========================================
         const mediaUploadEl = document.getElementById('mediaUpload');
-        if(mediaUploadEl) {
+        if (mediaUploadEl) {
             mediaUploadEl.addEventListener('change', async (e) => {
                 const file = e.target.files[0]; if (!file) return;
                 if (audioCtx.state === 'suspended') audioCtx.resume();
-                
-                stopSystem(); 
-                setElDisplay("cameraBtn", "none"); 
-                setElDisplay("stopBtn", "block"); 
+
+                stopSystem();
+                setElDisplay("cameraBtn", "none");
+                setElDisplay("stopBtn", "block");
                 setElText("statusText", "LOADING FILE...");
-                
+
                 currentUploadedBlobUrl = URL.createObjectURL(file);
 
                 if (file.type.startsWith('image/')) {
-                    const img = new Image(); 
+                    const img = new Image();
                     img.onload = async () => {
-                        if (canvas) { 
-                            canvas.width = img.naturalWidth; 
-                            canvas.height = img.naturalHeight; 
+                        if (canvas) {
+                            canvas.width = img.naturalWidth;
+                            canvas.height = img.naturalHeight;
                         }
-                        activeMediaElement = document.createElement('canvas'); 
-                        activeMediaElement.width = img.naturalWidth; 
+                        activeMediaElement = document.createElement('canvas');
+                        activeMediaElement.width = img.naturalWidth;
                         activeMediaElement.height = img.naturalHeight;
-                        activeMediaElement.getContext('2d').drawImage(img, 0, 0); 
-                        
-                        isStaticMedia = true; 
+                        activeMediaElement.getContext('2d').drawImage(img, 0, 0);
+
+                        isStaticMedia = true;
                         isTracking = true;
-                        
+
                         setElDisplay("autoRenderBtn", "block");
                         setElText("autoRenderBtn", "SIMPAN FOTO (HASIL)");
                         setElDisplay("playPauseBtn", "none");
                         await processStaticMedia();
-                    }; 
+                    };
                     img.src = currentUploadedBlobUrl;
                 } else if (file.type.startsWith('video/')) {
                     if (video) {
-                        video.src = currentUploadedBlobUrl; 
-                        video.loop = true; 
-                        video.muted = true; // Muted untuk memastikan autoplay diizinkan browser
-                        
+                        video.src = currentUploadedBlobUrl;
+                        video.loop = true;
+                        video.muted = true;
+
                         video.onloadedmetadata = () => {
                             if (canvas) {
                                 canvas.width = video.videoWidth;
                                 canvas.height = video.videoHeight;
                             }
-                            activeMediaElement = video; 
+                            activeMediaElement = video;
                             isStaticMedia = false;
                             isTracking = true;
-                            
-                            setElDisplay("autoRenderBtn", "block"); 
+
+                            setElDisplay("autoRenderBtn", "block");
                             setElText("autoRenderBtn", "RENDER & SIMPAN UPLOAD");
                             setElDisplay("playPauseBtn", "block");
 
                             video.play().then(() => {
-                                setElText("statusText", "VIDEO PREVIEW (PLAYING)"); 
+                                setElText("statusText", "VIDEO PREVIEW (PLAYING)");
                                 if (animationFrameId) cancelAnimationFrame(animationFrameId);
-                                runTrackerLoop(); 
+                                runTrackerLoop();
                             }).catch(err => {
-                                console.warn("Autoplay ditolak, tunggu interaksi user:", err);
+                                console.warn("Autoplay ditolak:", err);
                                 setElText("statusText", "KLIK PLAY UNTUK MEMULAI");
                             });
                         };
@@ -1557,160 +2023,159 @@
         // 11. EXPORT & RECORD ENGINE
         // ==========================================
         const btnAutoRender = document.getElementById("autoRenderBtn");
-        if(btnAutoRender) {
+        if (btnAutoRender) {
             btnAutoRender.addEventListener("click", () => {
-                if(!activeMediaElement) return;
+                if (!activeMediaElement) return;
 
-                if(isStaticMedia && canvas) {
-                    const a = document.createElement('a'); 
-                    a.download = `VFX_Export_${Date.now()}.png`; 
-                    a.href = canvas.toDataURL("image/png"); 
+                if (isStaticMedia && canvas) {
+                    const a = document.createElement('a');
+                    a.download = `VFX_Export_${Date.now()}.png`;
+                    a.href = canvas.toDataURL("image/png");
                     a.click();
                     showMsg("SELESAI", "Foto hasil visual efek berhasil disimpan.");
                 } else if (!isStaticMedia && activeMediaElement.tagName === 'VIDEO' && canvas) {
-                    activeMediaElement.loop = false; 
-                    activeMediaElement.currentTime = 0; 
-                    recordedChunks = []; 
-                    
+                    activeMediaElement.loop = false;
+                    activeMediaElement.currentTime = 0;
+                    recordedChunks = [];
+
                     const canvasStream = canvas.captureStream(30);
                     const stream = new MediaStream(canvasStream.getVideoTracks());
-                    
-                    // Tambahkan audio dari video asli jika didukung
+
                     try {
-                        let audioStream = activeMediaElement.captureStream ? activeMediaElement.captureStream() : 
-                                         (activeMediaElement.mozCaptureStream ? activeMediaElement.mozCaptureStream() : null);
+                        let audioStream = activeMediaElement.captureStream ? activeMediaElement.captureStream() :
+                            (activeMediaElement.mozCaptureStream ? activeMediaElement.mozCaptureStream() : null);
                         if (audioStream && audioStream.getAudioTracks().length > 0) {
                             stream.addTrack(audioStream.getAudioTracks()[0]);
                         }
-                    } catch(e) {}
+                    } catch (e) { }
 
                     const vfEl = document.getElementById("videoFormat");
                     let format = vfEl ? vfEl.value : "video/webm";
-                    if (format === "video/mp4" && !MediaRecorder.isTypeSupported("video/mp4")) { 
-                        format = "video/webm"; 
+                    if (format === "video/mp4" && !MediaRecorder.isTypeSupported("video/mp4")) {
+                        format = "video/webm";
                     }
-                    
-                    try { 
-                        mediaRecorder = new MediaRecorder(stream, {mimeType: format}); 
-                    } catch(e) { 
-                        mediaRecorder = new MediaRecorder(stream); 
-                        format = "video/webm"; 
+
+                    try {
+                        mediaRecorder = new MediaRecorder(stream, { mimeType: format });
+                    } catch (e) {
+                        mediaRecorder = new MediaRecorder(stream);
+                        format = "video/webm";
                     }
-                    
-                    mediaRecorder.ondataavailable = e => { 
-                        if (e.data && e.data.size > 0) recordedChunks.push(e.data); 
+
+                    mediaRecorder.ondataavailable = e => {
+                        if (e.data && e.data.size > 0) recordedChunks.push(e.data);
                     };
-                    
-                    mediaRecorder.onstop = () => { 
+
+                    mediaRecorder.onstop = () => {
                         const ext = format.includes("mp4") ? "mp4" : "webm";
-                        const blob = new Blob(recordedChunks, {type: format});
+                        const blob = new Blob(recordedChunks, { type: format });
                         const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a'); 
-                        a.href = url; 
-                        a.download = `VFX_Render_${Date.now()}.${ext}`; 
-                        a.click(); 
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `VFX_Render_${Date.now()}.${ext}`;
+                        a.click();
                         setTimeout(() => URL.revokeObjectURL(url), 2000);
-                        
+
                         showMsg("SELESAI", "Video sukses dirender dan disimpan!");
-                        activeMediaElement.loop = true; 
+                        activeMediaElement.loop = true;
                         activeMediaElement.play();
-                        
+
                         btnAutoRender.textContent = "RENDER & SIMPAN UPLOAD";
-                        btnAutoRender.style.color = "#8B5CF6"; 
+                        btnAutoRender.style.color = "#8B5CF6";
                         btnAutoRender.disabled = false;
                     };
 
-                    activeMediaElement.onended = () => { 
-                        if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop(); 
+                    activeMediaElement.onended = () => {
+                        if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
                     };
-                    
-                    mediaRecorder.start(); 
+
+                    mediaRecorder.start();
                     activeMediaElement.play();
 
                     btnAutoRender.textContent = "RENDERING... (HARAP TUNGGU)";
-                    btnAutoRender.style.color = "#EF4444"; 
+                    btnAutoRender.style.color = "#EF4444";
                     btnAutoRender.disabled = true;
                 }
             });
         }
 
-        const btnSaveImg = document.getElementById("saveImgBtn"); 
-        if(btnSaveImg && canvas) {
-            btnSaveImg.addEventListener("click", () => { 
-                const a = document.createElement('a'); 
-                a.download = `VFX_Snapshot_${Date.now()}.png`; 
-                a.href = canvas.toDataURL("image/png"); 
-                a.click(); 
+        const btnSaveImg = document.getElementById("saveImgBtn");
+        if (btnSaveImg && canvas) {
+            btnSaveImg.addEventListener("click", () => {
+                const a = document.createElement('a');
+                a.download = `VFX_Snapshot_${Date.now()}.png`;
+                a.href = canvas.toDataURL("image/png");
+                a.click();
             });
         }
-        
+
         const btnRecordVid = document.getElementById("recordVideoBtn");
-        if(btnRecordVid && canvas) {
+        if (btnRecordVid && canvas) {
             btnRecordVid.addEventListener("click", () => {
-                if (isRecording) { 
-                    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop(); 
-                    isRecording = false; 
-                    btnRecordVid.textContent = "REKAM KAMERA"; 
-                    btnRecordVid.style.borderColor = "#EF4444"; 
+                if (isRecording) {
+                    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+                    isRecording = false;
+                    btnRecordVid.textContent = "REKAM KAMERA";
+                    btnRecordVid.style.borderColor = "#EF4444";
                     btnRecordVid.style.color = "#EF4444";
                 } else {
                     if (!isTracking) return showMsg("PERHATIAN", "Mulai kamera terlebih dahulu!");
-                    recordedChunks = []; 
-                    
+                    recordedChunks = [];
+
                     const canvasStream = canvas.captureStream(30);
                     const stream = new MediaStream(canvasStream.getVideoTracks());
-                    
+
                     if (cameraStream && cameraStream.getAudioTracks().length > 0) {
                         stream.addTrack(cameraStream.getAudioTracks()[0]);
                     }
-                    
+
                     const vfEl = document.getElementById("videoFormat");
                     let format = vfEl ? vfEl.value : "video/webm";
-                    if (format === "video/mp4" && !MediaRecorder.isTypeSupported("video/mp4")) { 
-                        format = "video/webm"; 
-                        showMsg("INFO", "Browser tidak mendukung MP4, beralih ke WebM."); 
+                    if (format === "video/mp4" && !MediaRecorder.isTypeSupported("video/mp4")) {
+                        format = "video/webm";
+                        showMsg("INFO", "Browser tidak mendukung MP4, beralih ke WebM.");
                     }
-                    
-                    try { 
-                        mediaRecorder = new MediaRecorder(stream, {mimeType: format}); 
-                    } catch(e) { 
-                        mediaRecorder = new MediaRecorder(stream); 
-                        format = "video/webm"; 
+
+                    try {
+                        mediaRecorder = new MediaRecorder(stream, { mimeType: format });
+                    } catch (e) {
+                        mediaRecorder = new MediaRecorder(stream);
+                        format = "video/webm";
                     }
-                    
-                    mediaRecorder.ondataavailable = e => { 
-                        if (e.data && e.data.size > 0) recordedChunks.push(e.data); 
+
+                    mediaRecorder.ondataavailable = e => {
+                        if (e.data && e.data.size > 0) recordedChunks.push(e.data);
                     };
-                    
-                    mediaRecorder.onstop = () => { 
+
+                    mediaRecorder.onstop = () => {
                         const ext = format.includes("mp4") ? "mp4" : "webm";
-                        const blob = new Blob(recordedChunks, {type: format});
+                        const blob = new Blob(recordedChunks, { type: format });
                         const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a'); 
-                        a.href = url; 
-                        a.download = `VFX_LiveRec_${Date.now()}.${ext}`; 
-                        a.click(); 
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `VFX_LiveRec_${Date.now()}.${ext}`;
+                        a.click();
                         setTimeout(() => URL.revokeObjectURL(url), 2000);
                     };
-                    
-                    mediaRecorder.start(); 
+
+                    mediaRecorder.start();
                     isRecording = true;
-                    btnRecordVid.textContent = "STOP REKAM"; 
-                    btnRecordVid.style.borderColor = "#00FFFF"; 
+                    btnRecordVid.textContent = "STOP REKAM";
+                    btnRecordVid.style.borderColor = "#00FFFF";
                     btnRecordVid.style.color = "#00FFFF";
                 }
             });
         }
 
-        window.addEventListener('resize', () => { 
-            if (activeMediaElement && activeMediaElement.tagName === 'VIDEO' && activeMediaElement.videoWidth && canvas) { 
-                canvas.width = activeMediaElement.videoWidth; 
-                canvas.height = activeMediaElement.videoHeight; 
+        window.addEventListener('resize', () => {
+            if (activeMediaElement && activeMediaElement.tagName === 'VIDEO' && activeMediaElement.videoWidth && canvas) {
+                canvas.width = activeMediaElement.videoWidth;
+                canvas.height = activeMediaElement.videoHeight;
                 if (isTracking) renderVisuals();
-            } 
+            }
         });
-        
-        // PWA Service Worker (Dengan Fallback yang Aman)
+
+        // PWA Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').then(reg => {
@@ -1722,10 +2187,10 @@
                             }
                         };
                     };
-                }).catch(() => {});
+                }).catch(() => { });
             });
         }
     </script>
 </body>
+
 </html>
-```
