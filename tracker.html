@@ -43,6 +43,7 @@
             height: 100vh;
             width: 100vw;
             flex-direction: row;
+            position: relative;
         }
 
         #canvas-container {
@@ -54,6 +55,7 @@
             background: #050505;
             border-right: 1px solid #222;
             overflow: hidden;
+            transition: all 0.3s ease;
         }
 
         #videoCanvas {
@@ -83,6 +85,40 @@
             overflow-y: auto;
             border-left: 1px solid #222;
             z-index: 20;
+            transition: transform 0.3s ease, width 0.3s ease;
+        }
+
+        /* Fullscreen HUD Mode */
+        body.hud-mode #controls {
+            display: none !important;
+        }
+
+        body.hud-mode #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            border-right: none;
+        }
+
+        #hudExitBtn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(10, 10, 10, 0.85);
+            color: #00FFFF;
+            border: 1px solid #00FFFF;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-family: "Space Mono", monospace;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 30;
+            display: none;
+            backdrop-filter: blur(8px);
+        }
+
+        body.hud-mode #hudExitBtn {
+            display: block;
         }
 
         @media (max-width: 768px) {
@@ -149,6 +185,16 @@
             font-size: 9px;
             font-weight: bold;
             border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .alarm-badge {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: bold;
+            border: 1px solid rgba(239, 68, 68, 0.4);
         }
 
         label {
@@ -366,6 +412,27 @@
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hud-toggle-btn {
+            background: #1a1a1a;
+            color: #00FFFF;
+            border: 1px solid #333;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .hud-toggle-btn:hover {
+            background: #00FFFF;
+            color: #000;
         }
 
         .color-picker {
@@ -511,7 +578,10 @@
             <div id="status">
                 <div><span id="statusText" style="color:#10B981;">SYSTEM STANDBY</span> | FPS: <span
                         id="fpsDisplay">0</span> | TGT: <span id="targetCount">0</span></div>
+                <button class="hud-toggle-btn" id="btnToggleHud" title="Atau tekan tombol 'H'">⛶ HUD</button>
             </div>
+
+            <button id="hudExitBtn">✕ KELUAR HUD</button>
 
             <div id="msgBox">
                 <h4 id="msgTitle">PEMBERITAHUAN</h4>
@@ -526,7 +596,21 @@
                     onmouseout="this.style.background='#222'; this.style.color='#ccc'"
                     style="background: #222; color: #ccc; text-decoration: none; padding: 12px 14px; border: 1px solid #333; border-radius: 8px; font-size: 11px; display: flex; align-items: center; transition: 0.2s; font-weight: bold;">←
                     HUB</a>
-                <div class="app-title-header" style="margin-bottom: 0; flex: 1;">BLOB TRACKER</div>
+                <div class="app-title-header" style="margin-bottom: 0; flex: 1;">BLOB TRACKER PRO</div>
+            </div>
+
+            <!-- PRESET TEMA CEPAT -->
+            <div class="section-box">
+                <h3>Theme Presets <span class="new-badge">1-CLICK</span></h3>
+                <label>Pilih Gaya Tampilan Instan</label>
+                <select id="themePreset">
+                    <option value="custom">Custom (Bebas)</option>
+                    <option value="cyberpunk" selected>Cyberpunk 2077 (Cyan & Gold)</option>
+                    <option value="matrix">The Matrix (Phosphor Green)</option>
+                    <option value="military">Military Recon (Nightvision & Thermal)</option>
+                    <option value="synthwave">Synthwave 80s (CRT & Magenta)</option>
+                    <option value="stealth">Stealth Censor (Mask & Pixelate)</option>
+                </select>
             </div>
 
             <div class="section-box">
@@ -561,6 +645,30 @@
                 <div class="grid-2">
                     <button id="playPauseBtn" class="action" style="display: none;">PAUSE / PLAY PREVIEW</button>
                     <button id="torchBtn" class="action" style="display: none;">SENTER</button>
+                </div>
+            </div>
+
+            <!-- VIRTUAL TRIPWIRE (PERIMETER ALARM) -->
+            <div class="section-box">
+                <h3>CCTV Tripwire Alarm <span class="alarm-badge">SECURITY</span></h3>
+                <div class="grid-2" style="margin-bottom: 10px;">
+                    <label class="checkbox-label"><input type="checkbox" id="enableTripwire" /><span>Aktifkan
+                            Tripwire</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="tripwireSound" checked /><span>Sirine
+                            Alarm</span></label>
+                </div>
+                <div class="tool-group" style="margin-bottom:0;">
+                    <div class="inline-label">
+                        <label style="margin:0;">Posisi Garis Batas</label>
+                        <span class="value-display" id="tripwirePosVal">50%</span>
+                    </div>
+                    <input type="range" id="tripwirePos" min="10" max="90" value="50" style="margin-bottom:8px;" />
+                    <div class="segmented-control" style="margin-bottom:0;">
+                        <input type="radio" name="tripwireOrient" id="two_h" value="horizontal" checked><label
+                            for="two_h">Horizontal</label>
+                        <input type="radio" name="tripwireOrient" id="two_v" value="vertical"><label
+                            for="two_v">Vertical</label>
+                    </div>
                 </div>
             </div>
 
@@ -658,7 +766,7 @@
             </div>
 
             <div class="section-box">
-                <h3>Connection & Data <span class="pro-badge">PRO</span></h3>
+                <h3>Connection & Telemetry <span class="pro-badge">CYBER</span></h3>
 
                 <div class="grid-3" style="margin-bottom: 14px;">
                     <label class="checkbox-label"><input type="checkbox" id="drawConnections"
@@ -708,7 +816,13 @@
                     <label class="checkbox-label"><input type="checkbox" id="showIds" checked /><span>Label
                             ID</span></label>
                     <label class="checkbox-label"><input type="checkbox" id="showMetrics"
-                            checked /><span>Metrics</span></label>
+                            checked /><span>Biometrics</span></label>
+                </div>
+                <div class="grid-2" style="margin-top: 6px;">
+                    <label class="checkbox-label"><input type="checkbox" id="showTelemetry" checked /><span>Threat
+                            Telemetry</span></label>
+                    <label class="checkbox-label"><input type="checkbox" id="showWatermark" checked /><span>CCTV
+                            Watermark</span></label>
                 </div>
             </div>
 
@@ -804,7 +918,7 @@
         const canvas = document.getElementById("videoCanvas");
         const ctx = canvas ? canvas.getContext("2d") : null;
 
-        // Persistent Offscreen Canvases (Mencegah GC Thrashing & Kebocoran RAM)
+        // Persistent Offscreen Canvases (Mencegah GC Thrashing)
         const cleanCanvas = document.createElement('canvas');
         const cleanCtx = cleanCanvas.getContext('2d');
 
@@ -817,6 +931,8 @@
         let mediaRecorder = null, recordedChunks = [];
         let isTorchOn = false;
         let currentUploadedBlobUrl = null;
+        let isTripwireBreached = false;
+        let lastAlarmSoundTime = 0;
 
         // ==========================================
         // 2. AI & AUDIO INITIALIZATION
@@ -864,6 +980,25 @@
             } catch (e) { }
         }
 
+        function playAlarmSiren() {
+            if (!config.tripwireSound || audioCtx.state === 'suspended') return;
+            const now = performance.now();
+            if (now - lastAlarmSoundTime < 600) return; // Cooldown 600ms
+            lastAlarmSoundTime = now;
+
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(950, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(400, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } catch (e) { }
+        }
+
         const config = {
             trackingMode: "face", isMirrored: true, audioBeep: true,
             lensFilter: "none", localFilter: "none", shapeType: "box",
@@ -871,7 +1006,9 @@
             outlineColor: "#00FFFF", blockColor: "#000000", trailColor: "#10B981", textColor: "#FFFFFF",
             thickness: 2, fontSize: 12,
             drawTrails: true, drawConnections: true, centerHub: false, lineStyle: "solid",
-            showIds: true, showMetrics: true, showScanlines: true
+            showIds: true, showMetrics: true, showTelemetry: true, showWatermark: true, showScanlines: true,
+            // Tripwire State
+            enableTripwire: false, tripwireSound: true, tripwirePos: 0.5, tripwireOrient: "horizontal"
         };
 
         function distance(p1, p2) { return Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2); }
@@ -879,7 +1016,7 @@
         // ==========================================
         // 3. DRAWING & RENDERING SHAPES
         // ==========================================
-        function drawShape(ctx, type, x, y, w, h, col, th, id, labelTxt, metricsTxt) {
+        function drawShape(ctx, type, x, y, w, h, col, th, id, labelTxt, metricsTxt, targetObj) {
             ctx.save();
             ctx.strokeStyle = col; ctx.fillStyle = col;
             ctx.lineWidth = th; ctx.setLineDash([]); ctx.shadowBlur = 0;
@@ -994,6 +1131,7 @@
                 }
             }
 
+            // Standard Text Overlay
             if (type !== 'win2k' && type !== 'labelBox' && type !== 'label') {
                 ctx.fillStyle = config.textColor; ctx.font = `bold ${config.fontSize}px Space Mono`;
                 let txtY = y > 15 ? y - 8 : y + config.fontSize + 4;
@@ -1003,13 +1141,36 @@
                 if (labelTxt && (labelTxt !== "WAJAH" || !config.showIds)) titleParts.push(labelTxt);
 
                 if (titleParts.length > 0) ctx.fillText(titleParts.join(" "), x, txtY);
-                if (config.showMetrics) ctx.fillText(`V:${metricsTxt}`, x, y + h + config.fontSize + 4);
+
+                // TELEMETRI & BIOMETRIK CYBERPUNK
+                let lineOffset = y + h + config.fontSize + 4;
+                if (config.showMetrics) {
+                    ctx.fillStyle = config.textColor;
+                    ctx.fillText(`V:${metricsTxt}`, x, lineOffset);
+                    lineOffset += config.fontSize + 2;
+                }
+
+                if (config.showTelemetry && targetObj) {
+                    const estDist = Math.max(0.4, (canvas.height / Math.max(1, h)) * 0.32).toFixed(1);
+                    const pseudoTemp = (36.2 + ((id * 7) % 15) * 0.1).toFixed(1);
+                    const vel = parseFloat(metricsTxt) || 0;
+                    const threat = vel > 12 ? "HOSTILE" : (vel > 3 ? "CAUTION" : "PASSIVE");
+                    const threatColor = threat === "HOSTILE" ? "#EF4444" : (threat === "CAUTION" ? "#F59E0B" : "#10B981");
+
+                    ctx.fillStyle = threatColor;
+                    ctx.fillText(`THR:[${threat}]`, x, lineOffset);
+                    lineOffset += config.fontSize + 2;
+
+                    ctx.fillStyle = config.textColor;
+                    ctx.font = `${Math.max(9, config.fontSize - 2)}px Space Mono`;
+                    ctx.fillText(`DST:${estDist}m TMP:${pseudoTemp}C`, x, lineOffset);
+                }
             }
             ctx.restore();
         }
 
         // ==========================================
-        // 4. PIXEL MANIPULATION & ADVANCED VFX FILTERS
+        // 4. ADVANCED PIXEL MANIPULATION VFX
         // ==========================================
         function applyPixelManipulation(targetCtx, type, rx, ry, rw, rh) {
             if (rw <= 0 || rh <= 0 || type === 'none' || type === 'pixelate' || type === 'zoom' || type === 'blur') return;
@@ -1464,7 +1625,7 @@
         }
 
         // ==========================================
-        // 7. COMPOSITING VISUALS (DUAL-LAYER VFX PIPELINE)
+        // 7. COMPOSITING VISUALS (DUAL-LAYER + TRIPWIRE)
         // ==========================================
         function renderVisuals() {
             if (!isTracking || !lastResults || !ctx) return;
@@ -1510,6 +1671,9 @@
             const getDrawCX = (cx) => config.isMirrored ? w - cx : cx;
 
             // STEP 3: Render Layer Objek (Dalam Kotak / Local Filter)
+            isTripwireBreached = false;
+            let tripwireCoord = config.tripwireOrient === 'horizontal' ? h * config.tripwirePos : w * config.tripwirePos;
+
             if (trackedFaces.length > 0) {
                 trackedFaces.forEach(f => {
                     let rx = Math.floor(getDrawX(f.x, f.w)), ry = Math.floor(f.y), rw = Math.floor(f.w), rh = Math.floor(f.h);
@@ -1518,14 +1682,21 @@
                     let cx2 = Math.min(w, rx + rw), cy2 = Math.min(h, ry + rh);
                     let crw = cx2 - cx1, crh = cy2 - cy1;
 
+                    // Cek Deteksi Pelanggaran Tripwire
+                    if (config.enableTripwire) {
+                        if (config.tripwireOrient === 'horizontal') {
+                            if (ry <= tripwireCoord && (ry + rh) >= tripwireCoord) isTripwireBreached = true;
+                        } else {
+                            if (rx <= tripwireCoord && (rx + rw) >= tripwireCoord) isTripwireBreached = true;
+                        }
+                    }
+
                     if (crw > 0 && crh > 0) {
                         if (config.localFilter === 'none') {
-                            // Jika Latar ada efek, kembalikan area dalam kotak ke video asli (normal/fokus)
                             if (config.lensFilter !== 'none') {
                                 ctx.drawImage(cleanCanvas, cx1, cy1, crw, crh, cx1, cy1, crw, crh);
                             }
                         } else {
-                            // Terapkan efek lokal langsung dari frame bersih asli
                             sharedTmpCanvas.width = crw;
                             sharedTmpCanvas.height = crh;
 
@@ -1556,7 +1727,46 @@
                 });
             }
 
-            // STEP 4: Render Vektor UI (Jaring, Jejak, Garis Kotak)
+            // STEP 4: Render Garis Tripwire & Alarm
+            if (config.enableTripwire) {
+                ctx.save();
+                ctx.lineWidth = isTripwireBreached ? 3 : 1.5;
+                ctx.strokeStyle = isTripwireBreached ? "#EF4444" : "#F59E0B";
+                ctx.setLineDash([8, 6]);
+                ctx.beginPath();
+                if (config.tripwireOrient === 'horizontal') {
+                    ctx.moveTo(0, tripwireCoord); ctx.lineTo(w, tripwireCoord);
+                } else {
+                    ctx.moveTo(tripwireCoord, 0); ctx.lineTo(tripwireCoord, h);
+                }
+                ctx.stroke();
+
+                // Tripwire Badge Label
+                ctx.fillStyle = isTripwireBreached ? "#EF4444" : "#F59E0B";
+                ctx.font = "bold 9px Space Mono";
+                const twLabel = isTripwireBreached ? "TRIPWIRE: BREACHED [ALERT]" : "TRIPWIRE: ACTIVE";
+                ctx.fillText(twLabel, 16, config.tripwireOrient === 'horizontal' ? Math.max(16, tripwireCoord - 6) : 32);
+                ctx.restore();
+
+                if (isTripwireBreached) {
+                    playAlarmSiren();
+                    // Flashing Alarm Banner
+                    ctx.fillStyle = "rgba(239, 68, 68, 0.18)";
+                    ctx.fillRect(0, 0, w, h);
+
+                    setElText("statusText", "INTRUSION DETECTED");
+                    const st = document.getElementById("statusText");
+                    if (st) st.style.color = "#EF4444";
+                } else {
+                    const st = document.getElementById("statusText");
+                    if (st && isTracking) {
+                        st.textContent = "TRACKING ACTIVE";
+                        st.style.color = "#10B981";
+                    }
+                }
+            }
+
+            // STEP 5: Render Vektor UI (Jaring, Jejak, Garis Kotak)
             const ocol = config.outlineColor, tcol = config.trailColor;
             ctx.strokeStyle = tcol; ctx.lineWidth = config.thickness;
 
@@ -1636,8 +1846,28 @@
             trackedFaces.forEach(f => {
                 let dx = getDrawX(f.x, f.w);
                 let vel = Math.sqrt((f.vx || 0) ** 2 + (f.vy || 0) ** 2).toFixed(2);
-                drawShape(ctx, config.shapeType, dx, f.y, f.w, f.h, ocol, config.thickness, f.id, f.label, vel);
+                drawShape(ctx, config.shapeType, dx, f.y, f.w, f.h, ocol, config.thickness, f.id, f.label, vel, f);
             });
+
+            // STEP 6: Watermark & Timecode CCTV
+            if (config.showWatermark) {
+                ctx.save();
+                const now = new Date();
+                const timeStr = now.toISOString().replace("T", " ").replace("Z", "");
+                const isBlink = Math.floor(now.getTime() / 500) % 2 === 0;
+
+                ctx.font = "bold 10px Space Mono";
+                ctx.fillStyle = isBlink ? "#EF4444" : "rgba(239,68,68,0.2)";
+                ctx.fillText("REC ●", w - 75, 24);
+
+                ctx.fillStyle = "#FFFFFF";
+                ctx.fillText(`CAM-01 [ENC]`, w - 180, 24);
+                ctx.font = "9px Space Mono";
+                ctx.fillStyle = "rgba(255,255,255,0.75)";
+                ctx.fillText(timeStr, w - 210, 40);
+                ctx.fillText("RIDDLEBUSH // SEC_SYS v3.0", 18, h - 16);
+                ctx.restore();
+            }
         }
 
         // ==========================================
@@ -1693,6 +1923,8 @@
             nextFaceId = 1;
 
             setElText("statusText", "SYSTEM STANDBY");
+            const st = document.getElementById("statusText");
+            if (st) st.style.color = "#10B981";
             setElText("targetCount", "0");
             setElText("fpsDisplay", "0");
 
@@ -1837,6 +2069,60 @@
         const btnTorch = document.getElementById("torchBtn"); if (btnTorch) btnTorch.addEventListener("click", toggleTorch);
         const selCamera = document.getElementById("cameraSelect"); if (selCamera) selCamera.addEventListener("change", () => { if (isTracking && !isStaticMedia) startCamera(); });
 
+        // HUD Fullscreen Toggle
+        function toggleHudMode() {
+            document.body.classList.toggle("hud-mode");
+        }
+        const btnToggleHud = document.getElementById("btnToggleHud");
+        if (btnToggleHud) btnToggleHud.addEventListener("click", toggleHudMode);
+        const hudExitBtn = document.getElementById("hudExitBtn");
+        if (hudExitBtn) hudExitBtn.addEventListener("click", toggleHudMode);
+
+        // Double tap canvas atau tekan tombol H untuk HUD Mode
+        if (canvas) {
+            canvas.addEventListener("dblclick", toggleHudMode);
+        }
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "h" || e.key === "H") toggleHudMode();
+            if (e.key === "Escape" && document.body.classList.contains("hud-mode")) toggleHudMode();
+        });
+
+        // 1-Click Preset Themes
+        const themePresets = {
+            cyberpunk: { outline: "#00FFFF", block: "#000000", trail: "#F59E0B", text: "#00FFFF", lens: "none", local: "none", shape: "brackets" },
+            matrix: { outline: "#00FF66", block: "#051A0A", trail: "#00FF66", text: "#80FF80", lens: "none", local: "none", shape: "grid" },
+            military: { outline: "#10B981", block: "#001A00", trail: "#EF4444", text: "#10B981", lens: "nightvision", local: "thermal", shape: "scope" },
+            synthwave: { outline: "#FF007F", block: "#1A0022", trail: "#00F0FF", text: "#FFE600", lens: "crt", local: "glitch", shape: "win2k" },
+            stealth: { outline: "#888888", block: "#000000", trail: "#444444", text: "#FFFFFF", lens: "mask", local: "pixelate", shape: "solid" }
+        };
+
+        const themeSel = document.getElementById("themePreset");
+        if (themeSel) {
+            themeSel.addEventListener("change", (e) => {
+                const pr = themePresets[e.target.value];
+                if (pr) {
+                    config.outlineColor = pr.outline;
+                    config.blockColor = pr.block;
+                    config.trailColor = pr.trail;
+                    config.textColor = pr.text;
+                    config.lensFilter = pr.lens;
+                    config.localFilter = pr.local;
+                    config.shapeType = pr.shape;
+
+                    const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+                    setVal("outlineColor", pr.outline);
+                    setVal("blockColor", pr.block);
+                    setVal("trailColor", pr.trail);
+                    setVal("textColor", pr.text);
+                    setVal("lensFilter", pr.lens);
+                    setVal("localFilter", pr.local);
+                    setVal("shapeType", pr.shape);
+
+                    if (isTracking && isStaticMedia) renderVisuals();
+                }
+            });
+        }
+
         const btnPlayPause = document.getElementById("playPauseBtn");
         if (btnPlayPause) {
             btnPlayPause.addEventListener("click", () => {
@@ -1868,7 +2154,9 @@
             { id: "lensFilter", type: "value" }, { id: "localFilter", type: "value" },
             { id: "shapeType", type: "value" }, { id: "outlineColor", type: "value" }, { id: "blockColor", type: "value" }, { id: "trailColor", type: "value" }, { id: "textColor", type: "value" },
             { id: "drawConnections", type: "checked" }, { id: "drawTrails", type: "checked" }, { id: "audioBeep", type: "checked" },
-            { id: "showIds", type: "checked" }, { id: "showMetrics", type: "checked" }, {
+            { id: "showIds", type: "checked" }, { id: "showMetrics", type: "checked" }, { id: "showTelemetry", type: "checked" }, { id: "showWatermark", type: "checked" },
+            { id: "enableTripwire", type: "checked" }, { id: "tripwireSound", type: "checked" },
+            {
                 id: "showScanlines", type: "checked", cb: () => {
                     const cContainer = document.getElementById("canvas-container");
                     if (cContainer) cContainer.classList.toggle("scanlines-active", config.showScanlines);
@@ -1886,6 +2174,22 @@
                     if (isTracking && isStaticMedia) renderVisuals();
                 });
             }
+        });
+
+        // Tripwire Sliders
+        const twPosEl = document.getElementById("tripwirePos");
+        if (twPosEl) {
+            twPosEl.addEventListener("input", (e) => {
+                config.tripwirePos = parseInt(e.target.value) / 100;
+                setElText("tripwirePosVal", e.target.value + "%");
+                if (isTracking && isStaticMedia) renderVisuals();
+            });
+        }
+        document.querySelectorAll('input[name="tripwireOrient"]').forEach(elem => {
+            elem.addEventListener("change", (e) => {
+                config.tripwireOrient = e.target.value;
+                if (isTracking && isStaticMedia) renderVisuals();
+            });
         });
 
         const segmentedAndSlidedBinds = [
