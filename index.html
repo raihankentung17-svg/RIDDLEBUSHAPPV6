@@ -365,6 +365,34 @@
         .badge.node { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
         .badge.app { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
 
+        .tool-card-content {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .tool-mini-thumb {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.4);
+            flex-shrink: 0;
+            transition: transform 0.25s ease, border-color 0.25s ease;
+        }
+        .tool-card:hover .tool-mini-thumb {
+            transform: scale(1.06);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+        .tool-card.active .tool-mini-thumb {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+        .tool-card-main {
+            flex: 1;
+            min-width: 0;
+        }
+
         .tool-desc {
             font-size: 11.5px;
             color: var(--text-muted);
@@ -668,29 +696,44 @@
                     
                     <!-- 1. IMAGETRACK STUDIO (BARU KITA) -->
                     <div class="tool-card active" data-id="imagetrack" data-cat="tracking" onclick="selectTool('imagetrack', this)">
-                        <div class="tool-header">
-                            <div class="tool-title">ImageTrack Studio</div>
-                            <span class="badge new">NEW PRO</span>
+                        <div class="tool-card-content">
+                            <img src="assets/previews/imagetrack.jpg" alt="ImageTrack" class="tool-mini-thumb" loading="lazy">
+                            <div class="tool-card-main">
+                                <div class="tool-header">
+                                    <div class="tool-title">ImageTrack Studio</div>
+                                    <span class="badge new">NEW PRO</span>
+                                </div>
+                                <p class="tool-desc">Engine Sci-Fi HUD tracking presisi tinggi dengan 25 target reticle shapes, garis koneksi animasi, dan touch pan/zoom smartphone.</p>
+                            </div>
                         </div>
-                        <p class="tool-desc">Engine Sci-Fi HUD tracking presisi tinggi dengan 25 target reticle shapes, garis koneksi animasi, dan touch pan/zoom smartphone.</p>
                     </div>
 
                     <!-- 2. BLOB TRACKER (LAMA) -->
                     <div class="tool-card" data-id="tracker" data-cat="tracking" onclick="selectTool('tracker', this)">
-                        <div class="tool-header">
-                            <div class="tool-title">Blob Tracker</div>
-                            <span class="badge pro">PRO</span>
+                        <div class="tool-card-content">
+                            <img src="assets/previews/tracker.jpg" alt="Blob Tracker" class="tool-mini-thumb" loading="lazy">
+                            <div class="tool-card-main">
+                                <div class="tool-header">
+                                    <div class="tool-title">Blob Tracker</div>
+                                    <span class="badge pro">PRO</span>
+                                </div>
+                                <p class="tool-desc">Sistem deteksi pose & motion visual AI interaktif untuk pertunjukan VJ dan instalasi seni digital.</p>
+                            </div>
                         </div>
-                        <p class="tool-desc">Sistem deteksi pose & motion visual AI interaktif untuk pertunjukan VJ dan instalasi seni digital.</p>
                     </div>
 
                     <!-- 3. DATAMOSH -->
                     <div class="tool-card" data-id="datamosh" data-cat="generative" onclick="selectTool('datamosh', this)">
-                        <div class="tool-header">
-                            <div class="tool-title">Datamosh Engine</div>
-                            <span class="badge beta">BETA</span>
+                        <div class="tool-card-content">
+                            <img src="assets/previews/datamosh.jpg" alt="Datamosh Engine" class="tool-mini-thumb" loading="lazy">
+                            <div class="tool-card-main">
+                                <div class="tool-header">
+                                    <div class="tool-title">Datamosh Engine</div>
+                                    <span class="badge beta">BETA</span>
+                                </div>
+                                <p class="tool-desc">Simulasi kompresi glitch I-Frame drop dan pelelehan piksel (pixel bleed) ikonik langsung di browser.</p>
+                            </div>
                         </div>
-                        <p class="tool-desc">Simulasi kompresi glitch I-Frame drop dan pelelehan piksel (pixel bleed) ikonik langsung di browser.</p>
                     </div>
 
                     <!-- SECTION 2: SATELLITE APPS -->
@@ -698,38 +741,58 @@
 
                     <!-- 4. GRID TOOLS -->
                     <div class="tool-card" data-id="gridtools" data-cat="generative" onclick="selectTool('gridtools', this)">
-                        <div class="tool-header">
-                            <div class="tool-title">Grid Tools Studio</div>
-                            <span class="badge node">NODE</span>
+                        <div class="tool-card-content">
+                            <img src="assets/previews/gridtools.jpg" alt="Grid Tools" class="tool-mini-thumb" loading="lazy">
+                            <div class="tool-card-main">
+                                <div class="tool-header">
+                                    <div class="tool-title">Grid Tools Studio</div>
+                                    <span class="badge node">NODE</span>
+                                </div>
+                                <p class="tool-desc">Generative slit-scan distortion tool dengan seeded RNG processing dan anotasi estetik AI.</p>
+                            </div>
                         </div>
-                        <p class="tool-desc">Generative slit-scan distortion tool dengan seeded RNG processing dan anotasi estetik AI.</p>
                     </div>
 
                     <!-- 5. PROYEK-PIP -->
                     <div class="tool-card" data-id="proyek_pip" data-cat="video" onclick="selectTool('proyek_pip', this)">
-                        <div class="tool-header">
-                            <div class="tool-title">Proyek-PiP Compositor</div>
-                            <span class="badge app">APP</span>
+                        <div class="tool-card-content">
+                            <img src="assets/previews/proyek_pip.jpg" alt="Proyek-PiP" class="tool-mini-thumb" loading="lazy">
+                            <div class="tool-card-main">
+                                <div class="tool-header">
+                                    <div class="tool-title">Proyek-PiP Compositor</div>
+                                    <span class="badge app">APP</span>
+                                </div>
+                                <p class="tool-desc">Pengolah video picture-in-picture profesional dengan mistar dinamis, pan/zoom, dan rendering 60fps.</p>
+                            </div>
                         </div>
-                        <p class="tool-desc">Pengolah video picture-in-picture profesional dengan mistar dinamis, pan/zoom, dan rendering 60fps.</p>
                     </div>
 
                     <!-- 6. TEXTURE & TYPOGRAPHY -->
                     <div class="tool-card" data-id="editor_tts" data-cat="video" onclick="selectTool('editor_tts', this)">
-                        <div class="tool-header">
-                            <div class="tool-title">Texture & Typography</div>
-                            <span class="badge node">NODE</span>
+                        <div class="tool-card-content">
+                            <img src="assets/previews/editor_tts.jpg" alt="Texture Typography" class="tool-mini-thumb" loading="lazy">
+                            <div class="tool-card-main">
+                                <div class="tool-header">
+                                    <div class="tool-title">Texture & Typography</div>
+                                    <span class="badge node">NODE</span>
+                                </div>
+                                <p class="tool-desc">Studio layout tipografi dan tekstur canggih. Buat grid cyberpunk, kolase poster, dan dynamic blending.</p>
+                            </div>
                         </div>
-                        <p class="tool-desc">Studio layout tipografi dan tekstur canggih. Buat grid cyberpunk, kolase poster, dan dynamic blending.</p>
                     </div>
 
                     <!-- 7. BLUEPRINT DATA ENGINE -->
                     <div class="tool-card" data-id="generator" data-cat="generative" onclick="selectTool('generator', this)">
-                        <div class="tool-header">
-                            <div class="tool-title">Blueprint Data Engine</div>
-                            <span class="badge node">NODE</span>
+                        <div class="tool-card-content">
+                            <img src="assets/previews/generator.jpg" alt="Blueprint Data" class="tool-mini-thumb" loading="lazy">
+                            <div class="tool-card-main">
+                                <div class="tool-header">
+                                    <div class="tool-title">Blueprint Data Engine</div>
+                                    <span class="badge node">NODE</span>
+                                </div>
+                                <p class="tool-desc">Generator blueprint arsitektural, stempel tipografi kustom, dan aset visual dengan node gravitasi dinamis.</p>
+                            </div>
                         </div>
-                        <p class="tool-desc">Generator blueprint arsitektural, stempel tipografi kustom, dan aset visual dengan node gravitasi dinamis.</p>
                     </div>
 
                 </div>
@@ -738,7 +801,7 @@
             <!-- Right Showcase Preview Area -->
             <section class="preview-area">
                 <div class="preview-wrapper">
-                    <img id="preview-img" src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200&auto=format&fit=crop" class="preview-image" alt="App Preview">
+                    <img id="preview-img" src="assets/previews/imagetrack.jpg" class="preview-image" alt="App Preview">
                     
                     <div class="preview-overlay">
                         <div class="preview-info">
@@ -793,7 +856,7 @@
                 badgeClass: 'new',
                 badgeText: 'NEW PRO',
                 desc: 'Creative object & contrast HUD tracking system dengan 25 target reticle shapes, mode scan kuadran, garis jaring animasi, filter neon, dan optimasi gesture layar sentuh smartphone.',
-                img: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200&auto=format&fit=crop',
+                img: 'assets/previews/imagetrack.jpg',
                 link: 'imagetrack/index.html',
                 tags: ['React 19', 'Canvas 2D', '25 Target Shapes', 'Mobile Touch Gestures', 'PWA Ready']
             },
@@ -803,7 +866,7 @@
                 badgeClass: 'pro',
                 badgeText: 'PRO',
                 desc: 'Sistem deteksi pose & motion visual AI interaktif untuk pertunjukan VJ, instalasi seni digital, dan tracking kamera langsung.',
-                img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop',
+                img: 'assets/previews/tracker.jpg',
                 link: 'tracker.html',
                 tags: ['MediaPipe', 'Face & Pose', 'Live Camera', 'Space Mono HUD']
             },
@@ -813,7 +876,7 @@
                 badgeClass: 'beta',
                 badgeText: 'BETA',
                 desc: 'Simulasikan kompresi glitch video I-Frame drop dan efek pelelehan piksel (pixel bleed) ikonik langsung dari browser Anda.',
-                img: 'https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=1200&auto=format&fit=crop',
+                img: 'assets/previews/datamosh.jpg',
                 link: 'datamosh.html',
                 tags: ['Video Glitch', 'I-Frame Drop', 'Pixel Melt', 'Export WebM']
             },
@@ -823,7 +886,7 @@
                 badgeClass: 'node',
                 badgeText: 'NODE',
                 desc: 'Generative slit-scan distortion tool dengan seeded RNG processing dan anotasi estetik AI.',
-                img: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=1200&auto=format&fit=crop',
+                img: 'assets/previews/gridtools.jpg',
                 link: 'https://riddlebushgridtools.vercel.app/',
                 tags: ['Slit-Scan', 'Generative RNG', 'Vite', 'AI Annotation']
             },
@@ -833,7 +896,7 @@
                 badgeClass: 'app',
                 badgeText: 'APP',
                 desc: 'Pengolah video picture-in-picture profesional dengan mistar dinamis, pan/zoom workspace, dan rendering 60fps.',
-                img: 'https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=1200&auto=format&fit=crop',
+                img: 'assets/previews/proyek_pip.jpg',
                 link: 'https://pip-editor.vercel.app',
                 tags: ['PiP Compositor', 'Multi-Layer', 'Dynamic Rulers', '60 FPS']
             },
@@ -843,7 +906,7 @@
                 badgeClass: 'node',
                 badgeText: 'NODE',
                 desc: 'Studio layout tipografi dan tekstur canggih. Buat grid cyberpunk, kolase poster, dan dynamic layer blending.',
-                img: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1200&auto=format&fit=crop',
+                img: 'assets/previews/editor_tts.jpg',
                 link: 'https://editor-tts.vercel.app',
                 tags: ['Typography Studio', 'Cyberpunk Grids', 'Poster Layout', 'Blend Modes']
             },
@@ -853,7 +916,7 @@
                 badgeClass: 'node',
                 badgeText: 'NODE',
                 desc: 'Generator blueprint arsitektural, stempel tipografi kustom, dan aset visual dengan node gravitasi dinamis.',
-                img: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=1200&auto=format&fit=crop',
+                img: 'assets/previews/generator.jpg',
                 link: 'https://riddlebush-generator.vercel.app/',
                 tags: ['Generative Blueprint', 'Gravity Nodes', 'Vector Stamps', 'Data Engine']
             }
