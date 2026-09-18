@@ -1,200 +1,609 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RBA System | Mega Studio</title>
+    <title>RBA System | Mega Studio Hub</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="logo.png">
+    <link rel="icon" type="image/png" href="logo.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap');
+        :root {
+            --bg-base: #06070a;
+            --surface-glass: rgba(14, 17, 24, 0.65);
+            --surface-card: rgba(22, 27, 38, 0.45);
+            --surface-hover: rgba(32, 40, 58, 0.6);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-focus: rgba(0, 240, 255, 0.4);
+            --accent-cyan: #00f0ff;
+            --accent-amber: #f59e0b;
+            --accent-emerald: #10b981;
+            --accent-purple: #a855f7;
+            --accent-pink: #ec4899;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #050505;
-            color: #f3f4f6;
+            background-color: var(--bg-base);
+            color: var(--text-main);
             overflow-x: hidden;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+            user-select: none;
         }
 
-        /* --- Ambient Glow Background --- */
+        /* --- Ambient Background Glow Orbs --- */
         .ambient-bg {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             overflow: hidden;
             z-index: -1;
-            background: #050505;
+            background: radial-gradient(circle at 50% 50%, #0c0f17 0%, #06070a 100%);
         }
         .orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.5;
-            animation: float 20s infinite ease-in-out alternate;
+            filter: blur(100px);
+            opacity: 0.35;
+            animation: float 25s infinite ease-in-out alternate;
         }
-        .orb-1 { width: 400px; height: 400px; background: #00FFFF; top: -10%; left: -10%; }
-        .orb-2 { width: 500px; height: 500px; background: #F59E0B; bottom: -20%; right: -10%; animation-delay: -5s; }
-        .orb-3 { width: 300px; height: 300px; background: #10B981; top: 40%; left: 40%; opacity: 0.3; animation-delay: -10s; }
-        .orb-4 { width: 400px; height: 400px; background: #8B5CF6; bottom: 10%; left: 10%; opacity: 0.2; animation-delay: -15s; }
+        .orb-1 { width: 450px; height: 450px; background: var(--accent-cyan); top: -10%; left: -10%; }
+        .orb-2 { width: 550px; height: 550px; background: var(--accent-amber); bottom: -20%; right: -10%; animation-delay: -6s; }
+        .orb-3 { width: 350px; height: 350px; background: var(--accent-purple); top: 35%; left: 45%; opacity: 0.25; animation-delay: -12s; }
+        .orb-4 { width: 420px; height: 420px; background: var(--accent-pink); bottom: 5%; left: 10%; opacity: 0.2; animation-delay: -18s; }
 
         @keyframes float {
             0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(50px, 50px) scale(1.2); }
+            50% { transform: translate(40px, -30px) scale(1.15); }
+            100% { transform: translate(-30px, 50px) scale(0.95); }
         }
 
-        /* --- Glassmorphism Container --- */
+        /* Subtle grid overlay */
+        .ambient-grid {
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 36px 36px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* --- Glass Container --- */
         .glass-container {
-            width: 95%;
-            max-width: 1300px;
-            height: 90vh;
-            background: rgba(17, 17, 17, 0.4);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            width: 96%;
+            max-width: 1360px;
+            height: 92vh;
+            background: var(--surface-glass);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid var(--border-glass);
             border-radius: 24px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 35px 70px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
             overflow: hidden;
             position: relative;
         }
 
+        /* --- Header --- */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 24px 40px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .logo { 
-            font-family: 'Space Mono', monospace; 
-            font-weight: 700; 
-            font-size: 16px; 
-            letter-spacing: 4px; 
-            color: rgba(255, 255, 255, 0.9);
+            padding: 18px 32px;
+            border-bottom: 1px solid var(--border-glass);
+            background: rgba(8, 10, 15, 0.4);
         }
 
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-cyan);
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+        .logo-title {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 3px;
+            color: #ffffff;
+        }
+        .logo-sub {
+            font-size: 10px;
+            color: var(--accent-cyan);
+            letter-spacing: 1.5px;
+            font-family: 'Space Mono', monospace;
+            opacity: 0.85;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+        }
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        .clock-display {
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        /* --- Main Workspace --- */
         main {
             display: flex;
             flex: 1;
             overflow: hidden;
+            position: relative;
         }
 
-        /* Sidebar Glass */
+        /* --- Left Sidebar / Tools Explorer --- */
         .sidebar {
-            width: 420px;
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            width: 440px;
+            border-right: 1px solid var(--border-glass);
             display: flex;
             flex-direction: column;
+            background: rgba(6, 8, 12, 0.35);
+        }
+
+        .sidebar-controls {
+            padding: 20px 24px 14px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .search-box-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-box {
+            width: 100%;
+            padding: 12px 16px 12px 38px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+        .search-box:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+        }
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+        .search-shortcut {
+            position: absolute;
+            right: 12px;
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        /* Category Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding-bottom: 2px;
+        }
+        .filter-tabs::-webkit-scrollbar { display: none; }
+
+        .filter-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 500;
+            font-family: 'Space Mono', monospace;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .filter-btn.active {
+            color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.12);
+            border-color: rgba(0, 240, 255, 0.35);
+        }
+
+        /* Tool Cards List */
+        .tool-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .tool-list::-webkit-scrollbar { width: 5px; }
+        .tool-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .category-header {
+            font-size: 10px;
+            color: #64748b;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            margin: 12px 4px 4px 4px;
+            text-transform: uppercase;
+        }
+
+        .tool-card {
+            background: var(--surface-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .tool-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 3px; height: 100%;
+            background: transparent;
+            transition: all 0.25s;
+        }
+        .tool-card:hover {
+            background: var(--surface-hover);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+        .tool-card.active {
+            background: rgba(0, 240, 255, 0.08);
+            border-color: rgba(0, 240, 255, 0.35);
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.1);
+        }
+        .tool-card.active::before {
+            background: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        .tool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .tool-title {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            color: #ffffff;
+        }
+
+        .badge {
+            font-size: 9px;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+            padding: 3px 8px;
+            border-radius: 5px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .badge.new { background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4); }
+        .badge.pro { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge.beta { background: rgba(0, 240, 255, 0.15); color: #38bdf8; border: 1px solid rgba(0, 240, 255, 0.3); }
+        .badge.node { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .badge.app { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        .tool-desc {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            font-weight: 300;
+        }
+
+        /* --- Right Preview Area --- */
+        .preview-area {
+            flex: 1;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            justify-content: center;
+            align-items: center;
             background: rgba(0, 0, 0, 0.2);
         }
 
-        .search-container { padding: 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.02);}
-        .search-box {
-            width: 100%; padding: 14px 20px; 
-            background: rgba(255, 255, 255, 0.05); 
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px; color: white; 
-            font-family: 'Inter', sans-serif; 
-            outline: none; transition: 0.3s;
-        }
-        .search-box:focus { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
-
-        .tool-list {
-            flex: 1; overflow-y: auto; padding: 24px; 
-            display: flex; flex-direction: column; gap: 16px;
-        }
-        .tool-list::-webkit-scrollbar { width: 4px; }
-        .tool-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-
-        .tool-card {
-            background: rgba(255, 255, 255, 0.03); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            border-radius: 16px; padding: 20px; 
-            cursor: pointer; transition: all 0.3s ease;
-        }
-        .tool-card:hover { 
-            background: rgba(255, 255, 255, 0.08); 
-            transform: translateY(-2px); 
-        }
-        .tool-card.active { 
-            background: rgba(255, 255, 255, 0.1); 
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .tool-title { font-size: 15px; font-weight: 600; letter-spacing: 0.5px; }
-        
-        .badge { font-size: 9px; font-weight: 700; padding: 4px 8px; border-radius: 6px; letter-spacing: 1px;}
-        .badge.pro { background: rgba(245, 158, 11, 0.15); color: #F59E0B; }
-        .badge.beta { background: rgba(0, 255, 255, 0.15); color: #00FFFF; }
-        .badge.node { background: rgba(139, 92, 246, 0.15); color: #8B5CF6; } 
-        .badge.app { background: rgba(236, 72, 153, 0.15); color: #EC4899; }
-
-        .tool-desc { font-size: 12px; color: rgba(255, 255, 255, 0.5); line-height: 1.6; font-weight: 300;}
-
-        /* Preview Area */
-        .preview-area {
-            flex: 1; padding: 40px; display: flex; flex-direction: column;
-            position: relative; justify-content: center; align-items: center;
-        }
-        
         .preview-wrapper {
-            width: 100%; height: 100%; 
-            border-radius: 20px; overflow: hidden;
-            position: relative; 
-            background: rgba(0, 0, 0, 0.3);
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 20px 40px rgba(0, 0, 0, 0.5);
         }
 
-        .preview-image { 
-            width: 100%; height: 100%; object-fit: cover; 
-            opacity: 0.9; transition: opacity 0.5s ease, transform 6s ease; 
-            position: absolute; top: 0; left: 0;
-            /* Codedex Vibe: High saturation & contrast */
-            filter: saturate(1.5) contrast(1.1);
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.85;
+            transition: opacity 0.4s ease, transform 6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: absolute;
+            top: 0; left: 0;
+            filter: saturate(1.4) contrast(1.1);
         }
-        
         .preview-wrapper:hover .preview-image {
-            transform: scale(1.08); /* Slow zoom effect */
+            transform: scale(1.05);
         }
-        
+
         .preview-overlay {
-            position: absolute; bottom: 0; left: 0; right: 0; padding: 40px;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
-            display: flex; justify-content: space-between; align-items: flex-end;
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 36px 40px;
+            background: linear-gradient(to top, rgba(6, 8, 12, 0.95) 0%, rgba(6, 8, 12, 0.6) 60%, transparent 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
             z-index: 2;
+            gap: 24px;
         }
 
-        .preview-info h1 { font-size: 32px; font-weight: 600; margin-bottom: 12px; letter-spacing: -0.5px;}
-        .preview-info p { color: rgba(255, 255, 255, 0.7); font-size: 14px; max-width: 450px; line-height: 1.6; font-weight: 300;}
-
-        .launch-btn {
-            background: rgba(255, 255, 255, 0.9); color: black; 
-            border: none; padding: 16px 32px; border-radius: 12px;
-            font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px; 
-            cursor: pointer; transition: 0.3s; 
-            text-decoration: none; display: inline-block; white-space: nowrap;
+        .preview-info {
+            max-width: 600px;
         }
-        .launch-btn:hover { background: white; transform: scale(1.02); box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1); }
-        .launch-btn.external::after { content: ' ↗'; font-family: 'Space Mono'; font-weight: bold;}
+        .preview-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .preview-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+        .tag-pill {
+            font-size: 10px;
+            font-family: 'Space Mono', monospace;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+        }
 
-        @media (max-width: 768px) {
-            .glass-container { width: 100%; height: 100vh; border-radius: 0; border: none; }
+        .preview-info h1 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        .preview-info p {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 13.5px;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .preview-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .launch-btn-primary {
+            background: linear-gradient(135deg, #00f0ff 0%, #38bdf8 100%);
+            color: #05070d;
+            border: none;
+            padding: 16px 36px;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            box-shadow: 0 4px 25px rgba(0, 240, 255, 0.35);
+        }
+        .launch-btn-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 30px rgba(0, 240, 255, 0.5);
+            background: #ffffff;
+        }
+        .launch-btn-primary:active { transform: scale(0.98); }
+
+        .launch-btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .launch-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+        }
+
+        /* --- Fullscreen In-App Runner Frame (Modal) --- */
+        .app-runner-overlay {
+            position: fixed;
+            inset: 0;
+            background: #06070a;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+        }
+        .app-runner-overlay.open { display: flex; }
+
+        .runner-nav {
+            height: 48px;
+            background: #0d111a;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .runner-title-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .back-hub-btn {
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .back-hub-btn:hover {
+            background: var(--accent-cyan);
+            color: #000;
+        }
+        .runner-iframe {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #000;
+        }
+
+        /* --- Mobile Responsive Rules --- */
+        @media (max-width: 900px) {
+            .glass-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+                border: none;
+            }
             main { flex-direction: column; }
-            header { padding: 20px; }
-            .sidebar { width: 100%; border-right: none; overflow: visible; flex: none; height: 50vh;}
-            .preview-area { order: -1; padding: 20px; flex: none; height: 40vh; }
-            .preview-overlay { padding: 20px; flex-direction: column; align-items: flex-start; gap: 16px; }
-            .launch-btn { width: 100%; text-align: center; }
+            header { padding: 14px 20px; }
+            .header-status .clock-display { display: none; }
+            .sidebar {
+                width: 100%;
+                height: 52vh;
+                border-right: none;
+                border-top: 1px solid var(--border-glass);
+                order: 2;
+            }
+            .preview-area {
+                order: 1;
+                padding: 16px;
+                flex: none;
+                height: 38vh;
+            }
+            .preview-overlay {
+                padding: 20px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 14px;
+            }
+            .preview-info h1 { font-size: 22px; }
+            .preview-info p { font-size: 11.5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+            .preview-actions {
+                width: 100%;
+                flex-direction: row;
+                justify-content: stretch;
+            }
+            .launch-btn-primary { flex: 1; justify-content: center; padding: 12px; }
+            .launch-btn-secondary { padding: 12px; }
         }
     </style>
 </head>
@@ -206,217 +615,374 @@
         <div class="orb orb-3"></div>
         <div class="orb orb-4"></div>
     </div>
+    <div class="ambient-grid"></div>
 
     <div class="glass-container">
+        <!-- Header -->
         <header>
-            <div class="logo">RIDDLEBUSH ARCHIVE</div>
+            <div class="brand">
+                <div class="brand-logo">R</div>
+                <div class="brand-text">
+                    <span class="logo-title">RIDDLEBUSH ARCHIVE</span>
+                    <span class="logo-sub">MEGA STUDIO // CORE V6.2</span>
+                </div>
+            </div>
+
+            <div class="header-status">
+                <div class="status-pill">
+                    <span class="status-dot"></span>
+                    <span>ONLINE (7 APPS)</span>
+                </div>
+                <div id="live-clock" class="clock-display">00:00:00 UTC</div>
+            </div>
         </header>
 
+        <!-- Main Workspace -->
         <main>
+            <!-- Left Sidebar Navigation -->
             <aside class="sidebar">
-                <div class="search-container">
-                    <input type="text" class="search-box" placeholder="Search studio apps...">
+                <div class="sidebar-controls">
+                    <div class="search-box-wrapper">
+                        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="tool-search" class="search-box" placeholder="Cari aplikasi atau tools..." autocomplete="off">
+                        <span class="search-shortcut">/</span>
+                    </div>
+
+                    <!-- Category Pills -->
+                    <div class="filter-tabs">
+                        <button class="filter-btn active" onclick="filterCategory('all', this)">Semua (7)</button>
+                        <button class="filter-btn" onclick="filterCategory('tracking', this)">Tracking</button>
+                        <button class="filter-btn" onclick="filterCategory('generative', this)">Generative</button>
+                        <button class="filter-btn" onclick="filterCategory('video', this)">Video & Text</button>
+                    </div>
                 </div>
 
-                <div class="tool-list">
-                    <!-- SECTION: CORE TOOLS (LOKAL) -->
-                    <div style="font-size: 10px; color: #888; font-weight: 700; letter-spacing: 1px; margin-top: 8px;">CORE ENGINE (HTML/JS)</div>
+                <!-- Scrollable Tool Cards List -->
+                <div class="tool-list" id="tool-list-container">
                     
-                    <div class="tool-card active" onclick="selectTool('tracker', this)">
+                    <!-- SECTION 1: CORE ENGINES -->
+                    <div class="category-header">Core Engines (Local)</div>
+                    
+                    <!-- 1. IMAGETRACK STUDIO (BARU KITA) -->
+                    <div class="tool-card active" data-id="imagetrack" data-cat="tracking" onclick="selectTool('imagetrack', this)">
+                        <div class="tool-header">
+                            <div class="tool-title">ImageTrack Studio</div>
+                            <span class="badge new">NEW PRO</span>
+                        </div>
+                        <p class="tool-desc">Engine Sci-Fi HUD tracking presisi tinggi dengan 25 target reticle shapes, garis koneksi animasi, dan touch pan/zoom smartphone.</p>
+                    </div>
+
+                    <!-- 2. BLOB TRACKER (LAMA) -->
+                    <div class="tool-card" data-id="tracker" data-cat="tracking" onclick="selectTool('tracker', this)">
                         <div class="tool-header">
                             <div class="tool-title">Blob Tracker</div>
                             <span class="badge pro">PRO</span>
                         </div>
-                        <p class="tool-desc">AI-Powered motion and pose tracking system designed for interactive art and VJ installations.</p>
+                        <p class="tool-desc">Sistem deteksi pose & motion visual AI interaktif untuk pertunjukan VJ dan instalasi seni digital.</p>
                     </div>
 
-                    <div class="tool-card" onclick="selectTool('imagetrack', this)">
+                    <!-- 3. DATAMOSH -->
+                    <div class="tool-card" data-id="datamosh" data-cat="generative" onclick="selectTool('datamosh', this)">
                         <div class="tool-header">
-                            <div class="tool-title">ImageTrack Studio</div>
-                            <span class="badge app">NEW</span>
-                        </div>
-                        <p class="tool-desc">Sci-Fi HUD tracking & contrast blob engine with 25 target shapes, dynamic lines, and telemetry.</p>
-                    </div>
-
-                    <div class="tool-card" onclick="selectTool('datamosh', this)">
-                        <div class="tool-header">
-                            <div class="tool-title">Datamosh</div>
+                            <div class="tool-title">Datamosh Engine</div>
                             <span class="badge beta">BETA</span>
                         </div>
-                        <p class="tool-desc">Simulate I-Frame drop and pixel bleed. Create the iconic melting transition effect in your browser.</p>
+                        <p class="tool-desc">Simulasi kompresi glitch I-Frame drop dan pelelehan piksel (pixel bleed) ikonik langsung di browser.</p>
                     </div>
 
-                    <!-- SECTION: SATELLITE APPS (NODE.JS / VITE) -->
-                    <div style="font-size: 10px; color: #888; font-weight: 700; letter-spacing: 1px; margin-top: 16px;">SATELLITE APPS (VITE/REACT)</div>
+                    <!-- SECTION 2: SATELLITE APPS -->
+                    <div class="category-header" style="margin-top: 14px;">Satellite Apps (Vite/Node)</div>
 
-                    <!-- 1. GRID TOOLS -->
-                    <div class="tool-card" onclick="selectTool('gridtools', this)">
+                    <!-- 4. GRID TOOLS -->
+                    <div class="tool-card" data-id="gridtools" data-cat="generative" onclick="selectTool('gridtools', this)">
                         <div class="tool-header">
                             <div class="tool-title">Grid Tools Studio</div>
                             <span class="badge node">NODE</span>
                         </div>
-                        <p class="tool-desc">Generative slit-scan distortion tool. Features seeded RNG processing and AI-assisted annotations.</p>
+                        <p class="tool-desc">Generative slit-scan distortion tool dengan seeded RNG processing dan anotasi estetik AI.</p>
                     </div>
 
-                    <!-- 2. PROYEK PiP -->
-                    <div class="tool-card" onclick="selectTool('proyek_pip', this)">
+                    <!-- 5. PROYEK-PIP -->
+                    <div class="tool-card" data-id="proyek_pip" data-cat="video" onclick="selectTool('proyek_pip', this)">
                         <div class="tool-header">
-                            <div class="tool-title">Proyek-PiP</div>
+                            <div class="tool-title">Proyek-PiP Compositor</div>
                             <span class="badge app">APP</span>
                         </div>
-                        <p class="tool-desc">Professional picture-in-picture video compositor. Features dynamic rulers, pan/zoom, and 60fps rendering.</p>
+                        <p class="tool-desc">Pengolah video picture-in-picture profesional dengan mistar dinamis, pan/zoom, dan rendering 60fps.</p>
                     </div>
 
-                    <!-- 3. EDITOR TTS -->
-                    <div class="tool-card" onclick="selectTool('editor_tts', this)">
+                    <!-- 6. TEXTURE & TYPOGRAPHY -->
+                    <div class="tool-card" data-id="editor_tts" data-cat="video" onclick="selectTool('editor_tts', this)">
                         <div class="tool-header">
                             <div class="tool-title">Texture & Typography</div>
                             <span class="badge node">NODE</span>
                         </div>
-                        <p class="tool-desc">Advanced typography and texture layout studio. Create cyberpunk grids, poster collages, and dynamic blending.</p>
+                        <p class="tool-desc">Studio layout tipografi dan tekstur canggih. Buat grid cyberpunk, kolase poster, dan dynamic blending.</p>
                     </div>
 
-                    <!-- 4. BLUEPRINT GENERATOR (APLIKASI BARU KITA) -->
-                    <div class="tool-card" onclick="selectTool('generator', this)">
+                    <!-- 7. BLUEPRINT DATA ENGINE -->
+                    <div class="tool-card" data-id="generator" data-cat="generative" onclick="selectTool('generator', this)">
                         <div class="tool-header">
                             <div class="tool-title">Blueprint Data Engine</div>
                             <span class="badge node">NODE</span>
                         </div>
-                        <p class="tool-desc">Generative architectural blueprints, custom typography stamps, and data-driven assets with dynamic gravity nodes.</p>
+                        <p class="tool-desc">Generator blueprint arsitektural, stempel tipografi kustom, dan aset visual dengan node gravitasi dinamis.</p>
                     </div>
+
                 </div>
             </aside>
 
+            <!-- Right Showcase Preview Area -->
             <section class="preview-area">
                 <div class="preview-wrapper">
-                    <!-- Default image to Blob Tracker -->
-                    <img id="preview-img" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop" class="preview-image" alt="Preview">
+                    <img id="preview-img" src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200&auto=format&fit=crop" class="preview-image" alt="App Preview">
                     
                     <div class="preview-overlay">
                         <div class="preview-info">
-                            <h1 id="preview-title">Blob Tracker</h1>
-                            <p id="preview-desc">AI-Powered motion and pose tracking system designed for interactive art and VJ installations.</p>
+                            <div class="preview-meta">
+                                <span id="preview-badge" class="badge new">NEW PRO</span>
+                                <span id="preview-type" style="font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent-cyan);">CORE ENGINE</span>
+                            </div>
+                            <h1 id="preview-title">ImageTrack Studio</h1>
+                            <p id="preview-desc">Engine Sci-Fi HUD tracking presisi tinggi dengan 25 target reticle shapes, garis koneksi animasi, dan touch pan/zoom smartphone.</p>
+                            <div class="preview-tags" id="preview-tags">
+                                <span class="tag-pill">React 19</span>
+                                <span class="tag-pill">Canvas 2D</span>
+                                <span class="tag-pill">25 Shapes</span>
+                                <span class="tag-pill">Mobile Touch</span>
+                            </div>
                         </div>
-                        <a class='launch-btn' href='tracker.html' id='launch-link'>
-                            LAUNCH APP
-                        </a>
+
+                        <div class="preview-actions">
+                            <button id="btn-run-inapp" class="launch-btn-primary" onclick="launchInApp()">
+                                <span>⚡ JALANKAN DI HUB</span>
+                            </button>
+                            <a id="btn-run-external" class="launch-btn-secondary" href="imagetrack/index.html" target="_blank">
+                                <span>BUKA TAB BARU ↗</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </section>
         </main>
     </div>
 
+    <!-- Integrated Fullscreen In-App Runner -->
+    <div id="app-runner" class="app-runner-overlay">
+        <div class="runner-nav">
+            <div class="runner-title-box">
+                <button class="back-hub-btn" onclick="closeInAppRunner()">← KEMBALI KE LOBBY</button>
+                <span id="runner-app-title" style="color: #ffffff;">ImageTrack Studio</span>
+            </div>
+            <a id="runner-external-link" href="#" target="_blank" class="launch-btn-secondary" style="padding: 4px 10px; font-size: 10px;">
+                Buka Tab Penuh ↗
+            </a>
+        </div>
+        <iframe id="runner-iframe" class="runner-iframe" src="about:blank"></iframe>
+    </div>
+
     <script>
+        // Database 7 Aplikasi Terintegrasi
         const tools = {
-            // --- CORE TOOLS (SAME DIRECTORY) ---
-            'tracker': {
-                title: 'Blob Tracker',
-                desc: 'AI-Powered motion and pose tracking system designed for interactive art and VJ installations.',
-                // 3D Fluid Glass
-                img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop', 
-                link: 'tracker.html',
-                isExternal: false
-            },
             'imagetrack': {
                 title: 'ImageTrack Studio',
-                desc: 'Creative object & contrast HUD tracking system with 25 customizable target shapes, algorithmic scan modes, and generative lines.',
-                // Futuristic Cyberpunk HUD Network
-                img: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1000&auto=format&fit=crop', 
+                type: 'LOCAL CORE ENGINE',
+                badgeClass: 'new',
+                badgeText: 'NEW PRO',
+                desc: 'Creative object & contrast HUD tracking system dengan 25 target reticle shapes, mode scan kuadran, garis jaring animasi, filter neon, dan optimasi gesture layar sentuh smartphone.',
+                img: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200&auto=format&fit=crop',
                 link: 'imagetrack/index.html',
-                isExternal: false
+                tags: ['React 19', 'Canvas 2D', '25 Target Shapes', 'Mobile Touch Gestures', 'PWA Ready']
+            },
+            'tracker': {
+                title: 'Blob Tracker',
+                type: 'LOCAL CORE ENGINE',
+                badgeClass: 'pro',
+                badgeText: 'PRO',
+                desc: 'Sistem deteksi pose & motion visual AI interaktif untuk pertunjukan VJ, instalasi seni digital, dan tracking kamera langsung.',
+                img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop',
+                link: 'tracker.html',
+                tags: ['MediaPipe', 'Face & Pose', 'Live Camera', 'Space Mono HUD']
             },
             'datamosh': {
-                title: 'Datamosh',
-                desc: 'Simulate I-Frame drop and pixel bleed. Create the iconic melting transition effect directly in your browser.',
-                // 3D Glitchy Blocks
-                img: 'https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=1000&auto=format&fit=crop', 
+                title: 'Datamosh Engine',
+                type: 'LOCAL CORE ENGINE',
+                badgeClass: 'beta',
+                badgeText: 'BETA',
+                desc: 'Simulasikan kompresi glitch video I-Frame drop dan efek pelelehan piksel (pixel bleed) ikonik langsung dari browser Anda.',
+                img: 'https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=1200&auto=format&fit=crop',
                 link: 'datamosh.html',
-                isExternal: false
+                tags: ['Video Glitch', 'I-Frame Drop', 'Pixel Melt', 'Export WebM']
             },
-
-            // --- SATELLITE APPS (EXTERNAL VITE/NODE.JS) ---
             'gridtools': {
                 title: 'Grid Tools Studio',
-                desc: 'Generative slit-scan distortion tool. Features seeded RNG processing and AI-assisted aesthetic keyword annotations.',
-                // 3D Neon Grid / Lasers
-                img: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=1000&auto=format&fit=crop', 
-                link: 'https://riddlebushgridtools.vercel.app/', 
-                isExternal: true
+                type: 'SATELLITE VITE APP',
+                badgeClass: 'node',
+                badgeText: 'NODE',
+                desc: 'Generative slit-scan distortion tool dengan seeded RNG processing dan anotasi estetik AI.',
+                img: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=1200&auto=format&fit=crop',
+                link: 'https://riddlebushgridtools.vercel.app/',
+                tags: ['Slit-Scan', 'Generative RNG', 'Vite', 'AI Annotation']
             },
             'proyek_pip': {
                 title: 'Proyek-PiP Compositor',
-                desc: 'Professional picture-in-picture video compositor. Features dynamic rulers, pan/zoom workspace, and 60fps real-time rendering.',
-                // 3D Floating Isometric UI Glass
-                img: 'https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=1000&auto=format&fit=crop', 
+                type: 'SATELLITE VITE APP',
+                badgeClass: 'app',
+                badgeText: 'APP',
+                desc: 'Pengolah video picture-in-picture profesional dengan mistar dinamis, pan/zoom workspace, dan rendering 60fps.',
+                img: 'https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=1200&auto=format&fit=crop',
                 link: 'https://pip-editor.vercel.app',
-                isExternal: true
+                tags: ['PiP Compositor', 'Multi-Layer', 'Dynamic Rulers', '60 FPS']
             },
             'editor_tts': {
-                title: 'Texture & Typography Studio',
-                desc: 'Advanced typography and texture layout studio. Create cyberpunk grids, poster collages, and dynamic layer blending.',
-                // 3D Vibrant Abstract Shapes
-                img: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1000&auto=format&fit=crop', 
+                title: 'Texture & Typography',
+                type: 'SATELLITE VITE APP',
+                badgeClass: 'node',
+                badgeText: 'NODE',
+                desc: 'Studio layout tipografi dan tekstur canggih. Buat grid cyberpunk, kolase poster, dan dynamic layer blending.',
+                img: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1200&auto=format&fit=crop',
                 link: 'https://editor-tts.vercel.app',
-                isExternal: true
+                tags: ['Typography Studio', 'Cyberpunk Grids', 'Poster Layout', 'Blend Modes']
             },
-            
-            // --- APLIKASI BARU (BLUEPRINT DATA ENGINE) ---
             'generator': {
                 title: 'Blueprint Data Engine',
-                desc: 'Create generative architectural blueprints, custom typography stamps, and data-driven visual assets with dynamic gravity nodes.',
-                // GAMBAR UNGU-BIRU ABSTRAK YANG DIJAMIN 100% BEKERJA 
-                img: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=1000&auto=format&fit=crop', 
+                type: 'SATELLITE VITE APP',
+                badgeClass: 'node',
+                badgeText: 'NODE',
+                desc: 'Generator blueprint arsitektural, stempel tipografi kustom, dan aset visual dengan node gravitasi dinamis.',
+                img: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=1200&auto=format&fit=crop',
                 link: 'https://riddlebush-generator.vercel.app/',
-                isExternal: true
+                tags: ['Generative Blueprint', 'Gravity Nodes', 'Vector Stamps', 'Data Engine']
             }
         };
 
-        function selectTool(toolId, element) {
-            document.querySelectorAll('.tool-card').forEach(card => card.classList.remove('active'));
-            element.classList.add('active');
+        let currentActiveToolId = 'imagetrack';
 
+        function selectTool(toolId, cardElement) {
+            currentActiveToolId = toolId;
             const data = tools[toolId];
-            
-            // Image transition animation
+            if (!data) return;
+
+            // Update active state di sidebar
+            document.querySelectorAll('.tool-card').forEach(c => c.classList.remove('active'));
+            if (cardElement) cardElement.classList.add('active');
+
+            // Smooth image transition
             const imgEl = document.getElementById('preview-img');
-            imgEl.style.opacity = 0;
+            imgEl.style.opacity = '0';
             setTimeout(() => {
                 imgEl.src = data.img;
-                imgEl.style.opacity = 0.9; // Match CSS opacity
-            }, 300);
-            
+                imgEl.style.opacity = '0.85';
+            }, 250);
+
+            // Update info
             document.getElementById('preview-title').textContent = data.title;
             document.getElementById('preview-desc').textContent = data.desc;
+            document.getElementById('preview-type').textContent = data.type;
             
-            const launchBtn = document.getElementById('launch-link');
-            launchBtn.href = data.link;
+            const badgeEl = document.getElementById('preview-badge');
+            badgeEl.className = `badge ${data.badgeClass}`;
+            badgeEl.textContent = data.badgeText;
 
-            // Handle external apps (open in new tab & update styling)
-            if (data.isExternal) {
-                launchBtn.target = '_blank';
-                launchBtn.textContent = 'LAUNCH EXTERNAL APP';
-                launchBtn.classList.add('external');
-            } else {
-                launchBtn.target = '_self';
-                launchBtn.textContent = 'LAUNCH APP';
-                launchBtn.classList.remove('external');
-            }
+            // Update tags
+            const tagsContainer = document.getElementById('preview-tags');
+            tagsContainer.innerHTML = '';
+            data.tags.forEach(t => {
+                const span = document.createElement('span');
+                span.className = 'tag-pill';
+                span.textContent = t;
+                tagsContainer.appendChild(span);
+            });
+
+            // Update buttons
+            const extBtn = document.getElementById('btn-run-external');
+            extBtn.href = data.link;
         }
-        
+
+        // Jalankan aplikasi langsung di dalam hub (Iframe Runner)
+        function launchInApp() {
+            const data = tools[currentActiveToolId];
+            if (!data) return;
+
+            const runner = document.getElementById('app-runner');
+            const iframe = document.getElementById('runner-iframe');
+            const title = document.getElementById('runner-app-title');
+            const extLink = document.getElementById('runner-external-link');
+
+            title.textContent = data.title;
+            extLink.href = data.link;
+            iframe.src = data.link;
+            runner.classList.add('open');
+        }
+
+        function closeInAppRunner() {
+            const runner = document.getElementById('app-runner');
+            const iframe = document.getElementById('runner-iframe');
+            iframe.src = 'about:blank';
+            runner.classList.remove('open');
+        }
+
+        // Category Filter
+        function filterCategory(cat, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const cards = document.querySelectorAll('.tool-card');
+            cards.forEach(card => {
+                const cardCat = card.getAttribute('data-cat');
+                if (cat === 'all' || cardCat === cat) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Live Search Filter
+        const searchInput = document.getElementById('tool-search');
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.tool-card');
+
+            cards.forEach(card => {
+                const title = card.querySelector('.tool-title').textContent.toLowerCase();
+                const desc = card.querySelector('.tool-desc').textContent.toLowerCase();
+                if (title.includes(query) || desc.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Shortcut keyboard '/' untuk fokus pencarian
+        window.addEventListener('keydown', (e) => {
+            if (e.key === '/' && document.activeElement !== searchInput) {
+                e.preventDefault();
+                searchInput.focus();
+            }
+            if (e.key === 'Escape') {
+                closeInAppRunner();
+            }
+        });
+
+        // Realtime Clock Display
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0] + ' UTC';
+            const clockEl = document.getElementById('live-clock');
+            if (clockEl) clockEl.textContent = timeStr;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
         // PWA Setup
-        const isSecureEnv = window.location.protocol === 'https:' || window.location.protocol === 'http:';
-        if ('serviceWorker' in navigator && isSecureEnv && !window.location.href.startsWith('blob:')) {
+        if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.protocol === 'http:')) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then(reg => {
-                    reg.onupdatefound = () => {
-                        const installingWorker = reg.installing;
-                        installingWorker.onstatechange = () => {
-                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                window.location.reload();
-                            }
-                        };
-                    };
-                }).catch(err => console.log('Service Worker Error:', err));
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Error:', err));
             });
         }
     </script>
