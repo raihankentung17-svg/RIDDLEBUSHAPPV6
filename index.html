@@ -230,6 +230,14 @@
                         <p class="tool-desc">AI-Powered motion and pose tracking system designed for interactive art and VJ installations.</p>
                     </div>
 
+                    <div class="tool-card" onclick="selectTool('imagetrack', this)">
+                        <div class="tool-header">
+                            <div class="tool-title">ImageTrack Studio</div>
+                            <span class="badge app">NEW</span>
+                        </div>
+                        <p class="tool-desc">Sci-Fi HUD tracking & contrast blob engine with 25 target shapes, dynamic lines, and telemetry.</p>
+                    </div>
+
                     <div class="tool-card" onclick="selectTool('datamosh', this)">
                         <div class="tool-header">
                             <div class="tool-title">Datamosh</div>
@@ -307,6 +315,14 @@
                 // 3D Fluid Glass
                 img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop', 
                 link: 'tracker.html',
+                isExternal: false
+            },
+            'imagetrack': {
+                title: 'ImageTrack Studio',
+                desc: 'Creative object & contrast HUD tracking system with 25 customizable target shapes, algorithmic scan modes, and generative lines.',
+                // Futuristic Cyberpunk HUD Network
+                img: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1000&auto=format&fit=crop', 
+                link: 'imagetrack/index.html',
                 isExternal: false
             },
             'datamosh': {
