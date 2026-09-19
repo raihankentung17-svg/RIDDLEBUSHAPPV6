@@ -10,16 +10,18 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --bg-base: #06070a;
-            --surface-glass: rgba(14, 17, 24, 0.65);
-            --surface-card: rgba(22, 27, 38, 0.45);
-            --surface-hover: rgba(32, 40, 58, 0.6);
+            --surface-glass: rgba(13, 17, 24, 0.72);
+            --surface-card: rgba(20, 25, 36, 0.5);
+            --surface-card-hover: rgba(30, 38, 54, 0.65);
+            --surface-deck: rgba(11, 15, 22, 0.95);
             --border-glass: rgba(255, 255, 255, 0.08);
-            --border-focus: rgba(0, 240, 255, 0.4);
+            --border-card: rgba(255, 255, 255, 0.06);
+            --border-active: rgba(0, 240, 255, 0.45);
             --accent-cyan: #00f0ff;
             --accent-amber: #f59e0b;
             --accent-emerald: #10b981;
@@ -27,12 +29,18 @@
             --accent-pink: #ec4899;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
+            --text-sub: #64748b;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-base);
             color: var(--text-main);
             overflow-x: hidden;
@@ -41,83 +49,86 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            user-select: none;
         }
 
-        /* --- Ambient Background Glow Orbs --- */
+        /* --- Ambient Animated Glow Orbs --- */
         .ambient-bg {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             overflow: hidden;
             z-index: -1;
-            background: radial-gradient(circle at 50% 50%, #0c0f17 0%, #06070a 100%);
+            background: radial-gradient(circle at 50% 50%, #0d111a 0%, #06070a 100%);
+            pointer-events: none;
         }
         .orb {
             position: absolute;
             border-radius: 50%;
             filter: blur(100px);
-            opacity: 0.35;
-            animation: float 25s infinite ease-in-out alternate;
+            opacity: 0.3;
+            animation: floatOrb 25s infinite ease-in-out alternate;
         }
-        .orb-1 { width: 450px; height: 450px; background: var(--accent-cyan); top: -10%; left: -10%; }
-        .orb-2 { width: 550px; height: 550px; background: var(--accent-amber); bottom: -20%; right: -10%; animation-delay: -6s; }
-        .orb-3 { width: 350px; height: 350px; background: var(--accent-purple); top: 35%; left: 45%; opacity: 0.25; animation-delay: -12s; }
-        .orb-4 { width: 420px; height: 420px; background: var(--accent-pink); bottom: 5%; left: 10%; opacity: 0.2; animation-delay: -18s; }
+        .orb-1 { width: 500px; height: 500px; background: var(--accent-cyan); top: -10%; left: -10%; }
+        .orb-2 { width: 550px; height: 550px; background: var(--accent-purple); bottom: -15%; right: -10%; animation-delay: -7s; }
+        .orb-3 { width: 380px; height: 380px; background: var(--accent-pink); top: 40%; left: 50%; opacity: 0.2; animation-delay: -14s; }
+        .orb-4 { width: 450px; height: 450px; background: var(--accent-amber); bottom: 5%; left: 5%; opacity: 0.22; animation-delay: -20s; }
 
-        @keyframes float {
+        @keyframes floatOrb {
             0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(40px, -30px) scale(1.15); }
-            100% { transform: translate(-30px, 50px) scale(0.95); }
+            50% { transform: translate(45px, -35px) scale(1.15); }
+            100% { transform: translate(-35px, 45px) scale(0.95); }
         }
 
-        /* Subtle grid overlay */
+        /* Grid Pattern */
         .ambient-grid {
             position: fixed;
             inset: 0;
             background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
                               linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 36px 36px;
+            background-size: 40px 40px;
             pointer-events: none;
             z-index: -1;
         }
 
-        /* --- Glass Container --- */
+        /* --- Master Container (Desktop & Tablet) --- */
         .glass-container {
             width: 96%;
-            max-width: 1360px;
+            max-width: 1400px;
             height: 92vh;
+            max-height: 880px;
             background: var(--surface-glass);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
             border: 1px solid var(--border-glass);
             border-radius: 24px;
-            box-shadow: 0 35px 70px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
             overflow: hidden;
             position: relative;
         }
 
-        /* --- Header --- */
+        /* --- Top Header --- */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 18px 32px;
+            padding: 16px 28px;
             border-bottom: 1px solid var(--border-glass);
-            background: rgba(8, 10, 15, 0.4);
+            background: rgba(8, 11, 17, 0.5);
+            flex-shrink: 0;
         }
 
         .brand {
             display: flex;
             align-items: center;
             gap: 12px;
+            text-decoration: none;
         }
         .brand-logo {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            background: rgba(0, 240, 255, 0.1);
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: rgba(0, 240, 255, 0.12);
             border: 1px solid rgba(0, 240, 255, 0.4);
             display: flex;
             align-items: center;
@@ -125,8 +136,8 @@
             color: var(--accent-cyan);
             font-family: 'Space Mono', monospace;
             font-weight: 700;
-            font-size: 14px;
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+            font-size: 15px;
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.25);
         }
         .brand-text {
             display: flex;
@@ -135,22 +146,22 @@
         .logo-title {
             font-family: 'Space Mono', monospace;
             font-weight: 700;
-            font-size: 14px;
-            letter-spacing: 3px;
+            font-size: 13.5px;
+            letter-spacing: 2.5px;
             color: #ffffff;
         }
         .logo-sub {
             font-size: 10px;
             color: var(--accent-cyan);
-            letter-spacing: 1.5px;
+            letter-spacing: 1.2px;
             font-family: 'Space Mono', monospace;
-            opacity: 0.85;
+            opacity: 0.9;
         }
 
         .header-status {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
             font-family: 'Space Mono', monospace;
             font-size: 11px;
         }
@@ -158,11 +169,12 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 14px;
+            padding: 5px 12px;
             border-radius: 20px;
-            background: rgba(16, 185, 129, 0.1);
+            background: rgba(16, 185, 129, 0.12);
             border: 1px solid rgba(16, 185, 129, 0.3);
             color: #34d399;
+            font-weight: 600;
         }
         .status-dot {
             width: 6px;
@@ -182,7 +194,7 @@
             letter-spacing: 1px;
         }
 
-        /* --- Main Workspace --- */
+        /* --- Main Two-Column Layout (Desktop) --- */
         main {
             display: flex;
             flex: 1;
@@ -196,15 +208,17 @@
             border-right: 1px solid var(--border-glass);
             display: flex;
             flex-direction: column;
-            background: rgba(6, 8, 12, 0.35);
+            background: rgba(6, 9, 14, 0.4);
+            flex-shrink: 0;
         }
 
         .sidebar-controls {
-            padding: 20px 24px 14px 24px;
+            padding: 18px 22px 14px 22px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            flex-shrink: 0;
         }
 
         .search-box-wrapper {
@@ -214,7 +228,7 @@
         }
         .search-box {
             width: 100%;
-            padding: 12px 16px 12px 38px;
+            padding: 11px 16px 11px 38px;
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 12px;
@@ -227,7 +241,7 @@
         .search-box:focus {
             background: rgba(255, 255, 255, 0.08);
             border-color: var(--accent-cyan);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.18);
         }
         .search-icon {
             position: absolute;
@@ -247,7 +261,7 @@
             pointer-events: none;
         }
 
-        /* Category Filter Tabs */
+        /* Filter Chips */
         .filter-tabs {
             display: flex;
             gap: 6px;
@@ -277,14 +291,15 @@
         .filter-btn.active {
             color: var(--accent-cyan);
             background: rgba(0, 240, 255, 0.12);
-            border-color: rgba(0, 240, 255, 0.35);
+            border-color: rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
         }
 
         /* Tool Cards List */
         .tool-list {
             flex: 1;
             overflow-y: auto;
-            padding: 16px 20px;
+            padding: 16px 20px 24px 20px;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -297,7 +312,7 @@
 
         .category-header {
             font-size: 10px;
-            color: #64748b;
+            color: var(--text-sub);
             font-family: 'Space Mono', monospace;
             font-weight: 700;
             letter-spacing: 1.5px;
@@ -305,11 +320,12 @@
             text-transform: uppercase;
         }
 
+        /* Card Item */
         .tool-card {
             background: var(--surface-card);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-card);
             border-radius: 14px;
-            padding: 16px;
+            padding: 13px 15px;
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
@@ -323,13 +339,13 @@
             transition: all 0.25s;
         }
         .tool-card:hover {
-            background: var(--surface-hover);
+            background: var(--surface-card-hover);
             transform: translateY(-2px);
             border-color: rgba(255, 255, 255, 0.12);
         }
         .tool-card.active {
             background: rgba(0, 240, 255, 0.08);
-            border-color: rgba(0, 240, 255, 0.35);
+            border-color: var(--border-active);
             box-shadow: 0 4px 20px rgba(0, 240, 255, 0.1);
         }
         .tool-card.active::before {
@@ -337,43 +353,15 @@
             box-shadow: 0 0 10px var(--accent-cyan);
         }
 
-        .tool-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-        .tool-title {
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-            color: #ffffff;
-        }
-
-        .badge {
-            font-size: 9px;
-            font-weight: 700;
-            font-family: 'Space Mono', monospace;
-            padding: 3px 8px;
-            border-radius: 5px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        .badge.new { background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4); }
-        .badge.pro { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-        .badge.beta { background: rgba(0, 240, 255, 0.15); color: #38bdf8; border: 1px solid rgba(0, 240, 255, 0.3); }
-        .badge.node { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
-        .badge.app { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-
         .tool-card-content {
             display: flex;
-            gap: 12px;
-            align-items: flex-start;
+            gap: 13px;
+            align-items: center;
         }
         .tool-mini-thumb {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
             object-fit: cover;
             border: 1px solid rgba(255, 255, 255, 0.1);
             background: rgba(0, 0, 0, 0.4);
@@ -381,35 +369,91 @@
             transition: transform 0.25s ease, border-color 0.25s ease;
         }
         .tool-card:hover .tool-mini-thumb {
-            transform: scale(1.06);
+            transform: scale(1.05);
             border-color: rgba(255, 255, 255, 0.25);
         }
         .tool-card.active .tool-mini-thumb {
             border-color: var(--accent-cyan);
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
         }
         .tool-card-main {
             flex: 1;
             min-width: 0;
         }
 
+        .tool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            gap: 8px;
+        }
+        .tool-title {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .badge {
+            font-size: 9px;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+            padding: 2.5px 7px;
+            border-radius: 5px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .badge.new { background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4); }
+        .badge.pro { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge.beta { background: rgba(0, 240, 255, 0.15); color: #38bdf8; border: 1px solid rgba(0, 240, 255, 0.3); }
+        .badge.node { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .badge.app { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+
         .tool-desc {
             font-size: 11.5px;
             color: var(--text-muted);
-            line-height: 1.5;
+            line-height: 1.4;
             font-weight: 300;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
-        /* --- Right Preview Area --- */
+        .tool-card-play-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .tool-card:hover .tool-card-play-btn {
+            background: rgba(0, 240, 255, 0.15);
+            border-color: rgba(0, 240, 255, 0.4);
+            color: var(--accent-cyan);
+            transform: scale(1.08);
+        }
+
+        /* --- Right Showcase Preview Area (Desktop) --- */
         .preview-area {
             flex: 1;
-            padding: 32px;
+            padding: 28px;
             display: flex;
             flex-direction: column;
             position: relative;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.25);
+            overflow: hidden;
         }
 
         .preview-wrapper {
@@ -418,63 +462,77 @@
             border-radius: 20px;
             overflow: hidden;
             position: relative;
-            background: rgba(0, 0, 0, 0.5);
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 20px 40px rgba(0, 0, 0, 0.5);
+            background: #090c13;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 25px 50px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
         }
 
+        /* Artwork Stage */
+        .preview-media-stage {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
         .preview-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            opacity: 0.85;
-            transition: opacity 0.4s ease, transform 6s cubic-bezier(0.16, 1, 0.3, 1);
-            position: absolute;
-            top: 0; left: 0;
-            filter: saturate(1.4) contrast(1.1);
+            opacity: 0.9;
+            transition: opacity 0.35s ease, transform 6s cubic-bezier(0.16, 1, 0.3, 1);
+            filter: saturate(1.25) contrast(1.08);
         }
         .preview-wrapper:hover .preview-image {
-            transform: scale(1.05);
+            transform: scale(1.04);
         }
 
-        .preview-overlay {
+        /* Floating Top Left Badge on Artwork */
+        .preview-top-badge {
+            position: absolute;
+            top: 20px;
+            left: 24px;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(6, 9, 14, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .preview-type-tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+        }
+
+        /* Bottom Glass Control Dock (Desktop) */
+        .preview-details-deck {
             position: absolute;
             bottom: 0; left: 0; right: 0;
-            padding: 36px 40px;
-            background: linear-gradient(to top, rgba(6, 8, 12, 0.95) 0%, rgba(6, 8, 12, 0.6) 60%, transparent 100%);
+            padding: 34px 38px;
+            background: linear-gradient(to top, rgba(6, 8, 13, 0.98) 0%, rgba(6, 8, 13, 0.85) 60%, transparent 100%);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            z-index: 2;
+            z-index: 4;
             gap: 24px;
         }
 
         .preview-info {
-            max-width: 600px;
+            max-width: 620px;
         }
-        .preview-meta {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-        .preview-tags {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            margin-top: 14px;
-        }
-        .tag-pill {
-            font-size: 10px;
-            font-family: 'Space Mono', monospace;
-            padding: 4px 10px;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #cbd5e1;
-        }
-
         .preview-info h1 {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 700;
             letter-spacing: -0.5px;
             color: #ffffff;
@@ -487,18 +545,35 @@
             font-weight: 300;
         }
 
+        .preview-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .tag-pill {
+            font-size: 10px;
+            font-family: 'Space Mono', monospace;
+            padding: 3.5px 9px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+        }
+
         .preview-actions {
             display: flex;
             flex-direction: column;
             gap: 10px;
             align-items: flex-end;
+            flex-shrink: 0;
         }
 
         .launch-btn-primary {
             background: linear-gradient(135deg, #00f0ff 0%, #38bdf8 100%);
             color: #05070d;
             border: none;
-            padding: 16px 36px;
+            padding: 15px 32px;
             border-radius: 12px;
             font-family: 'Inter', sans-serif;
             font-weight: 700;
@@ -510,18 +585,17 @@
             align-items: center;
             gap: 8px;
             white-space: nowrap;
-            box-shadow: 0 4px 25px rgba(0, 240, 255, 0.35);
+            box-shadow: 0 4px 22px rgba(0, 240, 255, 0.35);
         }
         .launch-btn-primary:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 6px 30px rgba(0, 240, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(0, 240, 255, 0.55);
             background: #ffffff;
         }
-        .launch-btn-primary:active { transform: scale(0.98); }
 
         .launch-btn-secondary {
-            background: rgba(255, 255, 255, 0.06);
-            color: #e2e8f0;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
             border: 1px solid rgba(255, 255, 255, 0.12);
             padding: 10px 20px;
             border-radius: 10px;
@@ -534,6 +608,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            white-space: nowrap;
         }
         .launch-btn-secondary:hover {
             background: rgba(255, 255, 255, 0.12);
@@ -546,27 +621,28 @@
             position: fixed;
             inset: 0;
             background: #06070a;
-            z-index: 100;
+            z-index: 1000;
             display: none;
             flex-direction: column;
         }
         .app-runner-overlay.open { display: flex; }
 
         .runner-nav {
-            height: 48px;
-            background: #0d111a;
+            height: 50px;
+            background: #0b0f17;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0 20px;
+            flex-shrink: 0;
         }
         .runner-title-box {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             font-family: 'Space Mono', monospace;
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 700;
         }
         .back-hub-btn {
@@ -593,50 +669,219 @@
             background: #000;
         }
 
-        /* --- Mobile Responsive Rules --- */
+        /* ========================================================= */
+        /* --- RESPONSIVE OPTIMIZATION (MOBILE & COMPACT SCREENS) --- */
+        /* ========================================================= */
         @media (max-width: 900px) {
+            body {
+                align-items: flex-start;
+                padding: 0;
+            }
+
+            /* Enable Natural, Smooth Unified Page Scrolling */
             .glass-container {
                 width: 100%;
-                height: 100vh;
+                min-height: 100vh;
+                height: auto;
+                max-height: none;
                 border-radius: 0;
                 border: none;
+                overflow-y: auto;
+                overflow-x: hidden;
             }
-            main { flex-direction: column; }
-            header { padding: 14px 20px; }
-            .header-status .clock-display { display: none; }
-            .sidebar {
-                width: 100%;
-                height: 52vh;
-                border-right: none;
-                border-top: 1px solid var(--border-glass);
-                order: 2;
+
+            /* Sticky Header */
+            header {
+                position: sticky;
+                top: 0;
+                z-index: 60;
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+                background: rgba(6, 8, 12, 0.9);
+                padding: 12px 16px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             }
+            .brand-logo { width: 30px; height: 30px; font-size: 13px; }
+            .logo-title { font-size: 12px; letter-spacing: 2px; }
+            .logo-sub { font-size: 9px; }
+            .clock-display { display: none; }
+            .status-pill { padding: 4px 10px; font-size: 10px; }
+
+            /* Flow as Single Column */
+            main {
+                flex-direction: column;
+                overflow: visible;
+                height: auto;
+            }
+
+            /* --- HERO SPOTLIGHT CARD (Separated Artwork & Deck - NO CLUTTER!) --- */
             .preview-area {
                 order: 1;
-                padding: 16px;
+                padding: 16px 16px 8px 16px;
                 flex: none;
-                height: 38vh;
+                height: auto;
+                background: transparent;
             }
-            .preview-overlay {
-                padding: 20px;
+
+            .preview-wrapper {
+                height: auto;
+                border-radius: 18px;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6);
+                display: flex;
                 flex-direction: column;
-                align-items: flex-start;
+                position: relative;
+                overflow: hidden;
+                background: var(--surface-deck);
+            }
+
+            /* 16:9 Artwork Stage: Crystal Clear, Unobstructed! */
+            .preview-media-stage {
+                position: relative;
+                width: 100%;
+                aspect-ratio: 16 / 9;
+                height: auto;
+                max-height: 240px;
+                overflow: hidden;
+            }
+            .preview-image {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .preview-top-badge {
+                top: 12px;
+                left: 12px;
+                padding: 4px 10px;
+            }
+
+            /* Details Deck Cleanly Sitting BELOW the Artwork */
+            .preview-details-deck {
+                position: relative;
+                padding: 16px 18px 20px 18px;
+                background: var(--surface-deck);
+                border-top: 1px solid rgba(255, 255, 255, 0.06);
+                flex-direction: column;
+                align-items: stretch;
                 gap: 14px;
             }
-            .preview-info h1 { font-size: 22px; }
-            .preview-info p { font-size: 11.5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+            .preview-info {
+                max-width: 100%;
+            }
+            .preview-info h1 {
+                font-size: 20px;
+                letter-spacing: -0.3px;
+                margin-bottom: 6px;
+            }
+            .preview-info p {
+                font-size: 12.5px;
+                line-height: 1.5;
+                color: rgba(255, 255, 255, 0.8);
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            /* Single Row Swipeable Tags */
+            .preview-tags {
+                margin-top: 8px;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                scrollbar-width: none;
+                padding-bottom: 2px;
+            }
+            .preview-tags::-webkit-scrollbar { display: none; }
+            .tag-pill {
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            /* Actions: Full Width, Thumb-Friendly Tactile Buttons */
             .preview-actions {
                 width: 100%;
                 flex-direction: row;
-                justify-content: stretch;
+                gap: 8px;
+                align-items: stretch;
             }
-            .launch-btn-primary { flex: 1; justify-content: center; padding: 12px; }
-            .launch-btn-secondary { padding: 12px; }
+            .launch-btn-primary {
+                flex: 1;
+                justify-content: center;
+                padding: 12px 16px;
+                font-size: 12px;
+                border-radius: 10px;
+            }
+            .launch-btn-secondary {
+                padding: 12px 16px;
+                font-size: 10.5px;
+                border-radius: 10px;
+                justify-content: center;
+            }
+
+            /* --- SIDEBAR & APP LIBRARY (Mobile) --- */
+            .sidebar {
+                order: 2;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                background: transparent;
+                overflow: visible;
+            }
+
+            /* Sticky Controls below Header */
+            .sidebar-controls {
+                position: sticky;
+                top: 55px;
+                z-index: 50;
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+                background: rgba(6, 8, 12, 0.94);
+                border-top: 1px solid rgba(255, 255, 255, 0.05);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                padding: 12px 16px;
+                gap: 10px;
+            }
+
+            .search-box {
+                padding: 10px 14px 10px 36px;
+                font-size: 12.5px;
+            }
+
+            .tool-list {
+                overflow: visible;
+                height: auto;
+                padding: 14px 16px 36px 16px;
+                gap: 10px;
+            }
+
+            .category-header {
+                font-size: 10.5px;
+                margin: 8px 4px 4px 4px;
+            }
+
+            .tool-card {
+                padding: 12px 14px;
+            }
+            .tool-mini-thumb {
+                width: 48px;
+                height: 48px;
+            }
+            .tool-title {
+                font-size: 13px;
+            }
+            .tool-desc {
+                font-size: 11px;
+                line-height: 1.4;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- Ambient Animated Background -->
     <div class="ambient-bg">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
@@ -645,16 +890,18 @@
     </div>
     <div class="ambient-grid"></div>
 
+    <!-- Main Glass Console -->
     <div class="glass-container">
+        
         <!-- Header -->
         <header>
-            <div class="brand">
+            <a href="#" class="brand">
                 <div class="brand-logo">R</div>
                 <div class="brand-text">
                     <span class="logo-title">RIDDLEBUSH ARCHIVE</span>
                     <span class="logo-sub">MEGA STUDIO // CORE V6.2</span>
                 </div>
-            </div>
+            </a>
 
             <div class="header-status">
                 <div class="status-pill">
@@ -669,6 +916,7 @@
         <main>
             <!-- Left Sidebar Navigation -->
             <aside class="sidebar">
+                <!-- Search & Filters (Sticky on mobile) -->
                 <div class="sidebar-controls">
                     <div class="search-box-wrapper">
                         <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -694,7 +942,7 @@
                     <!-- SECTION 1: CORE ENGINES -->
                     <div class="category-header">Core Engines (Local)</div>
                     
-                    <!-- 1. IMAGETRACK STUDIO (BARU KITA) -->
+                    <!-- 1. IMAGETRACK STUDIO -->
                     <div class="tool-card active" data-id="imagetrack" data-cat="tracking" onclick="selectTool('imagetrack', this)">
                         <div class="tool-card-content">
                             <img src="assets/previews/imagetrack.jpg" alt="ImageTrack" class="tool-mini-thumb" loading="lazy">
@@ -703,12 +951,15 @@
                                     <div class="tool-title">ImageTrack Studio</div>
                                     <span class="badge new">NEW PRO</span>
                                 </div>
-                                <p class="tool-desc">Engine Sci-Fi HUD tracking presisi tinggi dengan 25 target reticle shapes, garis koneksi animasi, dan touch pan/zoom smartphone.</p>
+                                <p class="tool-desc">Engine Sci-Fi HUD tracking presisi tinggi dengan 25 target reticle shapes, garis koneksi animasi, dan touch gesture smartphone.</p>
                             </div>
+                            <button class="tool-card-play-btn" onclick="event.stopPropagation(); launchDirect('imagetrack')" title="Jalankan di Hub">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- 2. BLOB TRACKER (LAMA) -->
+                    <!-- 2. BLOB TRACKER -->
                     <div class="tool-card" data-id="tracker" data-cat="tracking" onclick="selectTool('tracker', this)">
                         <div class="tool-card-content">
                             <img src="assets/previews/tracker.jpg" alt="Blob Tracker" class="tool-mini-thumb" loading="lazy">
@@ -719,6 +970,9 @@
                                 </div>
                                 <p class="tool-desc">Sistem deteksi pose & motion visual AI interaktif untuk pertunjukan VJ dan instalasi seni digital.</p>
                             </div>
+                            <button class="tool-card-play-btn" onclick="event.stopPropagation(); launchDirect('tracker')" title="Jalankan di Hub">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            </button>
                         </div>
                     </div>
 
@@ -733,6 +987,9 @@
                                 </div>
                                 <p class="tool-desc">Simulasi kompresi glitch I-Frame drop dan pelelehan piksel (pixel bleed) ikonik langsung di browser.</p>
                             </div>
+                            <button class="tool-card-play-btn" onclick="event.stopPropagation(); launchDirect('datamosh')" title="Jalankan di Hub">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            </button>
                         </div>
                     </div>
 
@@ -750,6 +1007,9 @@
                                 </div>
                                 <p class="tool-desc">Generative slit-scan distortion tool dengan seeded RNG processing dan anotasi estetik AI.</p>
                             </div>
+                            <button class="tool-card-play-btn" onclick="event.stopPropagation(); launchDirect('gridtools')" title="Jalankan di Hub">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            </button>
                         </div>
                     </div>
 
@@ -764,6 +1024,9 @@
                                 </div>
                                 <p class="tool-desc">Pengolah video picture-in-picture profesional dengan mistar dinamis, pan/zoom, dan rendering 60fps.</p>
                             </div>
+                            <button class="tool-card-play-btn" onclick="event.stopPropagation(); launchDirect('proyek_pip')" title="Jalankan di Hub">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            </button>
                         </div>
                     </div>
 
@@ -778,6 +1041,9 @@
                                 </div>
                                 <p class="tool-desc">Studio layout tipografi dan tekstur canggih. Buat grid cyberpunk, kolase poster, dan dynamic blending.</p>
                             </div>
+                            <button class="tool-card-play-btn" onclick="event.stopPropagation(); launchDirect('editor_tts')" title="Jalankan di Hub">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            </button>
                         </div>
                     </div>
 
@@ -792,6 +1058,9 @@
                                 </div>
                                 <p class="tool-desc">Generator blueprint arsitektural, stempel tipografi kustom, dan aset visual dengan node gravitasi dinamis.</p>
                             </div>
+                            <button class="tool-card-play-btn" onclick="event.stopPropagation(); launchDirect('generator')" title="Jalankan di Hub">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            </button>
                         </div>
                     </div>
 
@@ -799,23 +1068,28 @@
             </aside>
 
             <!-- Right Showcase Preview Area -->
-            <section class="preview-area">
+            <section class="preview-area" id="preview-section">
                 <div class="preview-wrapper">
-                    <img id="preview-img" src="assets/previews/imagetrack.jpg" class="preview-image" alt="App Preview">
+                    <!-- Artwork Stage -->
+                    <div class="preview-media-stage">
+                        <img id="preview-img" src="assets/previews/imagetrack.jpg" class="preview-image" alt="App Preview">
+                        <div class="preview-top-badge">
+                            <span id="preview-badge" class="badge new">NEW PRO</span>
+                            <span id="preview-type" class="preview-type-tag">CORE ENGINE</span>
+                        </div>
+                    </div>
                     
-                    <div class="preview-overlay">
+                    <!-- Details & Action Deck -->
+                    <div class="preview-details-deck">
                         <div class="preview-info">
-                            <div class="preview-meta">
-                                <span id="preview-badge" class="badge new">NEW PRO</span>
-                                <span id="preview-type" style="font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent-cyan);">CORE ENGINE</span>
-                            </div>
                             <h1 id="preview-title">ImageTrack Studio</h1>
-                            <p id="preview-desc">Engine Sci-Fi HUD tracking presisi tinggi dengan 25 target reticle shapes, garis koneksi animasi, dan touch pan/zoom smartphone.</p>
+                            <p id="preview-desc">Engine Sci-Fi HUD tracking presisi tinggi dengan 25 target reticle shapes, garis koneksi animasi, dan touch gesture smartphone.</p>
                             <div class="preview-tags" id="preview-tags">
                                 <span class="tag-pill">React 19</span>
                                 <span class="tag-pill">Canvas 2D</span>
                                 <span class="tag-pill">25 Shapes</span>
                                 <span class="tag-pill">Mobile Touch</span>
+                                <span class="tag-pill">PWA Ready</span>
                             </div>
                         </div>
 
@@ -840,7 +1114,7 @@
                 <button class="back-hub-btn" onclick="closeInAppRunner()">← KEMBALI KE LOBBY</button>
                 <span id="runner-app-title" style="color: #ffffff;">ImageTrack Studio</span>
             </div>
-            <a id="runner-external-link" href="#" target="_blank" class="launch-btn-secondary" style="padding: 4px 10px; font-size: 10px;">
+            <a id="runner-external-link" href="#" target="_blank" class="launch-btn-secondary" style="padding: 5px 12px; font-size: 10.5px;">
                 Buka Tab Penuh ↗
             </a>
         </div>
@@ -858,7 +1132,7 @@
                 desc: 'Creative object & contrast HUD tracking system dengan 25 target reticle shapes, mode scan kuadran, garis jaring animasi, filter neon, dan optimasi gesture layar sentuh smartphone.',
                 img: 'assets/previews/imagetrack.jpg',
                 link: 'imagetrack/index.html',
-                tags: ['React 19', 'Canvas 2D', '25 Target Shapes', 'Mobile Touch Gestures', 'PWA Ready']
+                tags: ['React 19', 'Canvas 2D', '25 Shapes', 'Touch Gestures', 'PWA Ready']
             },
             'tracker': {
                 title: 'Blob Tracker',
@@ -938,8 +1212,8 @@
             imgEl.style.opacity = '0';
             setTimeout(() => {
                 imgEl.src = data.img;
-                imgEl.style.opacity = '0.85';
-            }, 250);
+                imgEl.style.opacity = '0.9';
+            }, 200);
 
             // Update info
             document.getElementById('preview-title').textContent = data.title;
@@ -963,6 +1237,21 @@
             // Update buttons
             const extBtn = document.getElementById('btn-run-external');
             extBtn.href = data.link;
+
+            // Smooth scroll on mobile if triggered from card list
+            if (window.innerWidth <= 900) {
+                const previewSection = document.getElementById('preview-section');
+                if (previewSection && cardElement) {
+                    previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        }
+
+        // Direct Launch
+        function launchDirect(toolId) {
+            const cardEl = document.querySelector(`.tool-card[data-id="${toolId}"]`);
+            selectTool(toolId, cardEl);
+            launchInApp();
         }
 
         // Jalankan aplikasi langsung di dalam hub (Iframe Runner)
@@ -979,6 +1268,7 @@
             extLink.href = data.link;
             iframe.src = data.link;
             runner.classList.add('open');
+            document.body.style.overflow = 'hidden';
         }
 
         function closeInAppRunner() {
@@ -986,6 +1276,7 @@
             const iframe = document.getElementById('runner-iframe');
             iframe.src = 'about:blank';
             runner.classList.remove('open');
+            document.body.style.overflow = '';
         }
 
         // Category Filter
