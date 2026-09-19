@@ -15,10 +15,10 @@
     <style>
         :root {
             --bg-base: #06070a;
-            --surface-glass: rgba(13, 17, 24, 0.72);
-            --surface-card: rgba(20, 25, 36, 0.5);
-            --surface-card-hover: rgba(30, 38, 54, 0.65);
-            --surface-deck: rgba(11, 15, 22, 0.95);
+            --surface-glass: rgba(13, 17, 24, 0.75);
+            --surface-card: rgba(20, 26, 38, 0.5);
+            --surface-card-hover: rgba(28, 36, 52, 0.7);
+            --surface-deck: rgba(14, 18, 28, 0.65);
             --border-glass: rgba(255, 255, 255, 0.08);
             --border-card: rgba(255, 255, 255, 0.06);
             --border-active: rgba(0, 240, 255, 0.45);
@@ -57,34 +57,34 @@
             top: 0; left: 0; width: 100vw; height: 100vh;
             overflow: hidden;
             z-index: -1;
-            background: radial-gradient(circle at 50% 50%, #0d111a 0%, #06070a 100%);
+            background: radial-gradient(circle at 50% 50%, #0d121c 0%, #06070a 100%);
             pointer-events: none;
         }
         .orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(100px);
-            opacity: 0.3;
-            animation: floatOrb 25s infinite ease-in-out alternate;
+            filter: blur(110px);
+            opacity: 0.28;
+            animation: floatOrb 26s infinite ease-in-out alternate;
         }
         .orb-1 { width: 500px; height: 500px; background: var(--accent-cyan); top: -10%; left: -10%; }
         .orb-2 { width: 550px; height: 550px; background: var(--accent-purple); bottom: -15%; right: -10%; animation-delay: -7s; }
-        .orb-3 { width: 380px; height: 380px; background: var(--accent-pink); top: 40%; left: 50%; opacity: 0.2; animation-delay: -14s; }
-        .orb-4 { width: 450px; height: 450px; background: var(--accent-amber); bottom: 5%; left: 5%; opacity: 0.22; animation-delay: -20s; }
+        .orb-3 { width: 380px; height: 380px; background: var(--accent-pink); top: 35%; left: 45%; opacity: 0.18; animation-delay: -14s; }
+        .orb-4 { width: 450px; height: 450px; background: var(--accent-amber); bottom: 5%; left: 5%; opacity: 0.2; animation-delay: -20s; }
 
         @keyframes floatOrb {
             0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(45px, -35px) scale(1.15); }
-            100% { transform: translate(-35px, 45px) scale(0.95); }
+            50% { transform: translate(40px, -30px) scale(1.15); }
+            100% { transform: translate(-30px, 40px) scale(0.95); }
         }
 
-        /* Grid Pattern */
+        /* Tech Grid Pattern */
         .ambient-grid {
             position: fixed;
             inset: 0;
             background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
                               linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 40px 40px;
+            background-size: 38px 38px;
             pointer-events: none;
             z-index: -1;
         }
@@ -92,15 +92,15 @@
         /* --- Master Container (Desktop & Tablet) --- */
         .glass-container {
             width: 96%;
-            max-width: 1400px;
+            max-width: 1420px;
             height: 92vh;
-            max-height: 880px;
+            max-height: 890px;
             background: var(--surface-glass);
-            backdrop-filter: blur(32px);
-            -webkit-backdrop-filter: blur(32px);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             border: 1px solid var(--border-glass);
             border-radius: 24px;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: 0 35px 85px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -114,7 +114,7 @@
             align-items: center;
             padding: 16px 28px;
             border-bottom: 1px solid var(--border-glass);
-            background: rgba(8, 11, 17, 0.5);
+            background: rgba(8, 11, 17, 0.55);
             flex-shrink: 0;
         }
 
@@ -204,16 +204,16 @@
 
         /* --- Left Sidebar / Tools Explorer --- */
         .sidebar {
-            width: 440px;
+            width: 410px;
             border-right: 1px solid var(--border-glass);
             display: flex;
             flex-direction: column;
-            background: rgba(6, 9, 14, 0.4);
+            background: rgba(6, 9, 14, 0.45);
             flex-shrink: 0;
         }
 
         .sidebar-controls {
-            padding: 18px 22px 14px 22px;
+            padding: 18px 20px 14px 20px;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -272,9 +272,9 @@
         .filter-tabs::-webkit-scrollbar { display: none; }
 
         .filter-btn {
-            padding: 6px 12px;
+            padding: 6px 14px;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.06);
             color: var(--text-muted);
             font-size: 11px;
@@ -290,8 +290,8 @@
         }
         .filter-btn.active {
             color: var(--accent-cyan);
-            background: rgba(0, 240, 255, 0.12);
-            border-color: rgba(0, 240, 255, 0.4);
+            background: rgba(0, 240, 255, 0.1);
+            border-color: rgba(0, 240, 255, 0.35);
             box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
         }
 
@@ -299,10 +299,10 @@
         .tool-list {
             flex: 1;
             overflow-y: auto;
-            padding: 16px 20px 24px 20px;
+            padding: 14px 18px 24px 18px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
         .tool-list::-webkit-scrollbar { width: 5px; }
         .tool-list::-webkit-scrollbar-thumb {
@@ -316,52 +316,50 @@
             font-family: 'Space Mono', monospace;
             font-weight: 700;
             letter-spacing: 1.5px;
-            margin: 12px 4px 4px 4px;
+            margin: 10px 4px 4px 4px;
             text-transform: uppercase;
         }
 
-        /* Card Item */
+        /* Refined Studio Card Item */
         .tool-card {
             background: var(--surface-card);
             border: 1px solid var(--border-card);
-            border-radius: 14px;
-            padding: 13px 15px;
+            border-radius: 12px;
+            padding: 11px 14px;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             overflow: hidden;
         }
-        .tool-card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 3px; height: 100%;
-            background: transparent;
-            transition: all 0.25s;
-        }
         .tool-card:hover {
             background: var(--surface-card-hover);
-            transform: translateY(-2px);
+            transform: translateX(3px);
             border-color: rgba(255, 255, 255, 0.12);
         }
         .tool-card.active {
             background: rgba(0, 240, 255, 0.08);
             border-color: var(--border-active);
-            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.08);
         }
         .tool-card.active::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 8px; bottom: 8px;
+            width: 3px;
+            border-radius: 0 3px 3px 0;
             background: var(--accent-cyan);
             box-shadow: 0 0 10px var(--accent-cyan);
         }
 
         .tool-card-content {
             display: flex;
-            gap: 13px;
+            gap: 12px;
             align-items: center;
         }
         .tool-mini-thumb {
-            width: 52px;
-            height: 52px;
-            border-radius: 10px;
+            width: 48px;
+            height: 48px;
+            border-radius: 9px;
             object-fit: cover;
             border: 1px solid rgba(255, 255, 255, 0.1);
             background: rgba(0, 0, 0, 0.4);
@@ -374,7 +372,7 @@
         }
         .tool-card.active .tool-mini-thumb {
             border-color: var(--accent-cyan);
-            box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
         }
         .tool-card-main {
             flex: 1;
@@ -385,7 +383,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             gap: 8px;
         }
         .tool-title {
@@ -419,153 +417,131 @@
             line-height: 1.4;
             font-weight: 300;
             display: -webkit-box;
-            -webkit-line-clamp: 2;
+            -webkit-line-clamp: 1;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
 
-        .tool-card-play-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-        .tool-card:hover .tool-card-play-btn {
-            background: rgba(0, 240, 255, 0.15);
-            border-color: rgba(0, 240, 255, 0.4);
-            color: var(--accent-cyan);
-            transform: scale(1.08);
-        }
-
-        /* --- Right Showcase Preview Area (Desktop) --- */
+        /* --- RIGHT SHOWCASE PREVIEW AREA (DESKTOP) --- */
+        /* Pristine Clean: ZERO TEXT ON TOP OF ARTWORK! */
         .preview-area {
             flex: 1;
-            padding: 28px;
+            padding: 24px 28px;
             display: flex;
             flex-direction: column;
             position: relative;
-            background: rgba(0, 0, 0, 0.25);
-            overflow: hidden;
+            background: rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
         }
 
         .preview-wrapper {
             width: 100%;
             height: 100%;
-            border-radius: 20px;
-            overflow: hidden;
-            position: relative;
-            background: #090c13;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 25px 50px rgba(0, 0, 0, 0.6);
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
+            gap: 18px;
         }
 
-        /* Artwork Stage */
+        /* 1. Pure Artwork Stage: 100% Crisp, ZERO Text Pollution! */
         .preview-media-stage {
-            position: absolute;
-            inset: 0;
             width: 100%;
-            height: 100%;
+            aspect-ratio: 16 / 9;
+            max-height: 440px;
+            border-radius: 16px;
             overflow: hidden;
+            position: relative;
+            background: #080b11;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.09);
+            flex-shrink: 0;
         }
         .preview-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            opacity: 0.9;
-            transition: opacity 0.35s ease, transform 6s cubic-bezier(0.16, 1, 0.3, 1);
-            filter: saturate(1.25) contrast(1.08);
+            display: block;
+            transition: opacity 0.3s ease, transform 0.4s ease;
         }
-        .preview-wrapper:hover .preview-image {
-            transform: scale(1.04);
+        .preview-media-stage:hover .preview-image {
+            transform: scale(1.02);
         }
 
-        /* Floating Top Left Badge on Artwork */
-        .preview-top-badge {
-            position: absolute;
-            top: 20px;
-            left: 24px;
-            z-index: 5;
+        /* 2. Control Deck & Info: Below Artwork with Clean Typography */
+        .preview-details-deck {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 14px;
+            background: var(--surface-deck);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 16px;
+            padding: 20px 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .deck-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .deck-title-box {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .deck-meta-line {
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: rgba(6, 9, 14, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 6px 14px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 8px;
         }
         .preview-type-tag {
             font-family: 'Space Mono', monospace;
-            font-size: 10.5px;
+            font-size: 11px;
             font-weight: 700;
             color: var(--accent-cyan);
             letter-spacing: 1px;
         }
 
-        /* Bottom Glass Control Dock (Desktop) */
-        .preview-details-deck {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            padding: 34px 38px;
-            background: linear-gradient(to top, rgba(6, 8, 13, 0.98) 0%, rgba(6, 8, 13, 0.85) 60%, transparent 100%);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            z-index: 4;
-            gap: 24px;
-        }
-
-        .preview-info {
-            max-width: 620px;
-        }
         .preview-info h1 {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 700;
             letter-spacing: -0.5px;
             color: #ffffff;
-            margin-bottom: 8px;
+            line-height: 1.2;
         }
+
         .preview-info p {
-            color: rgba(255, 255, 255, 0.75);
+            color: #cbd5e1;
             font-size: 13.5px;
             line-height: 1.6;
             font-weight: 300;
+            margin-top: 4px;
         }
 
         .preview-tags {
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
-            margin-top: 12px;
+            margin-top: 8px;
         }
         .tag-pill {
-            font-size: 10px;
+            font-size: 10.5px;
             font-family: 'Space Mono', monospace;
-            padding: 3.5px 9px;
+            padding: 3.5px 10px;
             border-radius: 6px;
-            background: rgba(255, 255, 255, 0.07);
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #cbd5e1;
         }
 
         .preview-actions {
             display: flex;
-            flex-direction: column;
             gap: 10px;
-            align-items: flex-end;
+            align-items: center;
             flex-shrink: 0;
         }
 
@@ -573,11 +549,11 @@
             background: linear-gradient(135deg, #00f0ff 0%, #38bdf8 100%);
             color: #05070d;
             border: none;
-            padding: 15px 32px;
-            border-radius: 12px;
+            padding: 13px 26px;
+            border-radius: 11px;
             font-family: 'Inter', sans-serif;
             font-weight: 700;
-            font-size: 13px;
+            font-size: 12.5px;
             cursor: pointer;
             transition: all 0.25s ease;
             text-decoration: none;
@@ -585,11 +561,11 @@
             align-items: center;
             gap: 8px;
             white-space: nowrap;
-            box-shadow: 0 4px 22px rgba(0, 240, 255, 0.35);
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.35);
         }
         .launch-btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 28px rgba(0, 240, 255, 0.55);
+            box-shadow: 0 6px 26px rgba(0, 240, 255, 0.55);
             background: #ffffff;
         }
 
@@ -597,8 +573,8 @@
             background: rgba(255, 255, 255, 0.05);
             color: var(--text-muted);
             border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 12px 18px;
+            border-radius: 11px;
             font-family: 'Space Mono', monospace;
             font-size: 11px;
             font-weight: 600;
@@ -678,7 +654,6 @@
                 padding: 0;
             }
 
-            /* Enable Natural, Smooth Unified Page Scrolling */
             .glass-container {
                 width: 100%;
                 min-height: 100vh;
@@ -690,14 +665,13 @@
                 overflow-x: hidden;
             }
 
-            /* Sticky Header */
             header {
                 position: sticky;
                 top: 0;
                 z-index: 60;
                 backdrop-filter: blur(24px);
                 -webkit-backdrop-filter: blur(24px);
-                background: rgba(6, 8, 12, 0.9);
+                background: rgba(6, 8, 12, 0.92);
                 padding: 12px 16px;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             }
@@ -707,117 +681,76 @@
             .clock-display { display: none; }
             .status-pill { padding: 4px 10px; font-size: 10px; }
 
-            /* Flow as Single Column */
             main {
                 flex-direction: column;
                 overflow: visible;
                 height: auto;
             }
 
-            /* --- HERO SPOTLIGHT CARD (Separated Artwork & Deck - NO CLUTTER!) --- */
+            /* --- HERO SPOTLIGHT (Mobile: Artwork First, Clean Deck Below) --- */
             .preview-area {
                 order: 1;
-                padding: 16px 16px 8px 16px;
+                padding: 14px 14px 8px 14px;
                 flex: none;
                 height: auto;
                 background: transparent;
+                overflow: visible;
             }
 
             .preview-wrapper {
                 height: auto;
-                border-radius: 18px;
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6);
-                display: flex;
-                flex-direction: column;
-                position: relative;
-                overflow: hidden;
-                background: var(--surface-deck);
+                gap: 12px;
             }
 
-            /* 16:9 Artwork Stage: Crystal Clear, Unobstructed! */
             .preview-media-stage {
-                position: relative;
-                width: 100%;
                 aspect-ratio: 16 / 9;
-                height: auto;
                 max-height: 240px;
-                overflow: hidden;
-            }
-            .preview-image {
-                position: absolute;
-                inset: 0;
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-            .preview-top-badge {
-                top: 12px;
-                left: 12px;
-                padding: 4px 10px;
+                border-radius: 14px;
             }
 
-            /* Details Deck Cleanly Sitting BELOW the Artwork */
             .preview-details-deck {
-                position: relative;
-                padding: 16px 18px 20px 18px;
-                background: var(--surface-deck);
-                border-top: 1px solid rgba(255, 255, 255, 0.06);
+                padding: 16px;
+                border-radius: 14px;
+                gap: 12px;
+            }
+
+            .deck-header-row {
                 flex-direction: column;
                 align-items: stretch;
-                gap: 14px;
+                gap: 10px;
             }
 
-            .preview-info {
-                max-width: 100%;
-            }
             .preview-info h1 {
                 font-size: 20px;
-                letter-spacing: -0.3px;
-                margin-bottom: 6px;
             }
             .preview-info p {
                 font-size: 12.5px;
                 line-height: 1.5;
-                color: rgba(255, 255, 255, 0.8);
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
             }
 
-            /* Single Row Swipeable Tags */
             .preview-tags {
-                margin-top: 8px;
                 flex-wrap: nowrap;
                 overflow-x: auto;
                 scrollbar-width: none;
                 padding-bottom: 2px;
             }
             .preview-tags::-webkit-scrollbar { display: none; }
-            .tag-pill {
-                white-space: nowrap;
-                flex-shrink: 0;
-            }
+            .tag-pill { white-space: nowrap; flex-shrink: 0; }
 
-            /* Actions: Full Width, Thumb-Friendly Tactile Buttons */
             .preview-actions {
                 width: 100%;
                 flex-direction: row;
                 gap: 8px;
-                align-items: stretch;
             }
             .launch-btn-primary {
                 flex: 1;
                 justify-content: center;
-                padding: 12px 16px;
+                padding: 12px 14px;
                 font-size: 12px;
-                border-radius: 10px;
             }
             .launch-btn-secondary {
-                padding: 12px 16px;
+                padding: 12px 14px;
                 font-size: 10.5px;
-                border-radius: 10px;
                 justify-content: center;
             }
 
@@ -831,7 +764,6 @@
                 overflow: visible;
             }
 
-            /* Sticky Controls below Header */
             .sidebar-controls {
                 position: sticky;
                 top: 55px;
@@ -841,40 +773,20 @@
                 background: rgba(6, 8, 12, 0.94);
                 border-top: 1px solid rgba(255, 255, 255, 0.05);
                 border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-                padding: 12px 16px;
+                padding: 12px 14px;
                 gap: 10px;
-            }
-
-            .search-box {
-                padding: 10px 14px 10px 36px;
-                font-size: 12.5px;
             }
 
             .tool-list {
                 overflow: visible;
                 height: auto;
-                padding: 14px 16px 36px 16px;
-                gap: 10px;
+                padding: 12px 14px 36px 14px;
+                gap: 8px;
             }
 
             .category-header {
                 font-size: 10.5px;
                 margin: 8px 4px 4px 4px;
-            }
-
-            .tool-card {
-                padding: 12px 14px;
-            }
-            .tool-mini-thumb {
-                width: 48px;
-                height: 48px;
-            }
-            .tool-title {
-                font-size: 13px;
-            }
-            .tool-desc {
-                font-size: 11px;
-                line-height: 1.4;
             }
         }
     </style>
@@ -916,7 +828,7 @@
         <main>
             <!-- Left Sidebar Navigation -->
             <aside class="sidebar">
-                <!-- Search & Filters (Sticky on mobile) -->
+                <!-- Search & Filters -->
                 <div class="sidebar-controls">
                     <div class="search-box-wrapper">
                         <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -948,14 +860,11 @@
                             <img src="assets/previews/imagetrack.jpg" alt="ImageTrack" class="tool-mini-thumb" loading="lazy">
                             <div class="tool-card-main">
                                 <div class="tool-header">
-                                    <div class="tool-title">ImageTrack Studio</div>
+                                    <span class="tool-title">ImageTrack Studio</span>
                                     <span class="badge new">NEW PRO</span>
                                 </div>
-                                <p class="tool-desc">Engine Sci-Fi HUD tracking presisi tinggi dengan 25 target reticle shapes, garis koneksi animasi, dan touch gesture smartphone.</p>
+                                <p class="tool-desc">Engine Sci-Fi HUD tracking presisi tinggi dengan 25 target reticle shapes.</p>
                             </div>
-                            <button class="tool-card-play-btn" onclick="event.stopPropagation(); launchDirect('imagetrack')" title="Jalankan di Hub">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                            </button>
                         </div>
                     </div>
 
@@ -965,14 +874,11 @@
                             <img src="assets/previews/tracker.jpg" alt="Blob Tracker" class="tool-mini-thumb" loading="lazy">
                             <div class="tool-card-main">
                                 <div class="tool-header">
-                                    <div class="tool-title">Blob Tracker</div>
+                                    <span class="tool-title">Blob Tracker</span>
                                     <span class="badge pro">PRO</span>
                                 </div>
-                                <p class="tool-desc">Sistem deteksi pose & motion visual AI interaktif untuk pertunjukan VJ dan instalasi seni digital.</p>
+                                <p class="tool-desc">Sistem deteksi pose & motion visual AI interaktif untuk pertunjukan VJ.</p>
                             </div>
-                            <button class="tool-card-play-btn" onclick="event.stopPropagation(); launchDirect('tracker')" title="Jalankan di Hub">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                            </button>
                         </div>
                     </div>
 
@@ -982,14 +888,11 @@
                             <img src="assets/previews/datamosh.jpg" alt="Datamosh Engine" class="tool-mini-thumb" loading="lazy">
                             <div class="tool-card-main">
                                 <div class="tool-header">
-                                    <div class="tool-title">Datamosh Engine</div>
+                                    <span class="tool-title">Datamosh Engine</span>
                                     <span class="badge beta">BETA</span>
                                 </div>
-                                <p class="tool-desc">Simulasi kompresi glitch I-Frame drop dan pelelehan piksel (pixel bleed) ikonik langsung di browser.</p>
+                                <p class="tool-desc">Simulasi kompresi glitch video I-Frame drop dan pixel melt browser.</p>
                             </div>
-                            <button class="tool-card-play-btn" onclick="event.stopPropagation(); launchDirect('datamosh')" title="Jalankan di Hub">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                            </button>
                         </div>
                     </div>
 
@@ -1002,14 +905,11 @@
                             <img src="assets/previews/gridtools.jpg" alt="Grid Tools" class="tool-mini-thumb" loading="lazy">
                             <div class="tool-card-main">
                                 <div class="tool-header">
-                                    <div class="tool-title">Grid Tools Studio</div>
+                                    <span class="tool-title">Grid Tools Studio</span>
                                     <span class="badge node">NODE</span>
                                 </div>
-                                <p class="tool-desc">Generative slit-scan distortion tool dengan seeded RNG processing dan anotasi estetik AI.</p>
+                                <p class="tool-desc">Generative slit-scan distortion tool dengan seeded RNG processing.</p>
                             </div>
-                            <button class="tool-card-play-btn" onclick="event.stopPropagation(); launchDirect('gridtools')" title="Jalankan di Hub">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                            </button>
                         </div>
                     </div>
 
@@ -1019,14 +919,11 @@
                             <img src="assets/previews/proyek_pip.jpg" alt="Proyek-PiP" class="tool-mini-thumb" loading="lazy">
                             <div class="tool-card-main">
                                 <div class="tool-header">
-                                    <div class="tool-title">Proyek-PiP Compositor</div>
+                                    <span class="tool-title">Proyek-PiP Compositor</span>
                                     <span class="badge app">APP</span>
                                 </div>
-                                <p class="tool-desc">Pengolah video picture-in-picture profesional dengan mistar dinamis, pan/zoom, dan rendering 60fps.</p>
+                                <p class="tool-desc">Pengolah video picture-in-picture profesional dengan mistar dinamis.</p>
                             </div>
-                            <button class="tool-card-play-btn" onclick="event.stopPropagation(); launchDirect('proyek_pip')" title="Jalankan di Hub">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                            </button>
                         </div>
                     </div>
 
@@ -1036,14 +933,11 @@
                             <img src="assets/previews/editor_tts.jpg" alt="Texture Typography" class="tool-mini-thumb" loading="lazy">
                             <div class="tool-card-main">
                                 <div class="tool-header">
-                                    <div class="tool-title">Texture & Typography</div>
+                                    <span class="tool-title">Texture & Typography</span>
                                     <span class="badge node">NODE</span>
                                 </div>
-                                <p class="tool-desc">Studio layout tipografi dan tekstur canggih. Buat grid cyberpunk, kolase poster, dan dynamic blending.</p>
+                                <p class="tool-desc">Studio layout tipografi dan tekstur canggih poster cyberpunk.</p>
                             </div>
-                            <button class="tool-card-play-btn" onclick="event.stopPropagation(); launchDirect('editor_tts')" title="Jalankan di Hub">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                            </button>
                         </div>
                     </div>
 
@@ -1053,37 +947,49 @@
                             <img src="assets/previews/generator.jpg" alt="Blueprint Data" class="tool-mini-thumb" loading="lazy">
                             <div class="tool-card-main">
                                 <div class="tool-header">
-                                    <div class="tool-title">Blueprint Data Engine</div>
+                                    <span class="tool-title">Blueprint Data Engine</span>
                                     <span class="badge node">NODE</span>
                                 </div>
-                                <p class="tool-desc">Generator blueprint arsitektural, stempel tipografi kustom, dan aset visual dengan node gravitasi dinamis.</p>
+                                <p class="tool-desc">Generator blueprint arsitektural dan node gravitasi dinamis.</p>
                             </div>
-                            <button class="tool-card-play-btn" onclick="event.stopPropagation(); launchDirect('generator')" title="Jalankan di Hub">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                            </button>
                         </div>
                     </div>
 
                 </div>
             </aside>
 
-            <!-- Right Showcase Preview Area -->
+            <!-- Right Showcase Preview Area (100% UNCLUTTERED) -->
             <section class="preview-area" id="preview-section">
                 <div class="preview-wrapper">
-                    <!-- Artwork Stage -->
+                    
+                    <!-- 1. Pure Artwork Stage (ZERO TEXT ON TOP) -->
                     <div class="preview-media-stage">
                         <img id="preview-img" src="assets/previews/imagetrack.jpg" class="preview-image" alt="App Preview">
-                        <div class="preview-top-badge">
-                            <span id="preview-badge" class="badge new">NEW PRO</span>
-                            <span id="preview-type" class="preview-type-tag">CORE ENGINE</span>
-                        </div>
                     </div>
                     
-                    <!-- Details & Action Deck -->
+                    <!-- 2. Clean Details & Action Deck (Below Artwork) -->
                     <div class="preview-details-deck">
+                        <div class="deck-header-row">
+                            <div class="deck-title-box">
+                                <div class="deck-meta-line">
+                                    <span id="preview-badge" class="badge new">NEW PRO</span>
+                                    <span id="preview-type" class="preview-type-tag">LOCAL CORE ENGINE</span>
+                                </div>
+                                <h1 id="preview-title">ImageTrack Studio</h1>
+                            </div>
+
+                            <div class="preview-actions">
+                                <button id="btn-run-inapp" class="launch-btn-primary" onclick="launchInApp()">
+                                    <span>⚡ JALANKAN DI HUB</span>
+                                </button>
+                                <a id="btn-run-external" class="launch-btn-secondary" href="imagetrack/index.html" target="_blank">
+                                    <span>BUKA TAB BARU ↗</span>
+                                </a>
+                            </div>
+                        </div>
+
                         <div class="preview-info">
-                            <h1 id="preview-title">ImageTrack Studio</h1>
-                            <p id="preview-desc">Engine Sci-Fi HUD tracking presisi tinggi dengan 25 target reticle shapes, garis koneksi animasi, dan touch gesture smartphone.</p>
+                            <p id="preview-desc">Creative object & contrast HUD tracking system dengan 25 target reticle shapes, mode scan kuadran, garis jaring animasi, filter neon, dan optimasi gesture layar sentuh smartphone.</p>
                             <div class="preview-tags" id="preview-tags">
                                 <span class="tag-pill">React 19</span>
                                 <span class="tag-pill">Canvas 2D</span>
@@ -1092,16 +998,8 @@
                                 <span class="tag-pill">PWA Ready</span>
                             </div>
                         </div>
-
-                        <div class="preview-actions">
-                            <button id="btn-run-inapp" class="launch-btn-primary" onclick="launchInApp()">
-                                <span>⚡ JALANKAN DI HUB</span>
-                            </button>
-                            <a id="btn-run-external" class="launch-btn-secondary" href="imagetrack/index.html" target="_blank">
-                                <span>BUKA TAB BARU ↗</span>
-                            </a>
-                        </div>
                     </div>
+
                 </div>
             </section>
         </main>
@@ -1212,8 +1110,8 @@
             imgEl.style.opacity = '0';
             setTimeout(() => {
                 imgEl.src = data.img;
-                imgEl.style.opacity = '0.9';
-            }, 200);
+                imgEl.style.opacity = '1';
+            }, 180);
 
             // Update info
             document.getElementById('preview-title').textContent = data.title;
@@ -1245,13 +1143,6 @@
                     previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             }
-        }
-
-        // Direct Launch
-        function launchDirect(toolId) {
-            const cardEl = document.querySelector(`.tool-card[data-id="${toolId}"]`);
-            selectTool(toolId, cardEl);
-            launchInApp();
         }
 
         // Jalankan aplikasi langsung di dalam hub (Iframe Runner)
