@@ -818,7 +818,7 @@
             <div class="header-status">
                 <div class="status-pill">
                     <span class="status-dot"></span>
-                    <span>ONLINE (7 APPS)</span>
+                    <span>ONLINE (8 APPS)</span>
                 </div>
                 <div id="live-clock" class="clock-display">00:00:00 UTC</div>
             </div>
@@ -841,7 +841,7 @@
 
                     <!-- Category Pills -->
                     <div class="filter-tabs">
-                        <button class="filter-btn active" onclick="filterCategory('all', this)">Semua (7)</button>
+                        <button class="filter-btn active" onclick="filterCategory('all', this)">Semua (8)</button>
                         <button class="filter-btn" onclick="filterCategory('tracking', this)">Tracking</button>
                         <button class="filter-btn" onclick="filterCategory('generative', this)">Generative</button>
                         <button class="filter-btn" onclick="filterCategory('video', this)">Video & Text</button>
@@ -951,6 +951,20 @@
                                     <span class="badge node">NODE</span>
                                 </div>
                                 <p class="tool-desc">Generator blueprint arsitektural dan node gravitasi dinamis.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 8. CCTV VISION STUDIO -->
+                    <div class="tool-card" data-id="cctv_studio" data-cat="tracking" onclick="selectTool('cctv_studio', this)">
+                        <div class="tool-card-content">
+                            <img src="assets/previews/cctv_studio.jpg" alt="CCTV Vision Studio" class="tool-mini-thumb" loading="lazy">
+                            <div class="tool-card-main">
+                                <div class="tool-header">
+                                    <span class="tool-title">CCTV Vision Studio</span>
+                                    <span class="badge new">NEW PRO</span>
+                                </div>
+                                <p class="tool-desc">Surveillance aesthetic & machine-vision glitch engine MediaPipe AI.</p>
                             </div>
                         </div>
                     </div>
@@ -1091,6 +1105,16 @@
                 img: 'assets/previews/generator.jpg',
                 link: 'https://riddlebush-generator.vercel.app/',
                 tags: ['Generative Blueprint', 'Gravity Nodes', 'Vector Stamps', 'Data Engine']
+            },
+            'cctv_studio': {
+                title: 'CCTV Vision Studio',
+                type: 'SATELLITE VITE APP',
+                badgeClass: 'new',
+                badgeText: 'NEW PRO',
+                desc: 'Surveillance aesthetic & machine-vision glitch processor dengan MediaPipe AI tracking, customizable HUD overlays, retro CRT scanlines, dan 2X supersampled export.',
+                img: 'assets/previews/cctv_studio.jpg',
+                link: 'https://cctv-vision-studio.vercel.app/',
+                tags: ['MediaPipe AI', 'CCTV Glitch', 'Vite', 'Canvas 2D', 'HUD Overlay', 'Anti-Pecah']
             }
         };
 
